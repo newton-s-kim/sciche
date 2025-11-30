@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DIRS="src"
-EXTS="h cc cpp c"
+EXTS="h cc hh hpp cpp c"
 
 find . -name "*~" -exec rm {} \;
 
