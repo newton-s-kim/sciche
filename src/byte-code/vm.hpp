@@ -112,7 +112,6 @@ public:
     //< Hash Tables strings
 
 private:
-    void defineNative(const char* name, NativeFn function);
     bool callValue(Value callee, int argCount);
     bool bindMethod(ObjClass* klass, ObjString* name);
     void concatenate();
@@ -146,7 +145,8 @@ private:
 public:
     //< Strings extern-vm
     VM();
-    ~VM();
+    virtual ~VM();
+    void defineNative(const char* name, NativeFn function);
     /* A Virtual Machine interpret-h < Scanning on Demand vm-interpret-h
     InterpretResult interpret(Chunk* chunk);
     */
@@ -164,6 +164,5 @@ public:
 
 //< interpret-result
 //> Strings extern-vm
-extern VM vm;
 
 #endif

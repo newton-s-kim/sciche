@@ -108,7 +108,7 @@ static void printFunction(ObjFunction* function)
 }
 //< Calls and Functions print-function-helper
 //> print-object
-void printObject(Value value)
+void ObjectUtil::printObject(Value value)
 {
     switch (OBJ_TYPE(value)) {
         //> Methods and Initializers print-bound-method

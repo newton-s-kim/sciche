@@ -187,7 +187,10 @@ public:
     ObjBoundMethod(Value pReceiver, ObjClosure* pMethod);
 };
 
-void printObject(Value value);
+class ObjectUtil {
+public:
+    void printObject(Value value);
+};
 
 //< copy-string-h
 //> is-obj-type

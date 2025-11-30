@@ -16,6 +16,16 @@ void help(std::string programme)
     std::cout << "  -m, --use-virtual-machine  use Byte code machine" << std::endl;
 }
 
+static Value printLnNative(int argc, Value* args)
+{
+    ValueUtil util;
+    for (int idx = 0; idx < argc; idx++) {
+        util.print(args[idx]);
+    }
+    printf("\n");
+    return 0;
+}
+
 int main(int argc, char const* argv[])
 {
     int result = 0;
@@ -47,6 +57,7 @@ int main(int argc, char const* argv[])
         filepath = argv[optind];
 
     VM vm;
+    vm.defineNative("println", printLnNative);
     std::string prompt;
     prompt = "vloch/> ";
     // std::unique_ptr<ByteCodeMachine> runner = std::make_unique<ByteCodeMachine>();
