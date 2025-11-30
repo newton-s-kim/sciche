@@ -1,3 +1,4 @@
+#include <cmath>
 #include <fstream>
 #include <getopt.h>
 #include <iostream>
@@ -24,6 +25,38 @@ static Value printLnNative(int argc, Value* args)
     }
     printf("\n");
     return 0;
+}
+
+static Value exitNative(int argc, Value* args)
+{
+    int n = 0;
+    if (1 == argc && IS_NUMBER(args[0]))
+        n = args[0];
+    exit(AS_NUMBER(n));
+}
+
+static Value sinNative(int argc, Value* args)
+{
+    (void)argc;
+    return NUMBER_VAL(sin(AS_NUMBER(args[0])));
+}
+
+static Value cosNative(int argc, Value* args)
+{
+    (void)argc;
+    return NUMBER_VAL(cos(AS_NUMBER(args[0])));
+}
+
+static Value tanNative(int argc, Value* args)
+{
+    (void)argc;
+    return NUMBER_VAL(tan(AS_NUMBER(args[0])));
+}
+
+static Value sqrtNative(int argc, Value* args)
+{
+    (void)argc;
+    return NUMBER_VAL(sqrt(AS_NUMBER(args[0])));
 }
 
 int main(int argc, char const* argv[])
@@ -58,6 +91,11 @@ int main(int argc, char const* argv[])
 
     VM vm;
     vm.defineNative("println", printLnNative);
+    vm.defineNative("exit", exitNative);
+    vm.defineNative("sin", sinNative);
+    vm.defineNative("cos", cosNative);
+    vm.defineNative("tan", tanNative);
+    vm.defineNative("sqrt", sqrtNative);
     std::string prompt;
     prompt = ">> ";
     // std::unique_ptr<ByteCodeMachine> runner = std::make_unique<ByteCodeMachine>();
