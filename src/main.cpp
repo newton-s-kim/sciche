@@ -59,7 +59,7 @@ int main(int argc, char const* argv[])
     VM vm;
     vm.defineNative("println", printLnNative);
     std::string prompt;
-    prompt = "vloch/> ";
+    prompt = ">> ";
     // std::unique_ptr<ByteCodeMachine> runner = std::make_unique<ByteCodeMachine>();
     if (filepath.empty()) {
         std::string input;
