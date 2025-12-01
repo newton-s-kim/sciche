@@ -106,7 +106,31 @@ static void printFunction(ObjFunction* function)
     //< print-script
     printf("<fn %s>", function->name.c_str());
 }
+ObjComplex::ObjComplex(double v) : Obj(OBJ_COMPLEX), value(0, v)
+{
+}
+ObjComplex::~ObjComplex()
+{
+}
 //< Calls and Functions print-function-helper
+static void printComplex(ObjComplex* cmplx)
+{
+    double rv = cmplx->value.real();
+    double iv = cmplx->value.imag();
+    if (0 != rv) {
+        printf("%f", rv);
+        if (iv >= 0) {
+            printf("+%f", fabs(iv));
+        }
+        else {
+            printf("%f", fabs(iv));
+        }
+    }
+    else {
+        printf("%f", iv);
+    }
+    printf("j");
+}
 //> print-object
 void ObjectUtil::printObject(Value value)
 {
@@ -149,6 +173,9 @@ void ObjectUtil::printObject(Value value)
         printf("upvalue");
         break;
         //< Closures print-upvalue
+    case OBJ_COMPLEX:
+        printComplex(AS_COMPLEX(value));
+        break;
     }
 }
 //< print-object

@@ -22,6 +22,7 @@ public:
     //> take-string-h
     virtual ObjString* newString(std::string chars) = 0;
     virtual ObjString* newString(const char* chars, int length) = 0;
+    virtual ObjComplex* newComplex(double v) = 0;
     //< take-string-h
     virtual void push(Value value) = 0;
     virtual Value pop() = 0;

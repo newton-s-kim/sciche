@@ -12,6 +12,7 @@
 #include "value.hpp"
 //> obj-type-macro
 
+#include <complex>
 #include <vector>
 
 #define OBJ_TYPE(value) (AS_OBJ(value)->type)
@@ -38,6 +39,7 @@
 //< Calls and Functions is-native
 #define IS_STRING(value) isObjType(value, OBJ_STRING)
 //< is-string
+#define IS_COMPLEX(value) isObjType(value, OBJ_COMPLEX)
 //> as-string
 
 //> Methods and Initializers as-bound-method
@@ -61,6 +63,7 @@
 #define AS_STRING(value) ((ObjString*)AS_OBJ(value))
 #define AS_CSTRING(value) (((ObjString*)AS_OBJ(value))->chars)
 //< as-string
+#define AS_COMPLEX(value) ((ObjComplex*)AS_OBJ(value))
 //> obj-type
 
 typedef enum {
@@ -84,8 +87,9 @@ typedef enum {
     //< Calls and Functions obj-type-native
     OBJ_STRING,
     //> Closures obj-type-upvalue
-    OBJ_UPVALUE
+    OBJ_UPVALUE,
     //< Closures obj-type-upvalue
+    OBJ_COMPLEX
 } ObjType;
 //< obj-type
 
@@ -187,11 +191,17 @@ public:
     ObjBoundMethod(Value pReceiver, ObjClosure* pMethod);
 };
 
+class ObjComplex : public Obj {
+public:
+    std::complex<double> value;
+    ObjComplex(double v);
+    ~ObjComplex();
+};
+
 class ObjectUtil {
 public:
     void printObject(Value value);
 };
-
 //< copy-string-h
 //> is-obj-type
 static inline bool isObjType(Value value, ObjType type)

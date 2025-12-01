@@ -152,6 +152,8 @@ void VM::blackenObject(Obj* object)
         markValue(((ObjUpvalue*)object)->closed);
         break;
         //< blacken-upvalue
+    case OBJ_COMPLEX:
+        markObject(object);
     case OBJ_NATIVE:
     case OBJ_STRING:
         break;
@@ -669,7 +671,16 @@ ObjString* VM::newString(const char* chars, int length)
     std::string str(chars, length);
     return newString(str);
 }
-
+ObjComplex* VM::newComplex(const double v)
+{
+    collect(0, sizeof(ObjComplex));
+    ObjComplex* ret = new ObjComplex(v);
+    push(OBJ_VAL(ret));
+    ret->next = objects;
+    objects = ret;
+    pop();
+    return ret;
+}
 //> Methods and Initializers bind-method
 bool VM::bindMethod(ObjClass* klass, ObjString* name)
 {

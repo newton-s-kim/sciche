@@ -161,6 +161,7 @@ public:
     ObjFunction* newFunction();
     ObjString* newString(std::string chars);
     ObjString* newString(const char* chars, int length);
+    ObjComplex* newComplex(const double v);
 };
 
 //< interpret-result

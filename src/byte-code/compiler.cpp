@@ -166,6 +166,7 @@ private:
     friend void or_(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void unary(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void number(bool canAssign, CompilerInterfaceConcrete* ci);
+    friend void complex_number(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void string(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void literal(bool canAssign, CompilerInterfaceConcrete* ci);
 
@@ -867,6 +868,18 @@ void number(bool canAssign, CompilerInterfaceConcrete* ci)
     ci->emitConstant(NUMBER_VAL(value));
     //< Types of Values const-number-val
 }
+void complex_number(bool canAssign, CompilerInterfaceConcrete* ci)
+{
+    (void)canAssign;
+    //< Global Variables number
+    double value = strtod(ci->parser.previous.start, NULL);
+    /* Compiling Expressions number < Types of Values const-number-val
+      emitConstant(value);
+    */
+    //> Types of Values const-number-val
+    ci->emitConstant(OBJ_VAL(ci->factory->newComplex(value)));
+    //< Types of Values const-number-val
+}
 //< Compiling Expressions number
 //> Jumping Back and Forth or
 void or_(bool canAssign, CompilerInterfaceConcrete* ci)
@@ -1123,6 +1136,7 @@ ParseRule rules[] = {
     [TOKEN_STRING] = {string, NULL, PREC_NONE},
     //< Strings table-string
     [TOKEN_NUMBER] = {number, NULL, PREC_NONE},
+    [TOKEN_COMPLEX_NUMBER] = {complex_number, NULL, PREC_NONE},
     /* Compiling Expressions rules < Jumping Back and Forth table-and
       [TOKEN_AND]           = {NULL,     NULL,   PREC_NONE},
     */

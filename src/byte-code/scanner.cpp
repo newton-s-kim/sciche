@@ -213,6 +213,10 @@ Token Scanner::number()
         while (isDigit(peek()))
             advance();
     }
+    if ('j' == peek()) {
+        token_type = TOKEN_COMPLEX_NUMBER;
+        advance();
+    }
 
     return makeToken(token_type);
 }
