@@ -59,6 +59,19 @@ static Value sqrtNative(int argc, Value* args)
     return NUMBER_VAL(sqrt(AS_NUMBER(args[0])));
 }
 
+static Value absNative(int argc, Value* args)
+{
+    (void)argc;
+    return NUMBER_VAL(abs(AS_NUMBER(args[0])));
+}
+
+static Value phaseNative(int argc, Value* args)
+{
+    (void)argc;
+    (void)args;
+    return NUMBER_VAL(0);
+}
+
 int main(int argc, char const* argv[])
 {
     int result = 0;
@@ -96,6 +109,8 @@ int main(int argc, char const* argv[])
     vm.defineNative("cos", cosNative);
     vm.defineNative("tan", tanNative);
     vm.defineNative("sqrt", sqrtNative);
+    vm.defineNative("abs", absNative);
+    vm.defineNative("phase", phaseNative);
     vm.defineNumber("pi", M_PI);
     std::string prompt;
     prompt = ">> ";
