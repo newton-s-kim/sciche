@@ -147,6 +147,7 @@ public:
     VM();
     virtual ~VM();
     void defineNative(const char* name, NativeFn function);
+    void defineNumber(const char* name, double v);
     /* A Virtual Machine interpret-h < Scanning on Demand vm-interpret-h
     InterpretResult interpret(Chunk* chunk);
     */

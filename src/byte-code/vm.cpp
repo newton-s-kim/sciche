@@ -354,6 +354,14 @@ void VM::defineNative(const char* name, NativeFn function)
     pop();
 }
 //< Calls and Functions define-native
+void VM::defineNumber(const char* name, double v)
+{
+    push(OBJ_VAL(newString(name)));
+    push(NUMBER_VAL(v));
+    globals.set(AS_STRING(stack[0])->chars, stack[1]);
+    pop();
+    pop();
+}
 
 VM::VM()
 {

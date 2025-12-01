@@ -96,6 +96,7 @@ int main(int argc, char const* argv[])
     vm.defineNative("cos", cosNative);
     vm.defineNative("tan", tanNative);
     vm.defineNative("sqrt", sqrtNative);
+    vm.defineNumber("pi", M_PI);
     std::string prompt;
     prompt = ">> ";
     // std::unique_ptr<ByteCodeMachine> runner = std::make_unique<ByteCodeMachine>();
