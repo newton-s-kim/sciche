@@ -25,6 +25,8 @@
 #include "log.hpp"
 #include "vm.hpp"
 
+#include <sstream>
+
 #define GC_HEAP_GROW_FACTOR 2
 //< Garbage Collection heap-grow-factor
 
@@ -671,7 +673,7 @@ ObjString* VM::newString(const char* chars, int length)
     std::string str(chars, length);
     return newString(str);
 }
-ObjComplex* VM::newComplex(const double v)
+ObjComplex* VM::newComplex(const std::complex<double> v)
 {
     collect(0, sizeof(ObjComplex));
     ObjComplex* ret = new ObjComplex(v);
@@ -1049,13 +1051,60 @@ InterpretResult VM::run(void)
             */
             //> Strings add-strings
         case OP_ADD: {
-            if (IS_STRING(peek(0)) && IS_STRING(peek(1))) {
-                concatenate();
+            if (IS_STRING(peek(0))) {
+                if (IS_STRING(peek(1))) {
+                    concatenate();
+                }
+                else if (IS_NUMBER(peek(1))) {
+                    ObjString* a = AS_STRING(pop());
+                    double b = AS_NUMBER(pop());
+                    std::stringstream ss;
+                    ss << a->chars << b;
+                    ObjString* c = newString(ss.str());
+                    push(OBJ_VAL(c));
+                }
+                else if (IS_COMPLEX(peek(1))) {
+                    ObjString* a = AS_STRING(pop());
+                    ObjComplex* b = AS_COMPLEX(pop());
+                    std::stringstream ss;
+                    ss << a->chars;
+                    if (0 != b->value.real()) {
+                        ss << b->value.real();
+                    }
+                    if (0 != b->value.imag()) {
+                        ss << b->value.imag();
+                        ss << "j";
+                    }
+                    ObjString* c = newString(ss.str());
+                    push(OBJ_VAL(c));
+                }
             }
-            else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
-                double b = AS_NUMBER(pop());
-                double a = AS_NUMBER(pop());
-                push(NUMBER_VAL(a + b));
+            else if (IS_NUMBER(peek(0))) {
+                if (IS_NUMBER(peek(1))) {
+                    double b = AS_NUMBER(pop());
+                    double a = AS_NUMBER(pop());
+                    push(NUMBER_VAL(a + b));
+                }
+                else if (IS_COMPLEX(peek(1))) {
+                    double a = AS_NUMBER(pop());
+                    ObjComplex* b = AS_COMPLEX(pop());
+                    ObjComplex* c = newComplex(std::complex<double>(a + b->value.real(), b->value.imag()));
+                    push(OBJ_VAL(c));
+                }
+            }
+            else if (IS_COMPLEX(peek(0))) {
+                if (IS_NUMBER(peek(1))) {
+                    ObjComplex* a = AS_COMPLEX(pop());
+                    double b = AS_NUMBER(pop());
+                    ObjComplex* c = newComplex(std::complex<double>(b + a->value.real(), a->value.imag()));
+                    push(OBJ_VAL(c));
+                }
+                else if (IS_COMPLEX(peek(1))) {
+                    ObjComplex* a = AS_COMPLEX(pop());
+                    ObjComplex* b = AS_COMPLEX(pop());
+                    ObjComplex* c = newComplex(std::complex<double>(a->value + b->value));
+                    push(OBJ_VAL(c));
+                }
             }
             else {
                 runtimeError("Operands must be two numbers or two strings.");

@@ -5,6 +5,7 @@
 //> Strings compiler-include-object
 #include "object.hpp"
 //< Strings compiler-include-object
+#include <complex>
 #include <functional>
 /* Scanning on Demand compiler-h < Compiling Expressions compile-h
 void compile(const char* source);
@@ -22,7 +23,7 @@ public:
     //> take-string-h
     virtual ObjString* newString(std::string chars) = 0;
     virtual ObjString* newString(const char* chars, int length) = 0;
-    virtual ObjComplex* newComplex(double v) = 0;
+    virtual ObjComplex* newComplex(const std::complex<double> v) = 0;
     //< take-string-h
     virtual void push(Value value) = 0;
     virtual Value pop() = 0;

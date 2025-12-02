@@ -106,7 +106,7 @@ static void printFunction(ObjFunction* function)
     //< print-script
     printf("<fn %s>", function->name.c_str());
 }
-ObjComplex::ObjComplex(double v) : Obj(OBJ_COMPLEX), value(0, v)
+ObjComplex::ObjComplex(const std::complex<double> v) : Obj(OBJ_COMPLEX), value(v)
 {
 }
 ObjComplex::~ObjComplex()

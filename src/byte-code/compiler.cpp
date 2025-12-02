@@ -877,7 +877,7 @@ void complex_number(bool canAssign, CompilerInterfaceConcrete* ci)
       emitConstant(value);
     */
     //> Types of Values const-number-val
-    ci->emitConstant(OBJ_VAL(ci->factory->newComplex(value)));
+    ci->emitConstant(OBJ_VAL(ci->factory->newComplex(std::complex<double>(0, value))));
     //< Types of Values const-number-val
 }
 //< Compiling Expressions number

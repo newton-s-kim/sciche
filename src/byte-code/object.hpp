@@ -194,7 +194,7 @@ public:
 class ObjComplex : public Obj {
 public:
     std::complex<double> value;
-    ObjComplex(double v);
+    ObjComplex(const std::complex<double> v);
     ~ObjComplex();
 };
 
