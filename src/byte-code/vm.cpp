@@ -1129,15 +1129,158 @@ InterpretResult VM::run(void)
         }
             //< Strings add-strings
             //> Types of Values op-arithmetic
-        case OP_SUBTRACT:
-            BINARY_OP(NUMBER_VAL, -);
+        case OP_SUBTRACT: {
+            bool calculated = true;
+            if (IS_NUMBER(peek(1))) {
+                if (IS_NUMBER(peek(0))) {
+                    double b = AS_NUMBER(pop());
+                    double a = AS_NUMBER(pop());
+                    push(NUMBER_VAL(a - b));
+                }
+                else if (IS_COMPLEX(peek(0))) {
+                    double a = AS_NUMBER(peek(1));
+                    ObjComplex* b = AS_COMPLEX(peek(0));
+                    pop();
+                    pop();
+                    ObjComplex* c = newComplex(std::complex<double>(a - b->value.real(), -b->value.imag()));
+                    push(OBJ_VAL(c));
+                }
+                else {
+                    calculated = false;
+                }
+            }
+            else if (IS_COMPLEX(peek(1))) {
+                if (IS_NUMBER(peek(0))) {
+                    ObjComplex* a = AS_COMPLEX(peek(1));
+                    double b = AS_NUMBER(peek(0));
+                    pop();
+                    pop();
+                    ObjComplex* c = newComplex(std::complex<double>(a->value.real() - b, a->value.imag()));
+                    push(OBJ_VAL(c));
+                }
+                else if (IS_COMPLEX(peek(0))) {
+                    ObjComplex* a = AS_COMPLEX(peek(1));
+                    ObjComplex* b = AS_COMPLEX(peek(0));
+                    pop();
+                    pop();
+                    ObjComplex* c = newComplex(std::complex<double>(a->value - b->value));
+                    push(OBJ_VAL(c));
+                }
+                else {
+                    calculated = false;
+                }
+            }
+            else {
+                calculated = false;
+            }
+            if (!calculated) {
+                runtimeError("Operands must be numbers.");
+                return INTERPRET_RUNTIME_ERROR;
+            }
             break;
-        case OP_MULTIPLY:
-            BINARY_OP(NUMBER_VAL, *);
+        }
+        case OP_MULTIPLY: {
+            bool calculated = true;
+            if (IS_NUMBER(peek(1))) {
+                if (IS_NUMBER(peek(0))) {
+                    double b = AS_NUMBER(pop());
+                    double a = AS_NUMBER(pop());
+                    push(NUMBER_VAL(a * b));
+                }
+                else if (IS_COMPLEX(peek(0))) {
+                    double a = AS_NUMBER(peek(1));
+                    ObjComplex* b = AS_COMPLEX(peek(0));
+                    pop();
+                    pop();
+                    ObjComplex* c = newComplex(std::complex<double>(a * b->value.real(), a * b->value.imag()));
+                    push(OBJ_VAL(c));
+                }
+                else {
+                    calculated = false;
+                }
+            }
+            else if (IS_COMPLEX(peek(1))) {
+                if (IS_NUMBER(peek(0))) {
+                    ObjComplex* a = AS_COMPLEX(peek(1));
+                    double b = AS_NUMBER(peek(0));
+                    pop();
+                    pop();
+                    ObjComplex* c = newComplex(std::complex<double>(a->value.real() * b, a->value.imag() * b));
+                    push(OBJ_VAL(c));
+                }
+                else if (IS_COMPLEX(peek(0))) {
+                    ObjComplex* a = AS_COMPLEX(peek(1));
+                    ObjComplex* b = AS_COMPLEX(peek(0));
+                    pop();
+                    pop();
+                    ObjComplex* c = newComplex(std::complex<double>(a->value * b->value));
+                    push(OBJ_VAL(c));
+                }
+                else {
+                    calculated = false;
+                }
+            }
+            else {
+                calculated = false;
+            }
+            if (!calculated) {
+                runtimeError("Operands must be numbers.");
+                return INTERPRET_RUNTIME_ERROR;
+            }
             break;
-        case OP_DIVIDE:
-            BINARY_OP(NUMBER_VAL, /);
+        }
+        case OP_DIVIDE: {
+            bool calculated = true;
+            if (IS_NUMBER(peek(1))) {
+                if (IS_NUMBER(peek(0))) {
+                    double b = AS_NUMBER(pop());
+                    double a = AS_NUMBER(pop());
+                    push(NUMBER_VAL(a / b));
+                }
+                else if (IS_COMPLEX(peek(0))) {
+                    double a = AS_NUMBER(peek(1));
+                    ObjComplex* b = AS_COMPLEX(peek(0));
+                    pop();
+                    pop();
+                    std::complex<double> t(a, 0);
+                    ObjComplex* c = newComplex(std::complex<double>(t / b->value));
+                    push(OBJ_VAL(c));
+                }
+                else {
+                    calculated = false;
+                }
+            }
+            else if (IS_COMPLEX(peek(1))) {
+                if (IS_NUMBER(peek(0))) {
+                    ObjComplex* a = AS_COMPLEX(peek(1));
+                    double b = AS_NUMBER(peek(0));
+                    pop();
+                    pop();
+                    std::complex<double> t(b, 0);
+                    ObjComplex* c = newComplex(std::complex<double>(a->value / t));
+                    push(OBJ_VAL(c));
+                }
+                else if (IS_COMPLEX(peek(0))) {
+                    ObjComplex* a = AS_COMPLEX(peek(1));
+                    ObjComplex* b = AS_COMPLEX(peek(0));
+                    pop();
+                    pop();
+                    ObjComplex* c = newComplex(std::complex<double>(a->value / b->value));
+                    push(OBJ_VAL(c));
+                }
+                else {
+                    calculated = false;
+                }
+            }
+            else {
+                calculated = false;
+            }
+            if (!calculated) {
+                runtimeError("Operands must be numbers.");
+                return INTERPRET_RUNTIME_ERROR;
+            }
             break;
+        }
             //< Types of Values op-arithmetic
             //> Types of Values op-not
         case OP_NOT:
