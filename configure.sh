@@ -47,3 +47,5 @@ mkdir -p "$BUILD" && pushd "$BUILD" && cmake  -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G 
 
 # store current build type
 printf "$BUILD_TYPE" > "$BUILD_TYPE_FILE_PATH"
+
+sed "s#@__build_dir__@#$BUILD#g" < Makefile.in > Makefile

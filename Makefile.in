@@ -1,0 +1,17 @@
+BUILD_DIR=@__build_dir__@
+PROGRAMME=sciche
+
+all:
+	$(MAKE) -C $(BUILD_DIR)
+
+clean:
+	$(MAKE) -C $(BUILD_DIR) clean/fast
+
+run:
+	$(BUILD_DIR)/$(PROGRAMME)
+tc:
+	./tool/run-test.py
+
+distclean:
+	rm Makefile
+	rm -rf $(BUILD_DIR)
