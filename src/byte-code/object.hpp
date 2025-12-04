@@ -103,6 +103,9 @@ public:
     struct Obj* next;
     //< next-field
     Obj(ObjType objType);
+    virtual ~Obj();
+    virtual std::string stringify(void) = 0;
+    void print(void);
 };
 //> Calls and Functions obj-function
 
@@ -116,6 +119,7 @@ public:
     std::string name;
     ObjFunction();
     ~ObjFunction();
+    std::string stringify(void);
 };
 //< Calls and Functions obj-function
 //> Calls and Functions obj-native
@@ -126,6 +130,7 @@ class ObjNative : public Obj {
 public:
     NativeFn function;
     ObjNative(NativeFn pFunction);
+    std::string stringify(void);
 };
 //< Calls and Functions obj-native
 //> obj-string
@@ -134,6 +139,7 @@ class ObjString : public Obj {
 public:
     std::string chars;
     ObjString(std::string pChars);
+    std::string stringify(void);
 };
 //< obj-string
 //> Closures obj-upvalue
@@ -147,6 +153,7 @@ public:
     struct ObjUpvalue* next;
     //< next-field
     ObjUpvalue(Value* slot);
+    std::string stringify(void);
 };
 //< Closures obj-upvalue
 //> Closures obj-closure
@@ -158,6 +165,7 @@ public:
     int upvalueCount;
     //< upvalue-fields
     ObjClosure(ObjFunction* pFunction);
+    std::string stringify(void);
 };
 //< Closures obj-closure
 //> Classes and Instances obj-class
@@ -170,6 +178,7 @@ public:
     //< Methods and Initializers class-methods
     ObjClass(std::string name);
     ~ObjClass();
+    std::string stringify(void);
 };
 //< Classes and Instances obj-class
 //> Classes and Instances obj-instance
@@ -180,6 +189,7 @@ public:
     Table fields; // [fields]
     ObjInstance(ObjClass* klass);
     ~ObjInstance();
+    std::string stringify(void);
 };
 //< Classes and Instances obj-instance
 
@@ -189,6 +199,7 @@ public:
     Value receiver;
     ObjClosure* method;
     ObjBoundMethod(Value pReceiver, ObjClosure* pMethod);
+    std::string stringify(void);
 };
 
 class ObjComplex : public Obj {
@@ -196,12 +207,9 @@ public:
     std::complex<double> value;
     ObjComplex(const std::complex<double> v);
     ~ObjComplex();
+    std::string stringify(void);
 };
 
-class ObjectUtil {
-public:
-    void printObject(Value value);
-};
 //< copy-string-h
 //> is-obj-type
 static inline bool isObjType(Value value, ObjType type)

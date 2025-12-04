@@ -9,8 +9,19 @@
 #include "log.hpp"
 #include "value.hpp"
 
+#include <sstream>
+
 Obj::Obj(ObjType objType) : type(objType), isMarked(false)
 {
+}
+
+Obj::~Obj()
+{
+}
+
+void Obj::print(void)
+{
+    printf("%s", stringify().c_str());
 }
 
 ObjFunction::ObjFunction() : Obj(OBJ_FUNCTION)
@@ -28,6 +39,18 @@ ObjFunction::~ObjFunction()
 {
 }
 
+std::string ObjFunction::stringify(void)
+{
+    std::string ret;
+    //> print-script
+    if (name.empty()) {
+        ret = "<script>";
+        return ret;
+    }
+    //< print-script
+    return "<fn " + name + ">";
+}
+
 ObjNative::ObjNative(NativeFn pFunction) : Obj(OBJ_NATIVE), function(pFunction)
 {
 #ifdef DEBUG_LOG_GC
@@ -35,11 +58,21 @@ ObjNative::ObjNative(NativeFn pFunction) : Obj(OBJ_NATIVE), function(pFunction)
 #endif
 }
 
+std::string ObjNative::stringify(void)
+{
+    return "<native fn>";
+}
+
 ObjString::ObjString(std::string pChars) : Obj(OBJ_STRING), chars(pChars)
 {
 #ifdef DEBUG_LOG_GC
     printf("%p allocate %zu for %d\n", (void*)this, sizeof(ObjString), type);
 #endif
+}
+
+std::string ObjString::stringify(void)
+{
+    return chars;
 }
 
 ObjUpvalue::ObjUpvalue(Value* slot) : Obj(OBJ_UPVALUE)
@@ -54,6 +87,11 @@ ObjUpvalue::ObjUpvalue(Value* slot) : Obj(OBJ_UPVALUE)
 #ifdef DEBUG_LOG_GC
     printf("%p allocate %zu for %d\n", (void*)this, sizeof(ObjUpvalue), type);
 #endif
+}
+
+std::string ObjUpvalue::stringify(void)
+{
+    return "upvalue";
 }
 
 ObjClosure::ObjClosure(ObjFunction* pFunction) : Obj(OBJ_CLOSURE), function(pFunction)
@@ -72,8 +110,18 @@ ObjClass::ObjClass(std::string pName) : Obj(OBJ_CLASS), name(pName)
 #endif
 }
 
+std::string ObjClosure::stringify(void)
+{
+    return function->stringify();
+}
+
 ObjClass::~ObjClass()
 {
+}
+
+std::string ObjClass::stringify(void)
+{
+    return name;
 }
 
 ObjInstance::ObjInstance(ObjClass* pKlass) : Obj(OBJ_INSTANCE), klass(pKlass)
@@ -87,6 +135,11 @@ ObjInstance::~ObjInstance()
 {
 }
 
+std::string ObjInstance::stringify(void)
+{
+    return klass->stringify() + " instance";
+}
+
 ObjBoundMethod::ObjBoundMethod(Value pReceiver, ObjClosure* pMethod)
     : Obj(OBJ_BOUND_METHOD), receiver(pReceiver), method(pMethod)
 {
@@ -95,87 +148,35 @@ ObjBoundMethod::ObjBoundMethod(Value pReceiver, ObjClosure* pMethod)
 #endif
 }
 
-//> Calls and Functions print-function-helper
-static void printFunction(ObjFunction* function)
+std::string ObjBoundMethod::stringify(void)
 {
-    //> print-script
-    if (function->name.empty()) {
-        printf("<script>");
-        return;
-    }
-    //< print-script
-    printf("<fn %s>", function->name.c_str());
+    return method->function->stringify();
 }
+
 ObjComplex::ObjComplex(const std::complex<double> v) : Obj(OBJ_COMPLEX), value(v)
 {
 }
 ObjComplex::~ObjComplex()
 {
 }
-//< Calls and Functions print-function-helper
-static void printComplex(ObjComplex* cmplx)
+
+std::string ObjComplex::stringify(void)
 {
-    double rv = cmplx->value.real();
-    double iv = cmplx->value.imag();
+    std::stringstream ss;
+    double rv = value.real();
+    double iv = value.imag();
     if (0 != rv) {
-        printf("%f", rv);
+        ss << rv;
         if (iv >= 0) {
-            printf("+%f", fabs(iv));
+            ss << "+" << iv;
         }
         else {
-            printf("%f", fabs(iv));
+            ss << iv;
         }
     }
     else {
-        printf("%f", iv);
+        ss << iv;
     }
-    printf("j");
+    ss << "j";
+    return ss.str();
 }
-//> print-object
-void ObjectUtil::printObject(Value value)
-{
-    switch (OBJ_TYPE(value)) {
-        //> Methods and Initializers print-bound-method
-    case OBJ_BOUND_METHOD:
-        printFunction(AS_BOUND_METHOD(value)->method->function);
-        break;
-        //< Methods and Initializers print-bound-method
-        //> Classes and Instances print-class
-    case OBJ_CLASS:
-        printf("%s", AS_CLASS(value)->name.c_str());
-        break;
-        //< Classes and Instances print-class
-        //> Closures print-closure
-    case OBJ_CLOSURE:
-        printFunction(AS_CLOSURE(value)->function);
-        break;
-        //< Closures print-closure
-        //> Calls and Functions print-function
-    case OBJ_FUNCTION:
-        printFunction(AS_FUNCTION(value));
-        break;
-        //< Calls and Functions print-function
-        //> Classes and Instances print-instance
-    case OBJ_INSTANCE:
-        printf("%s instance", AS_INSTANCE(value)->klass->name.c_str());
-        break;
-        //< Classes and Instances print-instance
-        //> Calls and Functions print-native
-    case OBJ_NATIVE:
-        printf("<native fn>");
-        break;
-        //< Calls and Functions print-native
-    case OBJ_STRING:
-        printf("%s", AS_CSTRING(value).c_str());
-        break;
-        //> Closures print-upvalue
-    case OBJ_UPVALUE:
-        printf("upvalue");
-        break;
-        //< Closures print-upvalue
-    case OBJ_COMPLEX:
-        printComplex(AS_COMPLEX(value));
-        break;
-    }
-}
-//< print-object

@@ -11,7 +11,7 @@
 
 void ValueUtil::print(Value value)
 {
-    ObjectUtil util;
+    // ObjectUtil util;
 //> Optimization print-value
 #ifdef NAN_BOXING
     if (IS_BOOL(value)) {
@@ -24,7 +24,8 @@ void ValueUtil::print(Value value)
         printf("%g", AS_NUMBER(value));
     }
     else if (IS_OBJ(value)) {
-        util.printObject(value);
+        // util.printObject(value);
+        AS_OBJ(value)->print();
     }
 #else
     //< Optimization print-value
@@ -47,7 +48,8 @@ void ValueUtil::print(Value value)
         break;
         //> Strings call-print-object
     case VAL_OBJ:
-        util.printObject(value);
+        // util.printObject(value);
+        AS_OBJ(value)->print();
         break;
         //< Strings call-print-object
     }

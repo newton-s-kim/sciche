@@ -484,7 +484,7 @@ ObjFunction* CompilerInterfaceConcrete::endCompiler()
             disassembleChunk(currentChunk(), "code");
         */
         //> Calls and Functions disassemble-end
-        debug.disassembleChunk(current->chunk(), function->name != NULL ? function->name->chars : "<script>");
+        debug.disassembleChunk(current->chunk(), !function->name.empty() ? function->name.c_str() : "<script>");
         //< Calls and Functions disassemble-end
     }
 #endif
