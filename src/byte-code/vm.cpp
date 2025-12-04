@@ -1052,6 +1052,7 @@ InterpretResult VM::run(void)
             */
             //> Strings add-strings
         case OP_ADD: {
+            bool calculated = true;
             if (IS_STRING(peek(1))) {
                 if (IS_STRING(peek(0))) {
                     concatenate();
@@ -1074,6 +1075,9 @@ InterpretResult VM::run(void)
                     ObjString* c = newString(a->chars + b->stringify());
                     push(OBJ_VAL(c));
                 }
+                else {
+                    calculated = false;
+                }
             }
             else if (IS_NUMBER(peek(1))) {
                 if (IS_NUMBER(peek(0))) {
@@ -1088,6 +1092,9 @@ InterpretResult VM::run(void)
                     pop();
                     ObjComplex* c = newComplex(std::complex<double>(a + b->value.real(), b->value.imag()));
                     push(OBJ_VAL(c));
+                }
+                else {
+                    calculated = false;
                 }
             }
             else if (IS_COMPLEX(peek(1))) {
@@ -1107,8 +1114,14 @@ InterpretResult VM::run(void)
                     ObjComplex* c = newComplex(std::complex<double>(a->value + b->value));
                     push(OBJ_VAL(c));
                 }
+                else {
+                    calculated = false;
+                }
             }
             else {
+                calculated = false;
+            }
+            if (!calculated) {
                 runtimeError("Operands must be two numbers or two strings.");
                 return INTERPRET_RUNTIME_ERROR;
             }
