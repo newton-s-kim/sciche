@@ -12,10 +12,6 @@
 
 //> Strings forward-declare-obj
 class Obj;
-//> forward-declare-obj-string
-class ObjString;
-//< forward-declare-obj-string
-
 //< Strings forward-declare-obj
 //> Optimization nan-boxing
 #ifdef NAN_BOXING

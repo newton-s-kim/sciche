@@ -18,6 +18,69 @@
 //< Compiling Expressions include-debug
 //> Compiling Expressions parser
 
+/*grammar
+program        → declaration* EOF ;
+
+declaration    → classDecl
+               | funDecl
+               | varDecl
+               | statement ;
+
+classDecl      → "class" IDENTIFIER ( "<" IDENTIFIER )?
+                 "{" function* "}" ;
+funDecl        → "fun" function ;
+varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+
+statement      → exprStmt
+               | forStmt
+               | ifStmt
+               | printStmt
+               | returnStmt
+               | whileStmt
+               | block ;
+
+exprStmt       → expression ";" ;
+forStmt        → "for" "(" ( varDecl | exprStmt | ";" )
+                           expression? ";"
+                           expression? ")" statement ;
+ifStmt         → "if" "(" expression ")" statement
+                 ( "else" statement )? ;
+printStmt      → "print" expression ";" ;
+returnStmt     → "return" expression? ";" ;
+whileStmt      → "while" "(" expression ")" statement ;
+block          → "{" declaration* "}" ;
+
+expression     → assignment ;
+
+assignment     → ( call "." )? IDENTIFIER "=" assignment
+               | logic_or ;
+
+logic_or       → logic_and ( "or" logic_and )* ;
+logic_and      → equality ( "and" equality )* ;
+equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term           → factor ( ( "-" | "+" ) factor )* ;
+factor         → unary ( ( "/" | "*" ) unary )* ;
+
+unary          → ( "!" | "-" ) unary | call ;
+call           → primary ( "(" arguments? ")" | "[" arguments? "]" | "." IDENTIFIER )* ;
+primary        → "true" | "false" | "nil" | "this"
+               | NUMBER | STRING | IDENTIFIER | "(" expression ")"
+               | "super" "." IDENTIFIER ;
+               | list | map ;
+
+list           → "[" ( expression )* "]" ;
+map            → "{" ( STRING ":" expression ( "," STRING ":" expression )* )* "}" ;
+function       → IDENTIFIER "(" parameters? ")" block ;
+parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
+arguments      → expression ( "," expression )* ;
+
+NUMBER         → DIGIT+ ( "." DIGIT+ )? ;
+STRING         → "\"" <any char except "\"">* "\"" ;
+IDENTIFIER     → ALPHA ( ALPHA | DIGIT )* ;
+ALPHA          → "a" ... "z" | "A" ... "Z" | "_" ;
+DIGIT          → "0" ... "9" ;
+*/
 // extern Scanner scanner;
 
 class Parser {
@@ -1084,6 +1147,8 @@ ParseRule rules[] = {
     [TOKEN_RIGHT_PAREN] = {NULL, NULL, PREC_NONE},
     [TOKEN_LEFT_BRACE] = {NULL, NULL, PREC_NONE}, // [big]
     [TOKEN_RIGHT_BRACE] = {NULL, NULL, PREC_NONE},
+    [TOKEN_LEFT_BRACKET] = {NULL, NULL, PREC_NONE}, // [big]
+    [TOKEN_RIGHT_BRACKET] = {NULL, NULL, PREC_NONE},
     [TOKEN_COMMA] = {NULL, NULL, PREC_NONE},
     /* Compiling Expressions rules < Classes and Instances table-dot
       [TOKEN_DOT]           = {NULL,     NULL,   PREC_NONE},

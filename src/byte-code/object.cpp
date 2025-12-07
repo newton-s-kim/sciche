@@ -51,6 +51,10 @@ std::string ObjFunction::stringify(void)
     return "<fn " + name + ">";
 }
 
+void ObjFunction::blaken(void)
+{
+}
+
 ObjNative::ObjNative(NativeFn pFunction) : Obj(OBJ_NATIVE), function(pFunction)
 {
 #ifdef DEBUG_LOG_GC
@@ -63,6 +67,10 @@ std::string ObjNative::stringify(void)
     return "<native fn>";
 }
 
+void ObjNative::blaken(void)
+{
+}
+
 ObjString::ObjString(std::string pChars) : Obj(OBJ_STRING), chars(pChars)
 {
 #ifdef DEBUG_LOG_GC
@@ -73,6 +81,10 @@ ObjString::ObjString(std::string pChars) : Obj(OBJ_STRING), chars(pChars)
 std::string ObjString::stringify(void)
 {
     return chars;
+}
+
+void ObjString::blaken(void)
+{
 }
 
 ObjUpvalue::ObjUpvalue(Value* slot) : Obj(OBJ_UPVALUE)
@@ -92,6 +104,10 @@ ObjUpvalue::ObjUpvalue(Value* slot) : Obj(OBJ_UPVALUE)
 std::string ObjUpvalue::stringify(void)
 {
     return "upvalue";
+}
+
+void ObjUpvalue::blaken(void)
+{
 }
 
 ObjClosure::ObjClosure(ObjFunction* pFunction) : Obj(OBJ_CLOSURE), function(pFunction)
@@ -115,6 +131,10 @@ std::string ObjClosure::stringify(void)
     return function->stringify();
 }
 
+void ObjClosure::blaken(void)
+{
+}
+
 ObjClass::~ObjClass()
 {
 }
@@ -122,6 +142,10 @@ ObjClass::~ObjClass()
 std::string ObjClass::stringify(void)
 {
     return name;
+}
+
+void ObjClass::blaken(void)
+{
 }
 
 ObjInstance::ObjInstance(ObjClass* pKlass) : Obj(OBJ_INSTANCE), klass(pKlass)
@@ -140,6 +164,10 @@ std::string ObjInstance::stringify(void)
     return klass->stringify() + " instance";
 }
 
+void ObjInstance::blaken(void)
+{
+}
+
 ObjBoundMethod::ObjBoundMethod(Value pReceiver, ObjClosure* pMethod)
     : Obj(OBJ_BOUND_METHOD), receiver(pReceiver), method(pMethod)
 {
@@ -151,6 +179,10 @@ ObjBoundMethod::ObjBoundMethod(Value pReceiver, ObjClosure* pMethod)
 std::string ObjBoundMethod::stringify(void)
 {
     return method->function->stringify();
+}
+
+void ObjBoundMethod::blaken(void)
+{
 }
 
 ObjComplex::ObjComplex(const std::complex<double> v) : Obj(OBJ_COMPLEX), value(v)
@@ -179,4 +211,79 @@ std::string ObjComplex::stringify(void)
     }
     ss << "j";
     return ss.str();
+}
+
+void ObjComplex::blaken(void)
+{
+}
+
+ObjList::ObjList() : Obj(OBJ_LIST)
+{
+}
+
+ObjList::~ObjList()
+{
+}
+
+std::string ObjList::stringify(void)
+{
+    std::stringstream ss;
+    ss << "[";
+    for (std::vector<Value>::iterator it = container.begin(); it != container.end(); it++) {
+        Value v = *it;
+        if (IS_NIL(v)) {
+            ss << "nil";
+        }
+        else if (IS_BOOL(v)) {
+            ss << (AS_BOOL(v) ? "true" : "false");
+        }
+        else if (IS_NUMBER(v)) {
+            ss << AS_NUMBER(v);
+        }
+        else if (IS_OBJ(v)) {
+            ss << AS_OBJ(v)->stringify();
+        }
+    }
+    ss << "]";
+    return ss.str();
+}
+
+void ObjList::blaken(void)
+{
+}
+
+ObjMap::ObjMap() : Obj(OBJ_MAP)
+{
+}
+
+ObjMap::~ObjMap()
+{
+}
+
+std::string ObjMap::stringify(void)
+{
+    std::stringstream ss;
+    ss << "{";
+    for (std::map<std::string, Value>::iterator it = container.begin(); it != container.end(); it++) {
+        ss << it->first << ",";
+        Value v = it->second;
+        if (IS_NIL(v)) {
+            ss << "nil";
+        }
+        else if (IS_BOOL(v)) {
+            ss << (AS_BOOL(v) ? "true" : "false");
+        }
+        else if (IS_NUMBER(v)) {
+            ss << AS_NUMBER(v);
+        }
+        else if (IS_OBJ(v)) {
+            ss << AS_OBJ(v)->stringify();
+        }
+    }
+    ss << "}";
+    return ss.str();
+}
+
+void ObjMap::blaken(void)
+{
 }

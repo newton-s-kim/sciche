@@ -41,6 +41,8 @@
 //< is-string
 #define IS_COMPLEX(value) isObjType(value, OBJ_COMPLEX)
 //> as-string
+#define IS_LIST(value) isObjType(value, OBJ_LIST)
+#define IS_MAP(value) isObjType(value, OBJ_MAP)
 
 //> Methods and Initializers as-bound-method
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
@@ -65,6 +67,8 @@
 //< as-string
 #define AS_COMPLEX(value) ((ObjComplex*)AS_OBJ(value))
 //> obj-type
+#define AS_LIST(value) ((ObjList*)AS_OBJ(value))
+#define AS_MAP(value) ((ObjMap*)AS_OBJ(value))
 
 typedef enum {
     //> Methods and Initializers obj-type-bound-method
@@ -89,7 +93,9 @@ typedef enum {
     //> Closures obj-type-upvalue
     OBJ_UPVALUE,
     //< Closures obj-type-upvalue
-    OBJ_COMPLEX
+    OBJ_COMPLEX,
+    OBJ_LIST,
+    OBJ_MAP
 } ObjType;
 //< obj-type
 
@@ -105,6 +111,7 @@ public:
     Obj(ObjType objType);
     virtual ~Obj();
     virtual std::string stringify(void) = 0;
+    virtual void blaken(void) = 0;
     void print(void);
 };
 //> Calls and Functions obj-function
@@ -120,6 +127,7 @@ public:
     ObjFunction();
     ~ObjFunction();
     std::string stringify(void);
+    void blaken(void);
 };
 //< Calls and Functions obj-function
 //> Calls and Functions obj-native
@@ -131,6 +139,7 @@ public:
     NativeFn function;
     ObjNative(NativeFn pFunction);
     std::string stringify(void);
+    void blaken(void);
 };
 //< Calls and Functions obj-native
 //> obj-string
@@ -140,6 +149,7 @@ public:
     std::string chars;
     ObjString(std::string pChars);
     std::string stringify(void);
+    void blaken(void);
 };
 //< obj-string
 //> Closures obj-upvalue
@@ -154,6 +164,7 @@ public:
     //< next-field
     ObjUpvalue(Value* slot);
     std::string stringify(void);
+    void blaken(void);
 };
 //< Closures obj-upvalue
 //> Closures obj-closure
@@ -166,6 +177,7 @@ public:
     //< upvalue-fields
     ObjClosure(ObjFunction* pFunction);
     std::string stringify(void);
+    void blaken(void);
 };
 //< Closures obj-closure
 //> Classes and Instances obj-class
@@ -179,6 +191,7 @@ public:
     ObjClass(std::string name);
     ~ObjClass();
     std::string stringify(void);
+    void blaken(void);
 };
 //< Classes and Instances obj-class
 //> Classes and Instances obj-instance
@@ -190,6 +203,7 @@ public:
     ObjInstance(ObjClass* klass);
     ~ObjInstance();
     std::string stringify(void);
+    void blaken(void);
 };
 //< Classes and Instances obj-instance
 
@@ -200,6 +214,7 @@ public:
     ObjClosure* method;
     ObjBoundMethod(Value pReceiver, ObjClosure* pMethod);
     std::string stringify(void);
+    void blaken(void);
 };
 
 class ObjComplex : public Obj {
@@ -208,6 +223,25 @@ public:
     ObjComplex(const std::complex<double> v);
     ~ObjComplex();
     std::string stringify(void);
+    void blaken(void);
+};
+
+class ObjList : public Obj {
+public:
+    std::vector<Value> container;
+    ObjList();
+    ~ObjList();
+    std::string stringify(void);
+    void blaken(void);
+};
+
+class ObjMap : public Obj {
+public:
+    std::map<std::string, Value> container;
+    ObjMap();
+    ~ObjMap();
+    std::string stringify(void);
+    void blaken(void);
 };
 
 //< copy-string-h

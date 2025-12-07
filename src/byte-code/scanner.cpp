@@ -269,6 +269,10 @@ Token Scanner::scanToken()
         return makeToken(TOKEN_LEFT_BRACE);
     case '}':
         return makeToken(TOKEN_RIGHT_BRACE);
+    case '[':
+        return makeToken(TOKEN_LEFT_BRACKET);
+    case ']':
+        return makeToken(TOKEN_RIGHT_BRACKET);
     case ';':
         return makeToken(TOKEN_SEMICOLON);
     case ',':

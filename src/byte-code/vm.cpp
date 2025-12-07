@@ -157,6 +157,21 @@ void VM::blackenObject(Obj* object)
         //< blacken-upvalue
     case OBJ_COMPLEX:
         markObject(object);
+        break;
+    case OBJ_LIST: {
+        ObjList* list = (ObjList*)object;
+        for (size_t i = 0; i < list->container.size(); i++) {
+            markValue(list->container[i]);
+        }
+        break;
+    }
+    case OBJ_MAP: {
+        ObjMap* map = (ObjMap*)object;
+        for (std::map<std::string, Value>::iterator it = map->container.begin(); it != map->container.end(); it++) {
+            markValue(it->second);
+        }
+        break;
+    }
     case OBJ_NATIVE:
     case OBJ_STRING:
         break;
