@@ -52,7 +52,7 @@ block          → "{" declaration* "}" ;
 
 expression     → assignment ;
 
-assignment     → ( call "." )? IDENTIFIER "=" assignment
+assignment     → ( call "." )? IDENTIFIER ( "[" arguments? "]" )? "=" assignment
                | logic_or ;
 
 logic_or       → logic_and ( "or" logic_and )* ;
@@ -63,7 +63,7 @@ term           → factor ( ( "-" | "+" ) factor )* ;
 factor         → unary ( ( "/" | "*" ) unary )* ;
 
 unary          → ( "!" | "-" ) unary | call ;
-call           → primary ( "(" arguments? ")" | "[" arguments? "]" | "." IDENTIFIER )* ;
+call           → primary ( "(" arguments? ")" | "[" arguments "]" | "." IDENTIFIER )* ;
 primary        → "true" | "false" | "nil" | "this"
                | NUMBER | STRING | IDENTIFIER | "(" expression ")"
                | "super" "." IDENTIFIER ;
