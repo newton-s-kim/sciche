@@ -225,6 +225,8 @@ private:
     friend void grouping(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void dot(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void call(bool canAssign, CompilerInterfaceConcrete* ci);
+    friend void list(bool canAssign, CompilerInterfaceConcrete* ci);
+    friend void map(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void and_(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void binary(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void or_(bool canAssign, CompilerInterfaceConcrete* ci);
@@ -266,6 +268,8 @@ private:
     void expression();
     void namedVariable(Token name, bool canAssign);
     uint8_t argumentList();
+    uint8_t ListArgList();
+    uint8_t MapArgList();
     void parsePrecedence(Precedence precedence);
     ParseRule* getRule(TokenType type);
     void defineVariable(uint8_t global);
@@ -785,6 +789,40 @@ uint8_t CompilerInterfaceConcrete::argumentList()
     return argCount;
 }
 //< Calls and Functions argument-list
+uint8_t CompilerInterfaceConcrete::ListArgList()
+{
+    uint8_t argCount = 0;
+    if (!parser.check(TOKEN_RIGHT_BRACKET)) {
+        do {
+            expression();
+            //> arg-limit
+            if (argCount == 255) {
+                parser.error("Can't have more than 255 arguments.");
+            }
+            //< arg-limit
+            argCount++;
+        } while (parser.match(TOKEN_COMMA));
+    }
+    parser.consume(TOKEN_RIGHT_BRACKET, "Expect ']' after arguments.");
+    return argCount;
+}
+uint8_t CompilerInterfaceConcrete::MapArgList()
+{
+    uint8_t argCount = 0;
+    if (!parser.check(TOKEN_RIGHT_BRACE)) {
+        do {
+            expression();
+            //> arg-limit
+            if (argCount == 255) {
+                parser.error("Can't have more than 255 arguments.");
+            }
+            //< arg-limit
+            argCount++;
+        } while (parser.match(TOKEN_COMMA));
+    }
+    parser.consume(TOKEN_RIGHT_BRACE, "Expect ']' after arguments.");
+    return argCount;
+}
 //> Jumping Back and Forth and
 void and_(bool canAssign, CompilerInterfaceConcrete* ci)
 {
@@ -854,6 +892,18 @@ void call(bool canAssign, CompilerInterfaceConcrete* ci)
     (void)canAssign;
     uint8_t argCount = ci->argumentList();
     ci->emitBytes(OP_CALL, argCount);
+}
+void list(bool canAssign, CompilerInterfaceConcrete* ci)
+{
+    (void)canAssign;
+    uint8_t argCount = ci->argumentList();
+    ci->emitBytes(OP_LIST, argCount);
+}
+void map(bool canAssign, CompilerInterfaceConcrete* ci)
+{
+    (void)canAssign;
+    uint8_t argCount = ci->argumentList();
+    ci->emitBytes(OP_MAP, argCount);
 }
 //< Calls and Functions compile-call
 //> Classes and Instances compile-dot
@@ -1146,9 +1196,9 @@ ParseRule rules[] = {
     [TOKEN_LEFT_PAREN] = {grouping, call, PREC_CALL},
     //< Calls and Functions infix-left-paren
     [TOKEN_RIGHT_PAREN] = {NULL, NULL, PREC_NONE},
-    [TOKEN_LEFT_BRACE] = {NULL, NULL, PREC_NONE}, // [big]
+    [TOKEN_LEFT_BRACE] = {map, NULL, PREC_CALL}, // [big]
     [TOKEN_RIGHT_BRACE] = {NULL, NULL, PREC_NONE},
-    [TOKEN_LEFT_BRACKET] = {NULL, NULL, PREC_NONE}, // [big]
+    [TOKEN_LEFT_BRACKET] = {list, NULL, PREC_CALL}, // [big]
     [TOKEN_RIGHT_BRACKET] = {NULL, NULL, PREC_NONE},
     [TOKEN_COMMA] = {NULL, NULL, PREC_NONE},
     /* Compiling Expressions rules < Classes and Instances table-dot
