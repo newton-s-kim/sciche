@@ -69,11 +69,12 @@ primary        → "true" | "false" | "nil" | "this"
                | "super" "." IDENTIFIER ;
                | list | map ;
 
-list           → "[" ( expression )* "]" ;
-map            → "{" ( STRING ":" expression ( "," STRING ":" expression )* )* "}" ;
+list           → "[" ( arguments )? "]" ;
+map            → "{" ( named_args )? "}" ;
 function       → IDENTIFIER "(" parameters? ")" block ;
 parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
 arguments      → expression ( "," expression )* ;
+named_args     → STRING ":" expression ( "," STRING ":" expression )* ;
 
 NUMBER         → DIGIT+ ( "." DIGIT+ )? ;
 STRING         → "\"" <any char except "\"">* "\"" ;
