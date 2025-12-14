@@ -9,6 +9,7 @@
 
 #include "common.hpp"
 #include "compiler.hpp"
+#include "log.hpp"
 #include "scanner.hpp"
 //> Compiling Expressions include-debug
 
@@ -226,6 +227,7 @@ private:
     friend void dot(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void call(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void list(bool canAssign, CompilerInterfaceConcrete* ci);
+    friend void member(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void map(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void and_(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void binary(bool canAssign, CompilerInterfaceConcrete* ci);
@@ -812,6 +814,8 @@ uint8_t CompilerInterfaceConcrete::MapArgList()
     if (!parser.check(TOKEN_RIGHT_BRACE)) {
         do {
             expression();
+            parser.consume(TOKEN_COLON, "Expect ',' after arguments");
+            expression();
             //> arg-limit
             if (argCount == 255) {
                 parser.error("Can't have more than 255 arguments.");
@@ -896,13 +900,31 @@ void call(bool canAssign, CompilerInterfaceConcrete* ci)
 void list(bool canAssign, CompilerInterfaceConcrete* ci)
 {
     (void)canAssign;
-    uint8_t argCount = ci->argumentList();
+    uint8_t argCount = ci->ListArgList();
     ci->emitBytes(OP_LIST, argCount);
+}
+void member(bool canAssign, CompilerInterfaceConcrete* ci)
+{
+    if (ci->parser.match(TOKEN_IDENTIFIER)) {
+        dot(canAssign, ci);
+    }
+    else {
+        ci->expression();
+        if (canAssign && ci->parser.match(TOKEN_EQUAL)) {
+            ci->expression();
+            ci->emitByte(OP_SET_ELEMENT);
+            //> Methods and Initializers parse-call
+        }
+        else {
+            ci->emitByte(OP_GET_ELEMENT);
+        }
+    }
+    ci->parser.consume(TOKEN_RIGHT_BRACKET, "Expect ']' after arguments.");
 }
 void map(bool canAssign, CompilerInterfaceConcrete* ci)
 {
     (void)canAssign;
-    uint8_t argCount = ci->argumentList();
+    uint8_t argCount = ci->MapArgList();
     ci->emitBytes(OP_MAP, argCount);
 }
 //< Calls and Functions compile-call
@@ -1198,7 +1220,7 @@ ParseRule rules[] = {
     [TOKEN_RIGHT_PAREN] = {NULL, NULL, PREC_NONE},
     [TOKEN_LEFT_BRACE] = {map, NULL, PREC_CALL}, // [big]
     [TOKEN_RIGHT_BRACE] = {NULL, NULL, PREC_NONE},
-    [TOKEN_LEFT_BRACKET] = {list, NULL, PREC_CALL}, // [big]
+    [TOKEN_LEFT_BRACKET] = {list, member, PREC_CALL}, // [big]
     [TOKEN_RIGHT_BRACKET] = {NULL, NULL, PREC_NONE},
     [TOKEN_COMMA] = {NULL, NULL, PREC_NONE},
     /* Compiling Expressions rules < Classes and Instances table-dot
@@ -1209,6 +1231,7 @@ ParseRule rules[] = {
     //< Classes and Instances table-dot
     [TOKEN_MINUS] = {unary, binary, PREC_TERM},
     [TOKEN_PLUS] = {NULL, binary, PREC_TERM},
+    [TOKEN_COLON] = {NULL, NULL, PREC_NONE},
     [TOKEN_SEMICOLON] = {NULL, NULL, PREC_NONE},
     [TOKEN_SLASH] = {NULL, binary, PREC_FACTOR},
     [TOKEN_STAR] = {NULL, binary, PREC_FACTOR},

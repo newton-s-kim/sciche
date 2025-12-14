@@ -230,6 +230,8 @@ std::string ObjList::stringify(void)
     std::stringstream ss;
     ss << "[";
     for (std::vector<Value>::iterator it = container.begin(); it != container.end(); it++) {
+        if (it != container.begin())
+            ss << ", ";
         Value v = *it;
         if (IS_NIL(v)) {
             ss << "nil";

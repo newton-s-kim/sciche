@@ -27,6 +27,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <stack>
 
 #define GC_HEAP_GROW_FACTOR 2
 //< Garbage Collection heap-grow-factor
@@ -534,6 +535,7 @@ bool VM::callValue(Value callee, int argCount)
         }
             //< call-native
         default:
+            LAX_LOG("non-callable type %d.", OBJ_TYPE(callee));
             break; // Non-callable object type.
         }
     }
@@ -597,6 +599,22 @@ ObjClass* VM::newClass(std::string name)
     return ret;
 }
 //< Classes and Instances new-class
+ObjList* VM::newList(void)
+{
+    collect(0, sizeof(ObjList));
+    ObjList* ret = new ObjList();
+    ret->next = objects;
+    objects = ret;
+    return ret;
+}
+ObjMap* VM::newMap(void)
+{
+    collect(0, sizeof(ObjMap));
+    ObjMap* ret = new ObjMap();
+    ret->next = objects;
+    objects = ret;
+    return ret;
+}
 //> Closures new-closure
 ObjClosure* VM::newClosure(ObjFunction* function)
 {
@@ -1026,6 +1044,67 @@ InterpretResult VM::run(void)
         }
             //< Classes and Instances interpret-set-property
             //> Superclasses interpret-get-super
+        case OP_GET_ELEMENT: {
+            if (!IS_LIST(peek(1))) {
+                runtimeError("Only list has elements.");
+                return INTERPRET_RUNTIME_ERROR;
+            }
+            ObjList* list = AS_LIST(peek(1));
+            if (IS_NUMBER(peek(2))) {
+                runtimeError("Index is not number.");
+                return INTERPRET_RUNTIME_ERROR;
+            }
+            double index = AS_NUMBER(pop());
+            Value value;
+            if (index >= 0) {
+                if (index >= list->container.size()) {
+                    runtimeError("Index is invalid.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+            }
+            else {
+                if (-index > list->container.size()) {
+                    runtimeError("Index is invalid.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                index = list->container.size() + index;
+            }
+            LAX_LOG("list[%f] is peeked.", index);
+            value = list->container[index];
+            pop();
+            push(value);
+            break;
+        }
+        case OP_SET_ELEMENT: {
+            if (!IS_LIST(peek(2))) {
+                runtimeError("Only list has elements.");
+                return INTERPRET_RUNTIME_ERROR;
+            }
+            ObjList* list = AS_LIST(peek(1));
+            double index = 0;
+            if (IS_NUMBER(peek(1))) {
+                runtimeError("Index is not number.");
+                return INTERPRET_RUNTIME_ERROR;
+            }
+            if (index >= 0) {
+                if (index >= list->container.size()) {
+                    runtimeError("Index is invalid.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+            }
+            else {
+                if (-index > list->container.size()) {
+                    runtimeError("Index is invalid.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                index = list->container.size() - index;
+            }
+            list->container[index] = peek(0);
+            Value value = pop();
+            pop();
+            push(value);
+            break;
+        }
         case OP_GET_SUPER: {
             ObjString* name = READ_STRING();
             ObjClass* superclass = AS_CLASS(pop());
@@ -1450,6 +1529,22 @@ InterpretResult VM::run(void)
             push(OBJ_VAL(newClass(READ_STRING()->chars)));
             break;
             //< Classes and Instances interpret-class
+        case OP_LIST: {
+            ObjList* list = newList();
+            std::stack<Value> stack;
+            for (int argc = READ_BYTE(); argc > 0; argc--) {
+                stack.push(pop());
+            }
+            while (!stack.empty()) {
+                list->container.push_back(stack.top());
+                stack.pop();
+            }
+            push(OBJ_VAL(list));
+            break;
+        }
+        case OP_MAP:
+            push(OBJ_VAL(newMap()));
+            break;
             //> Superclasses interpret-inherit
         case OP_INHERIT: {
             Value superclass = peek(1);

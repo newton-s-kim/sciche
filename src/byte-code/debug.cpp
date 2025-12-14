@@ -126,6 +126,10 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
         return constantInstruction("OP_GET_PROPERTY", chunk, offset);
     case OP_SET_PROPERTY:
         return constantInstruction("OP_SET_PROPERTY", chunk, offset);
+    case OP_GET_ELEMENT:
+        return simpleInstruction("OP_GET_ELEMENT", offset);
+    case OP_SET_ELEMENT:
+        return simpleInstruction("OP_SET_ELEMENT", offset);
         //< Classes and Instances disassemble-property-ops
         //> Superclasses disassemble-get-super
     case OP_GET_SUPER:
@@ -214,6 +218,10 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
     case OP_CLASS:
         return constantInstruction("OP_CLASS", chunk, offset);
         //< Classes and Instances disassemble-class
+    case OP_LIST:
+        return simpleInstruction("OP_LIST", offset);
+    case OP_MAP:
+        return simpleInstruction("OP_MAP", offset);
         //> Superclasses disassemble-inherit
     case OP_INHERIT:
         return simpleInstruction("OP_INHERIT", offset);

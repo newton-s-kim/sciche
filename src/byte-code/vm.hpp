@@ -125,6 +125,8 @@ private:
 
     ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
     ObjClass* newClass(std::string name);
+    ObjList* newList(void);
+    ObjMap* newMap(void);
     ObjClosure* newClosure(ObjFunction* function);
     ObjInstance* newInstance(ObjClass* klass);
     ObjNative* newNative(NativeFn function);

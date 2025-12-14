@@ -42,6 +42,8 @@ typedef enum {
     //> Classes and Instances property-ops
     OP_GET_PROPERTY,
     OP_SET_PROPERTY,
+    OP_GET_ELEMENT,
+    OP_SET_ELEMENT,
     //< Classes and Instances property-ops
     //> Superclasses get-super-op
     OP_GET_SUPER,
