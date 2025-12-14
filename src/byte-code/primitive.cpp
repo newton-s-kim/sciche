@@ -19,7 +19,7 @@ static Value list_add(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
     for (int idx = 0; idx < argc; idx++) {
         list->container.push_back(argv[idx]);
     }
-    return NUMBER_VAL(0);
+    return NUMBER_VAL(argc);
 }
 
 // clang-format off

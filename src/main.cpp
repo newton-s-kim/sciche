@@ -77,6 +77,8 @@ static Value sqrtNative(ObjectFactory* factory, int argc, Value* args)
             return NUMBER_VAL(sqrt(AS_NUMBER(args[0])));
         }
         else {
+            ObjComplex* cmplx = factory->newComplex(std::complex<double>(0, sqrt(-AS_NUMBER(args[0]))));
+            return OBJ_VAL(cmplx);
         }
     }
     return NUMBER_VAL(0);
