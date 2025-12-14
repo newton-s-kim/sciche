@@ -14,21 +14,6 @@ void compile(const char* source);
 bool compile(const char* source, Chunk* chunk);
 */
 
-class ObjectFactory {
-public:
-    //< Methods and Initializers obj-bound-method
-    //> Calls and Functions new-function-h
-    virtual ObjFunction* newFunction() = 0;
-    //< Calls and Functions new-function-h
-    //> take-string-h
-    virtual ObjString* newString(std::string chars) = 0;
-    virtual ObjString* newString(const char* chars, int length) = 0;
-    virtual ObjComplex* newComplex(const std::complex<double> v) = 0;
-    //< take-string-h
-    virtual void push(Value value) = 0;
-    virtual Value pop() = 0;
-};
-
 class CompilerInterface {
 public:
     //> Calls and Functions compile-h

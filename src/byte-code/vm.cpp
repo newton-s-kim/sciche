@@ -301,11 +301,19 @@ void VM::collectGarbage()
 }
 
 //> Calls and Functions clock-native
-static Value clockNative(int argCount, Value* args)
+static Value clockNative(ObjectFactory* factory, int argCount, Value* args)
 {
+    (void)factory;
     (void)argCount;
     (void)args;
     return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
+}
+static Value listNative(ObjectFactory* factory, int argCount, Value* args)
+{
+    ObjList* list = factory->newList();
+    for (int argc = 0; argc < argCount; argc++)
+        list->container.push_back(args[argc]);
+    return OBJ_VAL(list);
 }
 //< Calls and Functions clock-native
 //> reset-stack
@@ -407,6 +415,7 @@ VM::VM()
     //> Calls and Functions define-native-clock
 
     defineNative("clock", clockNative);
+    defineNative("List", listNative);
     //< Calls and Functions define-native-clock
 }
 
@@ -528,7 +537,7 @@ bool VM::callValue(Value callee, int argCount)
             //> call-native
         case OBJ_NATIVE: {
             NativeFn native = AS_NATIVE(callee);
-            Value result = native(argCount, stackTop - argCount);
+            Value result = native(this, argCount, stackTop - argCount);
             stackTop -= argCount + 1;
             push(result);
             return true;
@@ -560,23 +569,45 @@ bool VM::invoke(ObjString* name, int argCount)
     Value receiver = peek(argCount);
     //> invoke-check-type
 
-    if (!IS_INSTANCE(receiver)) {
+    if (IS_INSTANCE(receiver)) {
+        //< invoke-check-type
+        ObjInstance* instance = AS_INSTANCE(receiver);
+        //> invoke-field
+
+        Value value;
+        if (instance->fields.get(name->chars, &value)) {
+            stackTop[-argCount - 1] = value;
+            return callValue(value, argCount);
+        }
+
+        //< invoke-field
+        return invokeFromClass(instance->klass, name, argCount);
+    }
+    else if (IS_LIST(receiver)) {
+        NativeBooundFn fn = primitive.find(OBJ_LIST, name->chars);
+        if (NULL == fn) {
+            runtimeError("The method does not exist in List.");
+            return false;
+        }
+        Value result = fn(this, AS_LIST(receiver), argCount, stackTop - argCount);
+        push(result);
+        return true;
+    }
+    else if (IS_MAP(receiver)) {
+        NativeBooundFn fn = primitive.find(OBJ_MAP, name->chars);
+        if (NULL == fn) {
+            runtimeError("The method does not exist in List.");
+            return false;
+        }
+        Value result = fn(this, AS_MAP(receiver), argCount, stackTop - argCount);
+        push(result);
+        return true;
+    }
+    else {
         runtimeError("Only instances have methods.");
         return false;
     }
-
-    //< invoke-check-type
-    ObjInstance* instance = AS_INSTANCE(receiver);
-    //> invoke-field
-
-    Value value;
-    if (instance->fields.get(name->chars, &value)) {
-        stackTop[-argCount - 1] = value;
-        return callValue(value, argCount);
-    }
-
-    //< invoke-field
-    return invokeFromClass(instance->klass, name, argCount);
+    return false;
 }
 //< Methods and Initializers invoke
 //> Methods and Initializers new-bound-method

@@ -17,8 +17,9 @@ void help(std::string programme)
     std::cout << "  -m, --use-virtual-machine  use Byte code machine" << std::endl;
 }
 
-static Value printLnNative(int argc, Value* args)
+static Value printLnNative(ObjectFactory* factory, int argc, Value* args)
 {
+    (void)factory;
     ValueUtil util;
     for (int idx = 0; idx < argc; idx++) {
         util.print(args[idx]);
@@ -27,16 +28,18 @@ static Value printLnNative(int argc, Value* args)
     return 0;
 }
 
-static Value exitNative(int argc, Value* args)
+static Value exitNative(ObjectFactory* factory, int argc, Value* args)
 {
+    (void)factory;
     int n = 0;
     if (1 == argc && IS_NUMBER(args[0]))
         n = args[0];
     exit(AS_NUMBER(n));
 }
 
-static Value sinNative(int argc, Value* args)
+static Value sinNative(ObjectFactory* factory, int argc, Value* args)
 {
+    (void)factory;
     (void)argc;
     if (IS_NUMBER(args[0])) {
         return NUMBER_VAL(sin(AS_NUMBER(args[0])));
@@ -44,8 +47,9 @@ static Value sinNative(int argc, Value* args)
     return NUMBER_VAL(0);
 }
 
-static Value cosNative(int argc, Value* args)
+static Value cosNative(ObjectFactory* factory, int argc, Value* args)
 {
+    (void)factory;
     (void)argc;
     if (IS_NUMBER(args[0])) {
         return NUMBER_VAL(cos(AS_NUMBER(args[0])));
@@ -53,8 +57,9 @@ static Value cosNative(int argc, Value* args)
     return NUMBER_VAL(0);
 }
 
-static Value tanNative(int argc, Value* args)
+static Value tanNative(ObjectFactory* factory, int argc, Value* args)
 {
+    (void)factory;
     (void)argc;
     if (IS_NUMBER(args[0])) {
         return NUMBER_VAL(tan(AS_NUMBER(args[0])));
@@ -62,8 +67,9 @@ static Value tanNative(int argc, Value* args)
     return NUMBER_VAL(0);
 }
 
-static Value sqrtNative(int argc, Value* args)
+static Value sqrtNative(ObjectFactory* factory, int argc, Value* args)
 {
+    (void)factory;
     (void)argc;
     if (IS_NUMBER(args[0])) {
         double v = AS_NUMBER(args[0]);
@@ -76,8 +82,9 @@ static Value sqrtNative(int argc, Value* args)
     return NUMBER_VAL(0);
 }
 
-static Value absNative(int argc, Value* args)
+static Value absNative(ObjectFactory* factory, int argc, Value* args)
 {
+    (void)factory;
     (void)argc;
     if (IS_NUMBER(args[0])) {
         return NUMBER_VAL(abs(AS_NUMBER(args[0])));
@@ -88,8 +95,9 @@ static Value absNative(int argc, Value* args)
     return NUMBER_VAL(0);
 }
 
-static Value phaseNative(int argc, Value* args)
+static Value phaseNative(ObjectFactory* factory, int argc, Value* args)
 {
+    (void)factory;
     (void)argc;
     (void)args;
     if (IS_COMPLEX(args[0])) {

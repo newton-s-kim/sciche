@@ -19,6 +19,7 @@
 #include "debug.hpp"
 #endif
 #include "compiler.hpp"
+#include "primitive.hpp"
 
 #include <map>
 #include <stack>
@@ -110,6 +111,7 @@ public:
     //> Hash Tables strings
     std::map<std::string, ObjString*> strings;
     //< Hash Tables strings
+    Primitive primitive;
 
 private:
     bool callValue(Value callee, int argCount);
@@ -125,8 +127,6 @@ private:
 
     ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
     ObjClass* newClass(std::string name);
-    ObjList* newList(void);
-    ObjMap* newMap(void);
     ObjClosure* newClosure(ObjFunction* function);
     ObjInstance* newInstance(ObjClass* klass);
     ObjNative* newNative(NativeFn function);
@@ -164,6 +164,8 @@ public:
     ObjString* newString(std::string chars);
     ObjString* newString(const char* chars, int length);
     ObjComplex* newComplex(const std::complex<double> cv);
+    ObjList* newList(void);
+    ObjMap* newMap(void);
 };
 
 //< interpret-result

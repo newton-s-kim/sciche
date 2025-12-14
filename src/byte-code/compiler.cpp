@@ -1218,7 +1218,7 @@ ParseRule rules[] = {
     [TOKEN_LEFT_PAREN] = {grouping, call, PREC_CALL},
     //< Calls and Functions infix-left-paren
     [TOKEN_RIGHT_PAREN] = {NULL, NULL, PREC_NONE},
-    [TOKEN_LEFT_BRACE] = {map, NULL, PREC_CALL}, // [big]
+    [TOKEN_LEFT_BRACE] = {NULL, NULL, PREC_CALL}, // [big]
     [TOKEN_RIGHT_BRACE] = {NULL, NULL, PREC_NONE},
     [TOKEN_LEFT_BRACKET] = {list, member, PREC_CALL}, // [big]
     [TOKEN_RIGHT_BRACKET] = {NULL, NULL, PREC_NONE},
