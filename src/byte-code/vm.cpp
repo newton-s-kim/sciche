@@ -175,6 +175,9 @@ void VM::blackenObject(Obj* object)
     }
     case OBJ_NATIVE:
     case OBJ_STRING:
+    case OBJ_COL:
+    case OBJ_ROW:
+    case OBJ_MAT:
         break;
     }
 }
@@ -642,6 +645,30 @@ ObjMap* VM::newMap(void)
 {
     collect(0, sizeof(ObjMap));
     ObjMap* ret = new ObjMap();
+    ret->next = objects;
+    objects = ret;
+    return ret;
+}
+ObjCol* VM::newCol(void)
+{
+    collect(0, sizeof(ObjCol));
+    ObjCol* ret = new ObjCol();
+    ret->next = objects;
+    objects = ret;
+    return ret;
+}
+ObjRow* VM::newRow(void)
+{
+    collect(0, sizeof(ObjRow));
+    ObjRow* ret = new ObjRow();
+    ret->next = objects;
+    objects = ret;
+    return ret;
+}
+ObjMat* VM::newMat(void)
+{
+    collect(0, sizeof(ObjMat));
+    ObjMat* ret = new ObjMat();
     ret->next = objects;
     objects = ret;
     return ret;

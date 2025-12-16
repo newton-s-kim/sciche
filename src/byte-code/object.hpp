@@ -12,6 +12,7 @@
 #include "value.hpp"
 //> obj-type-macro
 
+#include <armadillo>
 #include <complex>
 #include <vector>
 
@@ -95,7 +96,10 @@ typedef enum {
     //< Closures obj-type-upvalue
     OBJ_COMPLEX,
     OBJ_LIST,
-    OBJ_MAP
+    OBJ_MAP,
+    OBJ_COL,
+    OBJ_ROW,
+    OBJ_MAT
 } ObjType;
 //< obj-type
 
@@ -245,6 +249,33 @@ public:
     void blaken(void);
 };
 
+class ObjCol : public Obj {
+public:
+    arma::vec value;
+    ObjCol();
+    ~ObjCol();
+    std::string stringify(void);
+    void blaken(void);
+};
+
+class ObjRow : public Obj {
+public:
+    arma::rowvec value;
+    ObjRow();
+    ~ObjRow();
+    std::string stringify(void);
+    void blaken(void);
+};
+
+class ObjMat : public Obj {
+public:
+    arma::mat value;
+    ObjMat();
+    ~ObjMat();
+    std::string stringify(void);
+    void blaken(void);
+};
+
 //< copy-string-h
 //> is-obj-type
 static inline bool isObjType(Value value, ObjType type)
@@ -267,6 +298,9 @@ public:
     virtual Value pop() = 0;
     virtual ObjList* newList(void) = 0;
     virtual ObjMap* newMap(void) = 0;
+    virtual ObjCol* newCol(void) = 0;
+    virtual ObjRow* newRow(void) = 0;
+    virtual ObjMat* newMat(void) = 0;
 };
 
 //< is-obj-type

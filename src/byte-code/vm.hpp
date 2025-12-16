@@ -166,6 +166,9 @@ public:
     ObjComplex* newComplex(const std::complex<double> cv);
     ObjList* newList(void);
     ObjMap* newMap(void);
+    ObjCol* newCol(void);
+    ObjRow* newRow(void);
+    ObjMat* newMat(void);
 };
 
 //< interpret-result

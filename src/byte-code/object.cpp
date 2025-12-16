@@ -289,3 +289,60 @@ std::string ObjMap::stringify(void)
 void ObjMap::blaken(void)
 {
 }
+
+ObjCol::ObjCol() : Obj(OBJ_COL)
+{
+}
+
+ObjCol::~ObjCol()
+{
+}
+
+std::string ObjCol::stringify(void)
+{
+    std::stringstream ss;
+    ss << value;
+    return ss.str();
+}
+
+void ObjCol::blaken(void)
+{
+}
+
+ObjRow::ObjRow() : Obj(OBJ_ROW)
+{
+}
+
+ObjRow::~ObjRow()
+{
+}
+
+std::string ObjRow::stringify(void)
+{
+    std::stringstream ss;
+    ss << value;
+    return ss.str();
+}
+
+void ObjRow::blaken(void)
+{
+}
+
+ObjMat::ObjMat() : Obj(OBJ_MAT)
+{
+}
+
+ObjMat::~ObjMat()
+{
+}
+
+std::string ObjMat::stringify(void)
+{
+    std::stringstream ss;
+    ss << value;
+    return ss.str();
+}
+
+void ObjMat::blaken(void)
+{
+}
