@@ -169,6 +169,7 @@ public:
     ObjCol* newCol(void);
     ObjRow* newRow(void);
     ObjMat* newMat(void);
+    ObjNativeObject* newNativeObj(NativeClass* klass);
 };
 
 //< interpret-result

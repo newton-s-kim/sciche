@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 
-static Value list_count(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
+static Value list_size(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
 {
     (void)factory;
     (void)argc;
@@ -24,8 +24,28 @@ static Value list_add(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
 
 // clang-format off
 std::map<std::string, NativeBooundFn> s_list_apis = {
-    {"count", list_count},
+    {"size", list_size},
     {"add", list_add}
+};
+
+static Value col_size(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
+{
+    (void)factory;
+    (void)argc;
+    (void)argv;
+    ObjCol* col = (ObjCol*)obj;
+    double n = col->value.size();
+    return NUMBER_VAL(n);
+}
+
+std::map<std::string, NativeBooundFn> s_col_apis = {
+    {"size", col_size},
+};
+
+std::map<std::string, NativeBooundFn> s_row_apis = {
+};
+
+std::map<std::string, NativeBooundFn> s_mat_apis = {
 };
 // clang-format on
 

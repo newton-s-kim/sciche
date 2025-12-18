@@ -178,6 +178,7 @@ void VM::blackenObject(Obj* object)
     case OBJ_COL:
     case OBJ_ROW:
     case OBJ_MAT:
+    case OBJ_NATIVE_OBJ:
         break;
     }
 }
@@ -606,6 +607,12 @@ bool VM::invoke(ObjString* name, int argCount)
         push(result);
         return true;
     }
+    else if (IS_NATIVE_OBJECT(receiver)) {
+        ObjNativeObject* nobj = AS_NATIVE_OBJECT(receiver);
+        Value result = nobj->klass->invoke(this, name->chars, argCount, stackTop - argCount);
+        push(result);
+        return true;
+    }
     else {
         runtimeError("Only instances have methods.");
         return false;
@@ -669,6 +676,15 @@ ObjMat* VM::newMat(void)
 {
     collect(0, sizeof(ObjMat));
     ObjMat* ret = new ObjMat();
+    ret->next = objects;
+    objects = ret;
+    return ret;
+}
+ObjNativeObject* VM::newNativeObj(NativeClass* klass)
+{
+    collect(0, sizeof(ObjNativeObject));
+    ObjNativeObject* ret = new ObjNativeObject();
+    ret->klass = klass;
     ret->next = objects;
     objects = ret;
     return ret;

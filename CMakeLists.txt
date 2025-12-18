@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 
 project(sciche)
 
-file(GLOB LAX_SOURCES src/*.cpp src/byte-code/*.cpp src/common/*.cpp)
+file(GLOB LAX_SOURCES src/*.cpp src/byte-code/*.cpp src/sigpack/*.cpp)
 find_package(Armadillo REQUIRED)
 add_executable(sciche ${LAX_SOURCES})
 target_include_directories(sciche PRIVATE src src/byte-code src/common gen)

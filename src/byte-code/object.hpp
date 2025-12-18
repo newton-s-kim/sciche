@@ -44,6 +44,7 @@
 //> as-string
 #define IS_LIST(value) isObjType(value, OBJ_LIST)
 #define IS_MAP(value) isObjType(value, OBJ_MAP)
+#define IS_NATIVE_OBJECT(value) isObjType(value, OBJ_NATIVE_OBJ)
 
 //> Methods and Initializers as-bound-method
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
@@ -70,6 +71,7 @@
 //> obj-type
 #define AS_LIST(value) ((ObjList*)AS_OBJ(value))
 #define AS_MAP(value) ((ObjMap*)AS_OBJ(value))
+#define AS_NATIVE_OBJECT(value) ((ObjNativeObject*)AS_OBJ(value))
 
 typedef enum {
     //> Methods and Initializers obj-type-bound-method
@@ -99,7 +101,8 @@ typedef enum {
     OBJ_MAP,
     OBJ_COL,
     OBJ_ROW,
-    OBJ_MAT
+    OBJ_MAT,
+    OBJ_NATIVE_OBJ,
 } ObjType;
 //< obj-type
 
@@ -276,6 +279,23 @@ public:
     void blaken(void);
 };
 
+class NativeClass {
+public:
+    virtual ~NativeClass()
+    {
+    }
+    virtual Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv) = 0;
+};
+
+class ObjNativeObject : public Obj {
+public:
+    NativeClass* klass;
+    ObjNativeObject();
+    ~ObjNativeObject();
+    std::string stringify(void);
+    void blaken(void);
+};
+
 //< copy-string-h
 //> is-obj-type
 static inline bool isObjType(Value value, ObjType type)
@@ -301,6 +321,7 @@ public:
     virtual ObjCol* newCol(void) = 0;
     virtual ObjRow* newRow(void) = 0;
     virtual ObjMat* newMat(void) = 0;
+    virtual ObjNativeObject* newNativeObj(NativeClass* klass) = 0;
 };
 
 //< is-obj-type

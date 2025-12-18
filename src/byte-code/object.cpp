@@ -346,3 +346,22 @@ std::string ObjMat::stringify(void)
 void ObjMat::blaken(void)
 {
 }
+
+ObjNativeObject::ObjNativeObject() : Obj(OBJ_NATIVE_OBJ)
+{
+}
+
+ObjNativeObject::~ObjNativeObject()
+{
+    if (klass)
+        delete klass;
+}
+
+std::string ObjNativeObject::stringify(void)
+{
+    return "<native obj>";
+}
+
+void ObjNativeObject::blaken(void)
+{
+}

@@ -217,7 +217,7 @@ public:
     void set_kalman_gain(const arma::mat& _K)
     {
         K = _K;
-    }                            // Set Kalman gain matrix.[NxM]
+    } // Set Kalman gain matrix.[NxM]
     void set_trans_fcn(fcn_v _f) // Set state transition functions
     {
         f = _f;

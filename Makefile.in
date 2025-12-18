@@ -2,7 +2,7 @@ BUILD_DIR=@__build_dir__@
 PROGRAMME=sciche
 
 all:
-	$(MAKE) -C $(BUILD_DIR)
+	$(MAKE) -C $(BUILD_DIR) -j`nproc`
 
 clean:
 	$(MAKE) -C $(BUILD_DIR) clean/fast

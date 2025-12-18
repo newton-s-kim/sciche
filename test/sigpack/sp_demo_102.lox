@@ -1,0 +1,38 @@
+// Filter coeffs.
+
+var b = vec();
+var N = 15;
+
+// Create a FIR filter
+var fir_filt = FIR_filt();
+var b = fir1(7, 0.35);
+fir_filt.set_coeffs(b);
+
+var X = vec();
+X.resize(N);
+X[0] = 1;
+
+var Y = vec();
+Y.resize(N);
+
+for(var n = 0; n < N; n = n + 1) {
+    Y[n] = fir_filt(X[n]);
+}
+
+print "Filter coeffs: ";
+print b.t();
+print "Impulse response:";
+print Y.t();
+
+var iir_filt = IIR_filt();
+var a = vec();
+b.add(0.25, 0.5, 0.25);
+a.add(1.0, -0.9);
+
+iir_filt.set_coeffs(b, a);
+
+print "IIR theor. impulse response: \n   0.2500   0.7250   0.9025   0.8123   0.7310   0.6579   0.5921   0.5329   0.4796   0.4317   0.3885 ...";
+println("IIR output: ", Y.t());
+var del = Delay(3);
+print "Delay three samples:";
+print del.delay(Y.t());

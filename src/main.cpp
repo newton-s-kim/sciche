@@ -6,8 +6,9 @@
 #include <streambuf>
 
 #include "readline.hpp"
-
 #include "vm.hpp"
+
+#include "sigpack/sp.hpp"
 
 void help(std::string programme)
 {
@@ -108,6 +109,36 @@ static Value phaseNative(ObjectFactory* factory, int argc, Value* args)
     return NUMBER_VAL(0);
 }
 
+static Value vecNative(ObjectFactory* factory, int argc, Value* args)
+{
+    (void)argc;
+    (void)args;
+    return OBJ_VAL(factory->newCol());
+}
+
+static Value rowVecNative(ObjectFactory* factory, int argc, Value* args)
+{
+    (void)argc;
+    (void)args;
+    return OBJ_VAL(factory->newRow());
+}
+
+static Value matNative(ObjectFactory* factory, int argc, Value* args)
+{
+    (void)argc;
+    (void)args;
+    return OBJ_VAL(factory->newMat());
+}
+
+/*
+static Value fir_filtNative(ObjectFactory* factory, int argc, Value* args)
+{
+    (void)argc;
+    (void)args;
+
+}
+*/
+
 int main(int argc, char const* argv[])
 {
     int result = 0;
@@ -147,6 +178,13 @@ int main(int argc, char const* argv[])
     vm.defineNative("sqrt", sqrtNative);
     vm.defineNative("abs", absNative);
     vm.defineNative("phase", phaseNative);
+    vm.defineNative("vec", vecNative);
+    vm.defineNative("rowvec", rowVecNative);
+    vm.defineNative("mat", matNative);
+    vm.defineNative("FIR_filt", firFiltNative);
+    vm.defineNative("IIR_filt", iirFiltNative);
+    vm.defineNative("fir1", fir1Native);
+    vm.defineNative("Delay", delayNative);
     vm.defineNumber("pi", M_PI);
     std::string prompt;
     prompt = ">> ";

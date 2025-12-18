@@ -905,21 +905,16 @@ void list(bool canAssign, CompilerInterfaceConcrete* ci)
 }
 void member(bool canAssign, CompilerInterfaceConcrete* ci)
 {
-    if (ci->parser.match(TOKEN_IDENTIFIER)) {
-        dot(canAssign, ci);
+    ci->expression();
+    ci->parser.consume(TOKEN_RIGHT_BRACKET, "Expect ']' after arguments.");
+    if (canAssign && ci->parser.match(TOKEN_EQUAL)) {
+        ci->expression();
+        ci->emitByte(OP_SET_ELEMENT);
+        //> Methods and Initializers parse-call
     }
     else {
-        ci->expression();
-        if (canAssign && ci->parser.match(TOKEN_EQUAL)) {
-            ci->expression();
-            ci->emitByte(OP_SET_ELEMENT);
-            //> Methods and Initializers parse-call
-        }
-        else {
-            ci->emitByte(OP_GET_ELEMENT);
-        }
+        ci->emitByte(OP_GET_ELEMENT);
     }
-    ci->parser.consume(TOKEN_RIGHT_BRACKET, "Expect ']' after arguments.");
 }
 void map(bool canAssign, CompilerInterfaceConcrete* ci)
 {
