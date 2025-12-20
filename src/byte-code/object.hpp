@@ -45,6 +45,9 @@
 #define IS_LIST(value) isObjType(value, OBJ_LIST)
 #define IS_MAP(value) isObjType(value, OBJ_MAP)
 #define IS_NATIVE_OBJECT(value) isObjType(value, OBJ_NATIVE_OBJ)
+#define IS_COL(value) isObjType(value, OBJ_COL)
+#define IS_ROW(value) isObjType(value, OBJ_ROW)
+#define IS_MAT(value) isObjType(value, OBJ_MAT)
 
 //> Methods and Initializers as-bound-method
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
@@ -72,6 +75,9 @@
 #define AS_LIST(value) ((ObjList*)AS_OBJ(value))
 #define AS_MAP(value) ((ObjMap*)AS_OBJ(value))
 #define AS_NATIVE_OBJECT(value) ((ObjNativeObject*)AS_OBJ(value))
+#define AS_COL(value) ((ObjCol*)AS_OBJ(value))
+#define AS_ROW(value) ((ObjRow*)AS_OBJ(value))
+#define AS_MAT(value) ((ObjMat*)AS_OBJ(value))
 
 typedef enum {
     //> Methods and Initializers obj-type-bound-method
@@ -241,6 +247,8 @@ public:
     ~ObjList();
     std::string stringify(void);
     void blaken(void);
+    Value get(int index);
+    void set(int index, Value v);
 };
 
 class ObjMap : public Obj {
@@ -259,6 +267,8 @@ public:
     ~ObjCol();
     std::string stringify(void);
     void blaken(void);
+    Value get(int index);
+    void set(int index, Value v);
 };
 
 class ObjRow : public Obj {
@@ -268,6 +278,8 @@ public:
     ~ObjRow();
     std::string stringify(void);
     void blaken(void);
+    Value get(int index);
+    void set(int index, Value v);
 };
 
 class ObjMat : public Obj {

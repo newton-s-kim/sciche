@@ -254,6 +254,39 @@ void ObjList::blaken(void)
 {
 }
 
+Value ObjList::get(int index)
+{
+    if (index >= 0) {
+        if (index >= (int)container.size()) {
+            throw std::runtime_error("Index is invalid.");
+        }
+    }
+    else {
+        if (-index > (int)container.size()) {
+            throw std::runtime_error("Index is invalid.");
+        }
+        index = (int)container.size() + index;
+    }
+    LAX_LOG("list[%d] is peeked.", index);
+    return container[index];
+}
+
+void ObjList::set(int index, Value v)
+{
+    if (index >= 0) {
+        if (index >= (int)container.size()) {
+            throw std::runtime_error("Index is invalid.");
+        }
+    }
+    else {
+        if (-index > (int)container.size()) {
+            throw std::runtime_error("Index is invalid.");
+        }
+        index = container.size() + index;
+    }
+    container[index] = v;
+}
+
 ObjMap::ObjMap() : Obj(OBJ_MAP)
 {
 }
@@ -309,6 +342,41 @@ void ObjCol::blaken(void)
 {
 }
 
+Value ObjCol::get(int index)
+{
+    LAX_LOG("size is %lld", value.n_elem);
+    if (index >= 0) {
+        if (index >= (int)value.n_elem) {
+            throw std::runtime_error("Index is invalid.");
+        }
+    }
+    else {
+        if (-index > (int)value.n_elem) {
+            throw std::runtime_error("Index is invalid.");
+        }
+        index = value.size() + index;
+    }
+    LAX_LOG("vec[%d] is peeked.", index);
+    return value[index];
+}
+
+void ObjCol::set(int index, Value v)
+{
+    if (index >= 0) {
+        if (index >= (int)value.n_elem) {
+            throw std::runtime_error("Index is invalid.");
+        }
+    }
+    else {
+        if (-index > (int)value.n_elem) {
+            throw std::runtime_error("Index is invalid.");
+        }
+        index = value.size() + index;
+    }
+    LAX_LOG("vec[%d] is set.", index);
+    value[index] = v;
+}
+
 ObjRow::ObjRow() : Obj(OBJ_ROW)
 {
 }
@@ -326,6 +394,39 @@ std::string ObjRow::stringify(void)
 
 void ObjRow::blaken(void)
 {
+}
+
+Value ObjRow::get(int index)
+{
+    if (index >= 0) {
+        if (index >= (int)value.n_elem) {
+            throw std::runtime_error("Index is invalid.");
+        }
+    }
+    else {
+        if (-index > (int)value.n_elem) {
+            throw std::runtime_error("Index is invalid.");
+        }
+        index = value.size() + index;
+    }
+    LAX_LOG("vec[%d] is peeked.", index);
+    return value[index];
+}
+
+void ObjRow::set(int index, Value v)
+{
+    if (index >= 0) {
+        if (index >= (int)value.n_elem) {
+            throw std::runtime_error("Index is invalid.");
+        }
+    }
+    else {
+        if (-index > (int)value.n_elem) {
+            throw std::runtime_error("Index is invalid.");
+        }
+        index = value.size() + index;
+    }
+    value[index] = v;
 }
 
 ObjMat::ObjMat() : Obj(OBJ_MAT)

@@ -36,13 +36,14 @@
 #define SP_VERSION_PATCH 7
 
 #include "base/base.h"
+#include "window/window.h"
+
 #include "filter/filter.h"
 #include "gplot/gplot.h"
 #include "parser/parser.h"
 #include "resampling/resampling.h"
 #include "spectrum/spectrum.h"
 #include "timing/timing.h"
-#include "window/window.h"
 #ifdef HAVE_FFTW
 #include "fftw/fftw.h"
 #endif

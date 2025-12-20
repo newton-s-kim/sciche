@@ -3,13 +3,12 @@
 #include "object.hpp"
 #include "sigpack-1.2.7/sigpack/sigpack.h"
 
-class DelayFilter : public NativeClass {
+class IirFilter : public NativeClass {
 private:
-    sp::Delay<double> delay;
+    sp::IIR_filt<double, double, double> iir_filt;
 
 public:
-    DelayFilter();
-    DelayFilter(int nDelay);
-    ~DelayFilter();
+    IirFilter();
+    ~IirFilter();
     Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
 };

@@ -541,7 +541,14 @@ bool VM::callValue(Value callee, int argCount)
             //> call-native
         case OBJ_NATIVE: {
             NativeFn native = AS_NATIVE(callee);
-            Value result = native(this, argCount, stackTop - argCount);
+            Value result = 0;
+            try {
+                result = native(this, argCount, stackTop - argCount);
+            }
+            catch (std::exception& e) {
+                runtimeError(e.what());
+                return false;
+            }
             stackTop -= argCount + 1;
             push(result);
             return true;
@@ -603,13 +610,78 @@ bool VM::invoke(ObjString* name, int argCount)
             runtimeError("The method does not exist in List.");
             return false;
         }
-        Value result = fn(this, AS_MAP(receiver), argCount, stackTop - argCount);
+        Value result = 0;
+        try {
+            result = fn(this, AS_MAP(receiver), argCount, stackTop - argCount);
+        }
+        catch (std::exception& e) {
+            runtimeError(e.what());
+            return false;
+        }
+        push(result);
+        return true;
+    }
+    else if (IS_COL(receiver)) {
+        NativeBooundFn fn = primitive.find(OBJ_COL, name->chars);
+        if (NULL == fn) {
+            runtimeError("The method does not exist in vec.");
+            return false;
+        }
+        Value result = 0;
+        try {
+            result = fn(this, AS_COL(receiver), argCount, stackTop - argCount);
+        }
+        catch (std::exception& e) {
+            runtimeError(e.what());
+            return false;
+        }
+        push(result);
+        return true;
+    }
+    else if (IS_ROW(receiver)) {
+        NativeBooundFn fn = primitive.find(OBJ_ROW, name->chars);
+        if (NULL == fn) {
+            runtimeError("The method does not exist in rowvec.");
+            return false;
+        }
+        Value result = 0;
+        try {
+            result = fn(this, AS_ROW(receiver), argCount, stackTop - argCount);
+        }
+        catch (std::exception& e) {
+            runtimeError(e.what());
+            return false;
+        }
+        push(result);
+        return true;
+    }
+    else if (IS_MAT(receiver)) {
+        NativeBooundFn fn = primitive.find(OBJ_MAT, name->chars);
+        if (NULL == fn) {
+            runtimeError("The method does not exist in mat.");
+            return false;
+        }
+        Value result = 0;
+        try {
+            result = fn(this, AS_MAT(receiver), argCount, stackTop - argCount);
+        }
+        catch (std::exception& e) {
+            runtimeError(e.what());
+            return false;
+        }
         push(result);
         return true;
     }
     else if (IS_NATIVE_OBJECT(receiver)) {
         ObjNativeObject* nobj = AS_NATIVE_OBJECT(receiver);
-        Value result = nobj->klass->invoke(this, name->chars, argCount, stackTop - argCount);
+        Value result = 0;
+        try {
+            result = nobj->klass->invoke(this, name->chars, argCount, stackTop - argCount);
+        }
+        catch (std::exception& e) {
+            runtimeError(e.what());
+            return false;
+        }
         push(result);
         return true;
     }
@@ -1119,64 +1191,94 @@ InterpretResult VM::run(void)
             //< Classes and Instances interpret-set-property
             //> Superclasses interpret-get-super
         case OP_GET_ELEMENT: {
-            if (!IS_LIST(peek(1))) {
-                runtimeError("Only list has elements.");
-                return INTERPRET_RUNTIME_ERROR;
-            }
-            ObjList* list = AS_LIST(peek(1));
-            if (IS_NUMBER(peek(2))) {
+            if (!IS_NUMBER(peek(0))) {
                 runtimeError("Index is not number.");
                 return INTERPRET_RUNTIME_ERROR;
             }
-            double index = AS_NUMBER(pop());
             Value value;
-            if (index >= 0) {
-                if (index >= list->container.size()) {
-                    runtimeError("Index is invalid.");
+            double index = AS_NUMBER(peek(0));
+            if (IS_LIST(peek(1))) {
+                ObjList* list = AS_LIST(peek(1));
+                try {
+                    value = list->get((int)index);
+                }
+                catch (std::exception& e) {
+                    runtimeError(e.what());
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+            }
+            else if (IS_COL(peek(1))) {
+                ObjCol* col = AS_COL(peek(1));
+                try {
+                    value = col->get((int)index);
+                }
+                catch (std::exception& e) {
+                    runtimeError(e.what());
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+            }
+            else if (IS_ROW(peek(1))) {
+                ObjRow* row = AS_ROW(peek(1));
+                try {
+                    value = row->get((int)index);
+                }
+                catch (std::exception& e) {
+                    runtimeError(e.what());
                     return INTERPRET_RUNTIME_ERROR;
                 }
             }
             else {
-                if (-index > list->container.size()) {
-                    runtimeError("Index is invalid.");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-                index = list->container.size() + index;
+                runtimeError("Only container has elements.");
+                return INTERPRET_RUNTIME_ERROR;
             }
-            LAX_LOG("list[%f] is peeked.", index);
-            value = list->container[index];
+            pop();
             pop();
             push(value);
             break;
         }
         case OP_SET_ELEMENT: {
-            if (!IS_LIST(peek(2))) {
-                runtimeError("Only list has elements.");
-                return INTERPRET_RUNTIME_ERROR;
-            }
-            ObjList* list = AS_LIST(peek(1));
-            double index = 0;
-            if (IS_NUMBER(peek(1))) {
+            if (!IS_NUMBER(peek(1))) {
                 runtimeError("Index is not number.");
                 return INTERPRET_RUNTIME_ERROR;
             }
-            if (index >= 0) {
-                if (index >= list->container.size()) {
-                    runtimeError("Index is invalid.");
+            double index = AS_NUMBER(peek(1));
+            if (IS_LIST(peek(2))) {
+                ObjList* list = AS_LIST(peek(2));
+                try {
+                    list->set((int)index, peek(0));
+                }
+                catch (std::exception& e) {
+                    runtimeError(e.what());
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+            }
+            else if (IS_COL(peek(2))) {
+                ObjCol* col = AS_COL(peek(2));
+                try {
+                    col->set((int)index, peek(0));
+                }
+                catch (std::exception& e) {
+                    runtimeError(e.what());
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+            }
+            else if (IS_ROW(peek(2))) {
+                ObjRow* row = AS_ROW(peek(2));
+                try {
+                    row->set((int)index, peek(0));
+                }
+                catch (std::exception& e) {
+                    runtimeError(e.what());
                     return INTERPRET_RUNTIME_ERROR;
                 }
             }
             else {
-                if (-index > list->container.size()) {
-                    runtimeError("Index is invalid.");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-                index = list->container.size() - index;
+                runtimeError("Only container has elements.");
+                return INTERPRET_RUNTIME_ERROR;
             }
-            list->container[index] = peek(0);
-            Value value = pop();
             pop();
-            push(value);
+            pop();
+            pop();
             break;
         }
         case OP_GET_SUPER: {

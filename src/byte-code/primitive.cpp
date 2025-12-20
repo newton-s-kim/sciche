@@ -38,8 +38,41 @@ static Value col_size(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
     return NUMBER_VAL(n);
 }
 
+static Value col_resize(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
+{
+    (void)factory;
+    if(1 != argc) throw std::runtime_error("invalid arguments.");
+    if(!IS_NUMBER(argv[0])) throw std::runtime_error("number is expected.");
+    ObjCol* col = (ObjCol*)obj;
+    col->value.resize(AS_NUMBER(argv[0]));
+    return NUMBER_VAL(0);
+}
+
+static Value col_zeros(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
+{
+    (void)factory;
+    (void)argc;
+    (void)argv;
+    ObjCol* col = (ObjCol*)obj;
+    col->value.zeros();
+    return NUMBER_VAL(0);
+}
+
+static Value col_transpose(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
+{
+    (void)argc;
+    (void)argv;
+    ObjRow* row = factory->newRow();
+    ObjCol* col = (ObjCol*)obj;
+    row->value = col->value.t();
+    return OBJ_VAL(row);
+}
+
 std::map<std::string, NativeBooundFn> s_col_apis = {
     {"size", col_size},
+    {"resize", col_resize},
+    {"zeros", col_zeros},
+    {"t", col_transpose}
 };
 
 std::map<std::string, NativeBooundFn> s_row_apis = {
@@ -56,6 +89,11 @@ NativeBooundFn Primitive::find(ObjType type, std::string name)
     switch (type) {
     case OBJ_LIST:
         it = s_list_apis.find(name);
+        if (it != s_list_apis.end())
+            fn = it->second;
+        break;
+    case OBJ_COL:
+        it = s_col_apis.find(name);
         if (it != s_list_apis.end())
             fn = it->second;
         break;

@@ -16,7 +16,7 @@ var Y = vec();
 Y.resize(N);
 
 for(var n = 0; n < N; n = n + 1) {
-    Y[n] = fir_filt(X[n]);
+    Y[n] = fir_filt.step(X[n]);
 }
 
 print "Filter coeffs: ";
@@ -30,6 +30,7 @@ b.add(0.25, 0.5, 0.25);
 a.add(1.0, -0.9);
 
 iir_filt.set_coeffs(b, a);
+Y = iir_filt.filter(X);
 
 print "IIR theor. impulse response: \n   0.2500   0.7250   0.9025   0.8123   0.7310   0.6579   0.5921   0.5329   0.4796   0.4317   0.3885 ...";
 println("IIR output: ", Y.t());
