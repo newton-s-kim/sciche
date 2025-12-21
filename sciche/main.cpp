@@ -38,6 +38,7 @@ static Value exitNative(ObjectFactory* factory, int argc, Value* args)
     exit(AS_NUMBER(n));
 }
 
+/*
 static Value sinNative(ObjectFactory* factory, int argc, Value* args)
 {
     (void)factory;
@@ -108,6 +109,7 @@ static Value phaseNative(ObjectFactory* factory, int argc, Value* args)
     }
     return NUMBER_VAL(0);
 }
+*/
 
 static Value vecNative(ObjectFactory* factory, int argc, Value* args)
 {
@@ -172,12 +174,14 @@ int main(int argc, char const* argv[])
     VM vm;
     vm.defineNative("println", printLnNative);
     vm.defineNative("exit", exitNative);
+    /*
     vm.defineNative("sin", sinNative);
     vm.defineNative("cos", cosNative);
     vm.defineNative("tan", tanNative);
     vm.defineNative("sqrt", sqrtNative);
     vm.defineNative("abs", absNative);
     vm.defineNative("phase", phaseNative);
+    */
     vm.defineNative("vec", vecNative);
     vm.defineNative("rowvec", rowVecNative);
     vm.defineNative("mat", matNative);

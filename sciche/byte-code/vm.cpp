@@ -434,6 +434,9 @@ VM::~VM()
     //> Strings call-free-objects
     freeObjects();
     //< Strings call-free-objects
+    for (std::map<std::string, dl*>::iterator it = m_dl.begin(); it != m_dl.end(); it++) {
+        delete it->second;
+    }
 }
 //> push
 void VM::push(Value value)
@@ -1871,4 +1874,28 @@ void VM::freeObjects()
     //< Garbage Collection free-gray-stack
 }
 //< Strings free-objects
+
+bool VM::loadLibrary(std::string path, std::string name)
+{
+    std::map<std::string, dl*>::iterator it = m_dl.find(name);
+    if (it != m_dl.end()) {
+        return false;
+    }
+    else {
+        dl* l = new dl(path, name);
+        std::vector<std::string> names;
+        std::vector<NativeFn> fns;
+        l->functions(names, fns);
+        if (names.size() != fns.size()) {
+            delete l;
+            return false;
+        }
+        for (size_t i = 0; i < names.size(); i++) {
+            defineNative(names[i].c_str(), fns[i]);
+        }
+        m_dl[name] = l;
+    }
+    return true;
+}
+
 //< interpret

@@ -157,7 +157,15 @@ TokenType Scanner::identifierType()
         break;
         //< keyword-f
     case 'i':
-        return checkKeyword(1, 1, "f", TOKEN_IF);
+        if (current - start > 1) {
+            switch (start[1]) {
+            case 'f':
+                return TOKEN_IF;
+            case 'n':
+                return checkKeyword(2, 5, "clude", TOKEN_INCLUDE);
+            }
+        }
+        break;
     case 'n':
         return checkKeyword(1, 2, "il", TOKEN_NIL);
     case 'o':

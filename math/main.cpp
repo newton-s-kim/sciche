@@ -71,14 +71,8 @@ static Value phaseNative(ObjectFactory* factory, int argc, Value* args)
     return NUMBER_VAL(0);
 }
 
-int math_functions(const char** names[], NativeFn* functions[]) {
-    static const char* math_names[] = {
-	    "sin", "cos", "tan", "sqrt", "abs", "phase"
-    };
-    static NativeFn math_fns[] = {
-	    sinNative, cosNative, tanNative, sqrtNative, absNative, phaseNative
-    };
-    *names = math_names;
-    *functions = math_fns;
-    return sizeof(math_names);
+extern "C" void math_functions(std::vector<std::string>& names, std::vector<NativeFn>& functions)
+{
+    names.assign({"sin", "cos", "tan", "sqrt", "abs", "phase"});
+    functions.assign({sinNative, cosNative, tanNative, sqrtNative, absNative, phaseNative});
 }

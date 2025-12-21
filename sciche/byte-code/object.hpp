@@ -334,6 +334,7 @@ public:
     virtual ObjRow* newRow(void) = 0;
     virtual ObjMat* newMat(void) = 0;
     virtual ObjNativeObject* newNativeObj(NativeClass* klass) = 0;
+    virtual bool loadLibrary(std::string path, std::string name) = 0;
 };
 
 //< is-obj-type

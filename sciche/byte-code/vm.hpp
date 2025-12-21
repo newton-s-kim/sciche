@@ -19,6 +19,7 @@
 #include "debug.hpp"
 #endif
 #include "compiler.hpp"
+#include "dl.hpp"
 #include "primitive.hpp"
 
 #include <map>
@@ -143,6 +144,7 @@ private:
     void markValue(Value value);
     void removeString(void);
     void collect(size_t oldSize, size_t newSize);
+    std::map<std::string, dl*> m_dl;
 
 public:
     //< Strings extern-vm
@@ -170,6 +172,7 @@ public:
     ObjRow* newRow(void);
     ObjMat* newMat(void);
     ObjNativeObject* newNativeObj(NativeClass* klass);
+    bool loadLibrary(std::string path, std::string name);
 };
 
 //< interpret-result

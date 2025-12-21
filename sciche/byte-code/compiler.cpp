@@ -16,6 +16,9 @@
 #ifdef DEBUG_PRINT_CODE
 #include "debug.hpp"
 #endif
+
+#include <filesystem>
+
 //< Compiling Expressions include-debug
 //> Compiling Expressions parser
 
@@ -25,12 +28,14 @@ program        → declaration* EOF ;
 declaration    → classDecl
                | funDecl
                | varDecl
+               | incDecl
                | statement ;
 
 classDecl      → "class" IDENTIFIER ( "<" IDENTIFIER )?
                  "{" function* "}" ;
 funDecl        → "fun" function ;
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+incDecl        → "include" STRING ";" ;
 
 statement      → exprStmt
                | forStmt
@@ -257,6 +262,7 @@ private:
     void method();
     void classDeclaration();
     void varDeclaration();
+    void incDeclaration();
     void forStatement();
     void statement();
     void ifStatement();
@@ -292,6 +298,7 @@ private:
     void emitBytes(uint8_t byte1, uint8_t byte2);
     uint8_t makeConstant(Value value);
     uint8_t identifierConstant(Token* name);
+    std::string findPath(std::string file);
 
 public:
     CompilerInterfaceConcrete(ObjectFactory* pFactory);
@@ -1322,6 +1329,7 @@ ParseRule rules[] = {
     //< Types of Values table-true
     [TOKEN_VAR] = {NULL, NULL, PREC_NONE},
     [TOKEN_WHILE] = {NULL, NULL, PREC_NONE},
+    [TOKEN_INCLUDE] = {NULL, NULL, PREC_NONE},
     [TOKEN_ERROR] = {NULL, NULL, PREC_NONE},
     [TOKEN_EOF] = {NULL, NULL, PREC_NONE},
 };
@@ -1558,7 +1566,51 @@ void CompilerInterfaceConcrete::varDeclaration()
 
     defineVariable(global);
 }
+
+std::string CompilerInterfaceConcrete::findPath(std::string file)
+{
+    LAX_LOG("findPath(%s)", file.c_str());
+    const char* dirs[] = {"./build/math/",
+                          "./build/sigpack/",
+                          "/usr/local/lib/sciche/",
+                          "/usr/lib/sciche/",
+                          "/usr/local/share/sciche/",
+                          "/usr/share/sciche/",
+                          NULL};
+    std::string candidate;
+    for (size_t i = 0; i < sizeof(dirs); i++) {
+        candidate = dirs[i] + file;
+        if (std::filesystem::exists(candidate))
+            return candidate;
+    }
+    return "";
+}
+
 //< Global Variables var-declaration
+void CompilerInterfaceConcrete::incDeclaration()
+{
+    if (parser.match(TOKEN_STRING)) {
+        std::string name(parser.previous.start + 1, parser.previous.length - 2);
+        std::string real_name = "lib" + name + ".so";
+        std::string path = findPath(real_name);
+        if (0 < path.size()) {
+            if (!factory->loadLibrary(path, name)) {
+                parser.error("failed loading library.");
+            }
+        }
+        else {
+            real_name = name + ".lox";
+            path = findPath(real_name);
+            if (0 < path.size()) {
+                parser.error("including a script is not supported");
+            }
+            else {
+                parser.error("file to include does not exist");
+            }
+        }
+    }
+    parser.consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
+}
 //> Global Variables expression-statement
 void CompilerInterfaceConcrete::expressionStatement()
 {
@@ -1770,6 +1822,9 @@ void CompilerInterfaceConcrete::declaration()
         //< Calls and Functions match-fun
         //> match-var
         varDeclaration();
+    }
+    else if (parser.match(TOKEN_INCLUDE)) {
+        incDeclaration();
     }
     else {
         statement();
