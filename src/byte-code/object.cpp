@@ -374,7 +374,7 @@ void ObjCol::set(int index, Value v)
         index = value.size() + index;
     }
     LAX_LOG("vec[%d] is set.", index);
-    value[index] = v;
+    value[index] = AS_NUMBER(v);
 }
 
 ObjRow::ObjRow() : Obj(OBJ_ROW)
@@ -426,7 +426,7 @@ void ObjRow::set(int index, Value v)
         }
         index = value.size() + index;
     }
-    value[index] = v;
+    value[index] = AS_NUMBER(v);
 }
 
 ObjMat::ObjMat() : Obj(OBJ_MAT)
