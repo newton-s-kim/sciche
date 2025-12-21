@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DIRS="src"
+DIRS="sciche math"
 EXTS="h cc hh hpp cpp c"
 
 find . -name "*~" -exec rm {} \;
