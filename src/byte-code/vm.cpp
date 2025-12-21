@@ -601,6 +601,9 @@ bool VM::invoke(ObjString* name, int argCount)
             return false;
         }
         Value result = fn(this, AS_LIST(receiver), argCount, stackTop - argCount);
+        for (int i = 0; i < argCount; i++)
+            pop();
+        pop();
         push(result);
         return true;
     }
@@ -618,6 +621,9 @@ bool VM::invoke(ObjString* name, int argCount)
             runtimeError(e.what());
             return false;
         }
+        for (int i = 0; i < argCount; i++)
+            pop();
+        pop();
         push(result);
         return true;
     }
@@ -635,6 +641,9 @@ bool VM::invoke(ObjString* name, int argCount)
             runtimeError(e.what());
             return false;
         }
+        for (int i = 0; i < argCount; i++)
+            pop();
+        pop();
         push(result);
         return true;
     }
@@ -652,6 +661,9 @@ bool VM::invoke(ObjString* name, int argCount)
             runtimeError(e.what());
             return false;
         }
+        for (int i = 0; i < argCount; i++)
+            pop();
+        pop();
         push(result);
         return true;
     }
@@ -669,6 +681,9 @@ bool VM::invoke(ObjString* name, int argCount)
             runtimeError(e.what());
             return false;
         }
+        for (int i = 0; i < argCount; i++)
+            pop();
+        pop();
         push(result);
         return true;
     }
@@ -682,6 +697,9 @@ bool VM::invoke(ObjString* name, int argCount)
             runtimeError(e.what());
             return false;
         }
+        for (int i = 0; i < argCount; i++)
+            pop();
+        pop();
         push(result);
         return true;
     }
@@ -1253,9 +1271,13 @@ InterpretResult VM::run(void)
                 }
             }
             else if (IS_COL(peek(2))) {
+                if (!IS_NUMBER(peek(0))) {
+                    runtimeError("number is expected");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
                 ObjCol* col = AS_COL(peek(2));
                 try {
-                    col->set((int)index, peek(0));
+                    col->set((int)index, AS_NUMBER(peek(0)));
                 }
                 catch (std::exception& e) {
                     runtimeError(e.what());
@@ -1263,6 +1285,10 @@ InterpretResult VM::run(void)
                 }
             }
             else if (IS_ROW(peek(2))) {
+                if (!IS_NUMBER(peek(0))) {
+                    runtimeError("number is expected");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
                 ObjRow* row = AS_ROW(peek(2));
                 try {
                     row->set((int)index, peek(0));
@@ -1276,7 +1302,6 @@ InterpretResult VM::run(void)
                 runtimeError("Only container has elements.");
                 return INTERPRET_RUNTIME_ERROR;
             }
-            pop();
             pop();
             pop();
             break;

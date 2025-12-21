@@ -25,6 +25,7 @@ Value DelayFilter::invoke(ObjectFactory* factory, std::string name, int argc, Va
             throw std::runtime_error("column vector is expected.");
         ObjCol* col = factory->newCol();
         col->value = delay.delay(AS_COL(argv[0])->value);
+        ret = OBJ_VAL(col);
     }
     else {
         throw std::runtime_error("non-existent method");

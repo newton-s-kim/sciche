@@ -25,6 +25,7 @@ print "Impulse response:";
 print Y.t();
 
 var iir_filt = IIR_filt();
+var b = vec();
 var a = vec();
 b.add(0.25, 0.5, 0.25);
 a.add(1.0, -0.9);
@@ -36,4 +37,4 @@ print "IIR theor. impulse response: \n   0.2500   0.7250   0.9025   0.8123   0.7
 println("IIR output: ", Y.t());
 var del = Delay(3);
 print "Delay three samples:";
-print del.delay(Y.t());
+print del.delay(Y).t();

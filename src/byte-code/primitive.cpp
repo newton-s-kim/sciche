@@ -68,10 +68,24 @@ static Value col_transpose(ObjectFactory* factory, Obj* obj, int argc, Value* ar
     return OBJ_VAL(row);
 }
 
+static Value col_add(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
+{
+    (void)factory;
+    ObjCol* col = (ObjCol*)obj;
+    size_t sz = col->value.n_elem;
+    col->value.resize(sz + argc);
+    for(int i = 0 ; i < argc ; i++) {
+        if(!IS_NUMBER(argv[i])) throw std::runtime_error("number is expected.");
+	col->value[sz + i] = AS_NUMBER(argv[i]);
+    }
+    return NUMBER_VAL(0);
+}
+
 std::map<std::string, NativeBooundFn> s_col_apis = {
     {"size", col_size},
     {"resize", col_resize},
     {"zeros", col_zeros},
+    {"add", col_add},
     {"t", col_transpose}
 };
 
