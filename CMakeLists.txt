@@ -4,3 +4,4 @@ project(sciche)
 
 add_subdirectory(sciche)
 add_subdirectory(math)
+add_subdirectory(sigpack)

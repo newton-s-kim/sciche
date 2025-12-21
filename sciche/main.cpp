@@ -8,7 +8,7 @@
 #include "readline.hpp"
 #include "vm.hpp"
 
-#include "sigpack/sp.hpp"
+// #include "sigpack/sp.hpp"
 
 void help(std::string programme)
 {
@@ -38,79 +38,6 @@ static Value exitNative(ObjectFactory* factory, int argc, Value* args)
     exit(AS_NUMBER(n));
 }
 
-/*
-static Value sinNative(ObjectFactory* factory, int argc, Value* args)
-{
-    (void)factory;
-    (void)argc;
-    if (IS_NUMBER(args[0])) {
-        return NUMBER_VAL(sin(AS_NUMBER(args[0])));
-    }
-    return NUMBER_VAL(0);
-}
-
-static Value cosNative(ObjectFactory* factory, int argc, Value* args)
-{
-    (void)factory;
-    (void)argc;
-    if (IS_NUMBER(args[0])) {
-        return NUMBER_VAL(cos(AS_NUMBER(args[0])));
-    }
-    return NUMBER_VAL(0);
-}
-
-static Value tanNative(ObjectFactory* factory, int argc, Value* args)
-{
-    (void)factory;
-    (void)argc;
-    if (IS_NUMBER(args[0])) {
-        return NUMBER_VAL(tan(AS_NUMBER(args[0])));
-    }
-    return NUMBER_VAL(0);
-}
-
-static Value sqrtNative(ObjectFactory* factory, int argc, Value* args)
-{
-    (void)factory;
-    (void)argc;
-    if (IS_NUMBER(args[0])) {
-        double v = AS_NUMBER(args[0]);
-        if (0 <= v) {
-            return NUMBER_VAL(sqrt(AS_NUMBER(args[0])));
-        }
-        else {
-            ObjComplex* cmplx = factory->newComplex(std::complex<double>(0, sqrt(-AS_NUMBER(args[0]))));
-            return OBJ_VAL(cmplx);
-        }
-    }
-    return NUMBER_VAL(0);
-}
-
-static Value absNative(ObjectFactory* factory, int argc, Value* args)
-{
-    (void)factory;
-    (void)argc;
-    if (IS_NUMBER(args[0])) {
-        return NUMBER_VAL(abs(AS_NUMBER(args[0])));
-    }
-    else if (IS_COMPLEX(args[0])) {
-        return NUMBER_VAL(abs(AS_COMPLEX(args[0])->value));
-    }
-    return NUMBER_VAL(0);
-}
-
-static Value phaseNative(ObjectFactory* factory, int argc, Value* args)
-{
-    (void)factory;
-    (void)argc;
-    (void)args;
-    if (IS_COMPLEX(args[0])) {
-        return NUMBER_VAL(arg(AS_COMPLEX(args[0])->value));
-    }
-    return NUMBER_VAL(0);
-}
-*/
-
 static Value vecNative(ObjectFactory* factory, int argc, Value* args)
 {
     (void)argc;
@@ -131,15 +58,6 @@ static Value matNative(ObjectFactory* factory, int argc, Value* args)
     (void)args;
     return OBJ_VAL(factory->newMat());
 }
-
-/*
-static Value fir_filtNative(ObjectFactory* factory, int argc, Value* args)
-{
-    (void)argc;
-    (void)args;
-
-}
-*/
 
 int main(int argc, char const* argv[])
 {
@@ -174,21 +92,9 @@ int main(int argc, char const* argv[])
     VM vm;
     vm.defineNative("println", printLnNative);
     vm.defineNative("exit", exitNative);
-    /*
-    vm.defineNative("sin", sinNative);
-    vm.defineNative("cos", cosNative);
-    vm.defineNative("tan", tanNative);
-    vm.defineNative("sqrt", sqrtNative);
-    vm.defineNative("abs", absNative);
-    vm.defineNative("phase", phaseNative);
-    */
     vm.defineNative("vec", vecNative);
     vm.defineNative("rowvec", rowVecNative);
     vm.defineNative("mat", matNative);
-    vm.defineNative("FIR_filt", firFiltNative);
-    vm.defineNative("IIR_filt", iirFiltNative);
-    vm.defineNative("fir1", fir1Native);
-    vm.defineNative("Delay", delayNative);
     vm.defineNumber("pi", M_PI);
     std::string prompt;
     prompt = ">> ";
