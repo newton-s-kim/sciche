@@ -68,6 +68,16 @@ static Value col_transpose(ObjectFactory* factory, Obj* obj, int argc, Value* ar
     return OBJ_VAL(row);
 }
 
+static Value col_randn(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
+{
+    (void)factory;
+    (void)argc;
+    (void)argv;
+    ObjCol* col = (ObjCol*)obj;
+    col->value.randn();
+    return NUMBER_VAL(0);
+}
+
 static Value col_add(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
 {
     (void)factory;
@@ -86,7 +96,8 @@ std::map<std::string, NativeBooundFn> s_col_apis = {
     {"resize", col_resize},
     {"zeros", col_zeros},
     {"add", col_add},
-    {"t", col_transpose}
+    {"t", col_transpose},
+    {"randn", col_randn}
 };
 
 std::map<std::string, NativeBooundFn> s_row_apis = {

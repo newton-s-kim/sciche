@@ -1383,6 +1383,15 @@ InterpretResult VM::run(void)
                     double a = AS_NUMBER(pop());
                     push(NUMBER_VAL(a + b));
                 }
+                else if (IS_COL(peek(0))) {
+                    double a = AS_NUMBER(peek(1));
+                    ObjCol* b = AS_COL(peek(0));
+                    pop();
+                    pop();
+                    ObjCol* c = newCol();
+                    c->value = a + b->value;
+                    push(OBJ_VAL(c));
+                }
                 else if (IS_COMPLEX(peek(0))) {
                     double a = AS_NUMBER(peek(1));
                     ObjComplex* b = AS_COMPLEX(peek(0));
@@ -1493,6 +1502,29 @@ InterpretResult VM::run(void)
                     ObjComplex* c = newComplex(std::complex<double>(a * b->value.real(), a * b->value.imag()));
                     push(OBJ_VAL(c));
                 }
+                else if (IS_COL(peek(0))) {
+                    double a = AS_NUMBER(peek(1));
+                    ObjCol* b = AS_COL(peek(0));
+                    pop();
+                    pop();
+                    ObjCol* c = newCol();
+                    c->value = a * b->value;
+                    push(OBJ_VAL(c));
+                }
+                else {
+                    calculated = false;
+                }
+            }
+            else if (IS_COL(peek(1))) {
+                if (IS_NUMBER(peek(0))) {
+                    ObjCol* a = AS_COL(peek(1));
+                    double b = AS_NUMBER(peek(0));
+                    pop();
+                    pop();
+                    ObjCol* c = newCol();
+                    c->value = a->value * b;
+                    push(OBJ_VAL(c));
+                }
                 else {
                     calculated = false;
                 }
@@ -1548,6 +1580,20 @@ InterpretResult VM::run(void)
                     calculated = false;
                 }
             }
+            else if (IS_COL(peek(1))) {
+                if (IS_NUMBER(peek(0))) {
+                    ObjCol* a = AS_COL(peek(1));
+                    double b = AS_NUMBER(peek(0));
+                    pop();
+                    pop();
+                    ObjCol* c = newCol();
+                    c->value = a->value / b;
+                    push(OBJ_VAL(c));
+                }
+                else {
+                    calculated = false;
+                }
+            }
             else if (IS_COMPLEX(peek(1))) {
                 if (IS_NUMBER(peek(0))) {
                     ObjComplex* a = AS_COMPLEX(peek(1));
@@ -1579,8 +1625,42 @@ InterpretResult VM::run(void)
             }
             break;
         }
-            //< Types of Values op-arithmetic
-            //> Types of Values op-not
+        case OP_MODULO: {
+            bool calculated = true;
+            if (IS_NUMBER(peek(1))) {
+                if (IS_NUMBER(peek(0))) {
+                    int b = (int)AS_NUMBER(pop());
+                    int a = (int)AS_NUMBER(pop());
+                    push(NUMBER_VAL(a % b));
+                }
+                else {
+                    calculated = false;
+                }
+            }
+            else if (IS_COL(peek(1))) {
+                if (IS_COL(peek(0))) {
+                    ObjCol* a = AS_COL(peek(1));
+                    ObjCol* b = AS_COL(peek(0));
+                    pop();
+                    pop();
+                    ObjCol* c = newCol();
+                    c->value = a->value % b->value;
+                    push(OBJ_VAL(c));
+                }
+                else {
+                    calculated = false;
+                }
+            }
+            else {
+                calculated = false;
+            }
+            if (!calculated) {
+                runtimeError("Operands must be numbers.");
+                return INTERPRET_RUNTIME_ERROR;
+            }
+            break;
+        } //< Types of Values op-arithmetic
+          //> Types of Values op-not
         case OP_NOT:
             push(BOOL_VAL(isFalsey(pop())));
             break;

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DIRS="sciche math"
+DIRS="sciche math sigpack"
 EXTS="h cc hh hpp cpp c"
 
 find . -name "*~" -exec rm {} \;

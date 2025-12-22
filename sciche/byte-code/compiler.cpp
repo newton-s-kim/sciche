@@ -889,6 +889,9 @@ void binary(bool canAssign, CompilerInterfaceConcrete* ci)
     case TOKEN_STAR:
         ci->emitByte(OP_MULTIPLY);
         break;
+    case TOKEN_PERCENT:
+        ci->emitByte(OP_MODULO);
+        break;
     case TOKEN_SLASH:
         ci->emitByte(OP_DIVIDE);
         break;
@@ -1237,6 +1240,7 @@ ParseRule rules[] = {
     [TOKEN_SEMICOLON] = {NULL, NULL, PREC_NONE},
     [TOKEN_SLASH] = {NULL, binary, PREC_FACTOR},
     [TOKEN_STAR] = {NULL, binary, PREC_FACTOR},
+    [TOKEN_PERCENT] = {NULL, binary, PREC_FACTOR},
     /* Compiling Expressions rules < Types of Values table-not
       [TOKEN_BANG]          = {NULL,     NULL,   PREC_NONE},
     */

@@ -58,6 +58,7 @@ typedef enum {
     OP_SUBTRACT,
     OP_MULTIPLY,
     OP_DIVIDE,
+    OP_MODULO,
     //> Types of Values not-op
     OP_NOT,
     //< Types of Values not-op

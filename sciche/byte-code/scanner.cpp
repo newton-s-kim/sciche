@@ -235,6 +235,8 @@ Token Scanner::string()
     while (peek() != '"' && !isAtEnd()) {
         if (peek() == '\n')
             line++;
+        if (peek() == '\\')
+            advance();
         advance();
     }
 
@@ -297,6 +299,8 @@ Token Scanner::scanToken()
         return makeToken(TOKEN_SLASH);
     case '*':
         return makeToken(TOKEN_STAR);
+    case '%':
+        return makeToken(TOKEN_PERCENT);
         //> two-char
     case '!':
         return makeToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);

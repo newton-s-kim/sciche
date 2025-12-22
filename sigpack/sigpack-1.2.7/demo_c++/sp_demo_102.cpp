@@ -12,7 +12,7 @@ int main()
     gp.window(0, "Spectrum", 10, 10, 500, 400);
     gp.window(1, "Time", 550, 10, 900, 400);
     gp.window(2, "Spectrogram", 10, 450, 1440, 500);
-#elif defined(unix)
+#else
     gplot gp0, gp1, gp2;
     gp0.window("Spectrum", 10, 10, 500, 400);
     gp1.window("Time", 550, 10, 900, 400);
@@ -52,7 +52,7 @@ int main()
     gp.ylabel("Frequency");
     gp.xlabel("Time");
     gp.image(P);
-#elif defined(unix)
+#else
     gp0.send2gp("set xtics (\"-Fs/2\" 1,\"0\" 256,\"Fs/2\" 512)"); // Direct call to gnuplot pipe
     gp0.ylabel("Power");
     gp0.xlabel("Frequency");

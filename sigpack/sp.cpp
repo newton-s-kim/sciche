@@ -2,6 +2,7 @@
 
 #include "delay.hpp"
 #include "fir.hpp"
+#include "gplot.hpp"
 #include "iir.hpp"
 
 #include "sigpack-1.2.7/sigpack/sigpack.h"
@@ -46,4 +47,58 @@ Value delayNative(ObjectFactory* factory, int argc, Value* args)
         throw std::runtime_error("number is expected.");
     ObjNativeObject* obj = factory->newNativeObj(new DelayFilter(AS_NUMBER(args[0])));
     return OBJ_VAL(obj);
+}
+
+Value gplotNative(ObjectFactory* factory, int argc, Value* args)
+{
+    (void)argc;
+    (void)args;
+    ObjNativeObject* obj = factory->newNativeObj(new gPlot());
+    return OBJ_VAL(obj);
+}
+
+// TODO: move to VM
+Value linspaceNative(ObjectFactory* factory, int argc, Value* args)
+{
+    ObjCol* vec = factory->newCol();
+    if (3 != argc)
+        throw std::runtime_error("invalid number of arguments.");
+    if (!IS_NUMBER(args[0]))
+        throw std::runtime_error("number is expected.");
+    if (!IS_NUMBER(args[1]))
+        throw std::runtime_error("number is expected.");
+    if (!IS_NUMBER(args[2]))
+        throw std::runtime_error("number is expected.");
+    vec->value = linspace(AS_NUMBER(args[0]), AS_NUMBER(args[1]), AS_NUMBER(args[2]));
+    return OBJ_VAL(vec);
+}
+
+Value specgramNative(ObjectFactory* factory, int argc, Value* args)
+{
+    ObjCol* vec = factory->newCol();
+    if (3 != argc)
+        throw std::runtime_error("invalid number of arguments.");
+    if (!IS_COL(args[0]))
+        throw std::runtime_error("vec is expected.");
+    if (!IS_NUMBER(args[1]))
+        throw std::runtime_error("number is expected.");
+    if (!IS_NUMBER(args[2]))
+        throw std::runtime_error("number is expected.");
+    vec->value = specgram(AS_COL(args[0])->value, AS_NUMBER(args[1]), AS_NUMBER(args[2]));
+    return OBJ_VAL(vec);
+}
+
+Value pwelchNative(ObjectFactory* factory, int argc, Value* args)
+{
+    ObjMat* mat = factory->newMat();
+    if (3 != argc)
+        throw std::runtime_error("invalid number of arguments.");
+    if (!IS_COL(args[0]))
+        throw std::runtime_error("vec is expected.");
+    if (!IS_NUMBER(args[1]))
+        throw std::runtime_error("number is expected.");
+    if (!IS_NUMBER(args[2]))
+        throw std::runtime_error("number is expected.");
+    mat->value = pwelch(AS_COL(args[0])->value, AS_NUMBER(args[1]), AS_NUMBER(args[2]));
+    return OBJ_VAL(mat);
 }
