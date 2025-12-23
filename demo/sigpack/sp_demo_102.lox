@@ -3,8 +3,7 @@ include "math";
 
 var N = 25000;
 var NFFT = 512;
-var n = vec();
-n.resize(N);
+var n = vec(N);
 
 var gp0 = gplot();
 var gp1 = gplot();

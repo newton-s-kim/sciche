@@ -40,23 +40,48 @@ static Value exitNative(ObjectFactory* factory, int argc, Value* args)
 
 static Value vecNative(ObjectFactory* factory, int argc, Value* args)
 {
-    (void)argc;
-    (void)args;
-    return OBJ_VAL(factory->newCol());
+    size_t sz = 0;
+    if (1 == argc) {
+        if (!IS_NUMBER(args[0]))
+            throw std::runtime_error("number is expected");
+        sz = AS_NUMBER(args[0]);
+    }
+    else if (1 < argc) {
+        throw std::runtime_error("invalid arguments");
+    }
+    return OBJ_VAL(factory->newCol(sz));
 }
 
 static Value rowVecNative(ObjectFactory* factory, int argc, Value* args)
 {
-    (void)argc;
-    (void)args;
-    return OBJ_VAL(factory->newRow());
+    size_t sz = 0;
+    if (1 == argc) {
+        if (!IS_NUMBER(args[0]))
+            throw std::runtime_error("number is expected");
+        sz = AS_NUMBER(args[0]);
+    }
+    else if (1 < argc) {
+        throw std::runtime_error("invalid arguments");
+    }
+    return OBJ_VAL(factory->newRow(sz));
 }
 
 static Value matNative(ObjectFactory* factory, int argc, Value* args)
 {
-    (void)argc;
-    (void)args;
-    return OBJ_VAL(factory->newMat());
+    size_t rows = 0, cols = 0;
+    if (2 == argc) {
+        if (!IS_NUMBER(args[0]))
+            throw std::runtime_error("number is expected");
+        if (!IS_NUMBER(args[1]))
+            throw std::runtime_error("number is expected");
+        rows = AS_NUMBER(args[0]);
+        cols = AS_NUMBER(args[1]);
+    }
+    else if (2 < argc) {
+        throw std::runtime_error("invalid arguments");
+    }
+
+    return OBJ_VAL(factory->newMat(rows, cols));
 }
 
 int main(int argc, char const* argv[])

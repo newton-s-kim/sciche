@@ -749,26 +749,32 @@ ObjMap* VM::newMap(void)
     objects = ret;
     return ret;
 }
-ObjCol* VM::newCol(void)
+ObjCol* VM::newCol(size_t size)
 {
     collect(0, sizeof(ObjCol));
     ObjCol* ret = new ObjCol();
+    if (0 < size)
+        ret->value.resize(size);
     ret->next = objects;
     objects = ret;
     return ret;
 }
-ObjRow* VM::newRow(void)
+ObjRow* VM::newRow(size_t size)
 {
     collect(0, sizeof(ObjRow));
     ObjRow* ret = new ObjRow();
+    if (0 < size)
+        ret->value.resize(size);
     ret->next = objects;
     objects = ret;
     return ret;
 }
-ObjMat* VM::newMat(void)
+ObjMat* VM::newMat(size_t rows, size_t cols)
 {
     collect(0, sizeof(ObjMat));
     ObjMat* ret = new ObjMat();
+    if (0 < rows && 0 < cols)
+        ret->value.resize(rows, cols);
     ret->next = objects;
     objects = ret;
     return ret;

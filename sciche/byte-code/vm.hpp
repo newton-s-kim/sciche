@@ -168,9 +168,9 @@ public:
     ObjComplex* newComplex(const std::complex<double> cv);
     ObjList* newList(void);
     ObjMap* newMap(void);
-    ObjCol* newCol(void);
-    ObjRow* newRow(void);
-    ObjMat* newMat(void);
+    ObjCol* newCol(size_t size = 0);
+    ObjRow* newRow(size_t size = 0);
+    ObjMat* newMat(size_t rows = 0, size_t cols = 0);
     ObjNativeObject* newNativeObj(NativeClass* klass);
     bool loadLibrary(std::string path, std::string name);
 };

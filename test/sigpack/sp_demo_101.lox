@@ -10,12 +10,10 @@ var fir_filt = FIR_filt();
 var b = fir1(7, 0.35);
 fir_filt.set_coeffs(b);
 
-var X = vec();
-X.resize(N);
+var X = vec(N);
 X[0] = 1;
 
-var Y = vec();
-Y.resize(N);
+var Y = vec(N);
 
 for(var n = 0; n < N; n = n + 1) {
     Y[n] = fir_filt.step(X[n]);
