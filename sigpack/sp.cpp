@@ -102,3 +102,33 @@ Value pwelchNative(ObjectFactory* factory, int argc, Value* args)
     mat->value = pwelch(AS_COL(args[0])->value, AS_NUMBER(args[1]), AS_NUMBER(args[2]));
     return OBJ_VAL(mat);
 }
+
+Value freqzNative(ObjectFactory* factory, int argc, Value* args)
+{
+    if (3 != argc)
+        throw std::runtime_error("invalid number of arguments.");
+    if (!IS_COL(args[0]))
+        throw std::runtime_error("vec is expected.");
+    if (!IS_COL(args[1]))
+        throw std::runtime_error("vec is expected.");
+    if (!IS_NUMBER(args[2]))
+        throw std::runtime_error("number is expected.");
+    ObjCol* c = factory->newCol();
+    c->value = freqz(AS_COL(args[0])->value, AS_COL(args[1])->value, AS_NUMBER(args[2]));
+    return OBJ_VAL(c);
+}
+
+Value phasezNative(ObjectFactory* factory, int argc, Value* args)
+{
+    if (3 != argc)
+        throw std::runtime_error("invalid number of arguments.");
+    if (!IS_COL(args[0]))
+        throw std::runtime_error("vec is expected.");
+    if (!IS_COL(args[1]))
+        throw std::runtime_error("vec is expected.");
+    if (!IS_NUMBER(args[2]))
+        throw std::runtime_error("number is expected.");
+    ObjCol* c = factory->newCol();
+    c->value = phasez(AS_COL(args[0])->value, AS_COL(args[1])->value, AS_NUMBER(args[2]));
+    return OBJ_VAL(c);
+}

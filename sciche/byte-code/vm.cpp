@@ -858,7 +858,7 @@ ObjString* VM::newString(std::string pchars)
 {
     std::string chars;
     for (const char* p = pchars.c_str(); *p; p++) {
-        LAX_LOG("p: %c", *p);
+        // LAX_LOG("p: %c", *p);
         if ('\\' == *p) {
             p++;
             switch (*p) {

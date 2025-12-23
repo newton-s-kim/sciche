@@ -10,3 +10,5 @@ Value gplotNative(ObjectFactory* factory, int argc, Value* args);
 Value linspaceNative(ObjectFactory* factory, int argc, Value* args);
 Value specgramNative(ObjectFactory* factory, int argc, Value* args);
 Value pwelchNative(ObjectFactory* factory, int argc, Value* args);
+Value freqzNative(ObjectFactory* factory, int argc, Value* args);
+Value phasezNative(ObjectFactory* factory, int argc, Value* args);
