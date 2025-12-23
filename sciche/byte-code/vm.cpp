@@ -854,8 +854,53 @@ ObjString* VM::allocateString(std::string chars)
 }
 //< allocate-string
 //> take-string
-ObjString* VM::newString(std::string chars)
+ObjString* VM::newString(std::string pchars)
 {
+    std::string chars;
+    for (const char* p = pchars.c_str(); *p; p++) {
+        LAX_LOG("p: %c", *p);
+        if ('\\' == *p) {
+            p++;
+            switch (*p) {
+            case '"':
+                chars += '"';
+                break;
+            case '\\':
+                chars += '\\';
+                break;
+            case '%':
+                chars += '%';
+                break;
+            case '0':
+                chars += '\0';
+                break;
+            case 'a':
+                chars += '\a';
+                break;
+            case 'b':
+                chars += '\b';
+                break;
+            case 'e':
+                chars += '\e';
+                break;
+            case 'f':
+                chars += '\f';
+                break;
+            case 'n':
+                chars += '\n';
+                break;
+            case 'r':
+                chars += '\r';
+                break;
+            case 't':
+                chars += '\t';
+                break;
+            }
+        }
+        else {
+            chars += *p;
+        }
+    }
     //> take-string-intern
     std::map<std::string, ObjString*>::iterator found = strings.find(chars);
     ObjString* interned = (found == strings.end()) ? NULL : found->second;
@@ -1425,6 +1470,17 @@ InterpretResult VM::run(void)
                     calculated = false;
                 }
             }
+            else if (IS_COL(peek(1))) {
+                if (IS_COL(peek(0))) {
+                    ObjCol* a = AS_COL(peek(1));
+                    ObjCol* b = AS_COL(peek(0));
+                    pop();
+                    pop();
+                    ObjCol* c = newCol();
+                    c->value = a->value + b->value;
+                    push(OBJ_VAL(c));
+                }
+            }
             else {
                 calculated = false;
             }
@@ -1508,6 +1564,15 @@ InterpretResult VM::run(void)
                     pop();
                     pop();
                     ObjCol* c = newCol();
+                    c->value = a * b->value;
+                    push(OBJ_VAL(c));
+                }
+                else if (IS_MAT(peek(0))) {
+                    double a = AS_NUMBER(peek(1));
+                    ObjMat* b = AS_MAT(peek(0));
+                    pop();
+                    pop();
+                    ObjMat* c = newMat();
                     c->value = a * b->value;
                     push(OBJ_VAL(c));
                 }

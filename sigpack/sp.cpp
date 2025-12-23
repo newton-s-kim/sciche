@@ -75,7 +75,7 @@ Value linspaceNative(ObjectFactory* factory, int argc, Value* args)
 
 Value specgramNative(ObjectFactory* factory, int argc, Value* args)
 {
-    ObjCol* vec = factory->newCol();
+    ObjMat* m = factory->newMat();
     if (3 != argc)
         throw std::runtime_error("invalid number of arguments.");
     if (!IS_COL(args[0]))
@@ -84,8 +84,8 @@ Value specgramNative(ObjectFactory* factory, int argc, Value* args)
         throw std::runtime_error("number is expected.");
     if (!IS_NUMBER(args[2]))
         throw std::runtime_error("number is expected.");
-    vec->value = specgram(AS_COL(args[0])->value, AS_NUMBER(args[1]), AS_NUMBER(args[2]));
-    return OBJ_VAL(vec);
+    m->value = specgram(AS_COL(args[0])->value, AS_NUMBER(args[1]), AS_NUMBER(args[2]));
+    return OBJ_VAL(m);
 }
 
 Value pwelchNative(ObjectFactory* factory, int argc, Value* args)

@@ -53,15 +53,25 @@ Value gPlot::invoke(ObjectFactory* factory, std::string name, int argc, Value* a
         m_gplot.send2gp(AS_STRING(argv[0])->chars.c_str());
     }
     else if ("plot_add" == name) {
-        if (3 != argc)
+        if (3 == argc) {
+            if (!IS_COL(argv[0]))
+                throw std::runtime_error("col is expected.");
+            if (!IS_COL(argv[1]))
+                throw std::runtime_error("col is expected.");
+            if (!IS_STRING(argv[2]))
+                std::runtime_error("string is expected.");
+            m_gplot.plot_add(AS_COL(argv[0])->value, AS_COL(argv[1])->value, AS_STRING(argv[2])->chars);
+        }
+        else if (2 == argc) {
+            if (!IS_MAT(argv[0]))
+                throw std::runtime_error("mat is expected.");
+            if (!IS_STRING(argv[1]))
+                std::runtime_error("string is expected.");
+            m_gplot.plot_add(AS_MAT(argv[0])->value, AS_STRING(argv[1])->chars);
+        }
+        else {
             throw std::runtime_error("invalid arguments");
-        if (!IS_COL(argv[0]))
-            throw std::runtime_error("col is expected.");
-        if (!IS_COL(argv[1]))
-            throw std::runtime_error("col is expected.");
-        if (!IS_STRING(argv[2]))
-            std::runtime_error("string is expected.");
-        m_gplot.plot_add(AS_COL(argv[0])->value, AS_COL(argv[1])->value, AS_STRING(argv[2])->chars);
+        }
     }
     else if ("plot_show" == name) {
         m_gplot.plot_show();
