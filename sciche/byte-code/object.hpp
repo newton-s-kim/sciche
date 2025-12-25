@@ -258,6 +258,8 @@ public:
     ~ObjMap();
     std::string stringify(void);
     void blaken(void);
+    Value get(std::string index);
+    void set(std::string index, Value v);
 };
 
 class ObjCol : public Obj {

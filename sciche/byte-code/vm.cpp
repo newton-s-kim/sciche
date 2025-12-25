@@ -319,6 +319,13 @@ static Value listNative(ObjectFactory* factory, int argCount, Value* args)
         list->container.push_back(args[argc]);
     return OBJ_VAL(list);
 }
+static Value mapNative(ObjectFactory* factory, int argCount, Value* args)
+{
+    (void)argCount;
+    (void)args;
+    ObjMap* map = factory->newMap();
+    return OBJ_VAL(map);
+}
 //< Calls and Functions clock-native
 //> reset-stack
 void VM::resetStack()
@@ -420,6 +427,7 @@ VM::VM()
 
     defineNative("clock", clockNative);
     defineNative("List", listNative);
+    defineNative("Map", mapNative);
     //< Calls and Functions define-native-clock
 }
 
@@ -613,7 +621,7 @@ bool VM::invoke(ObjString* name, int argCount)
     else if (IS_MAP(receiver)) {
         NativeBooundFn fn = primitive.find(OBJ_MAP, name->chars);
         if (NULL == fn) {
-            runtimeError("The method does not exist in List.");
+            runtimeError("The method does not exist in Map.");
             return false;
         }
         Value result = 0;
@@ -1263,44 +1271,63 @@ InterpretResult VM::run(void)
             //< Classes and Instances interpret-set-property
             //> Superclasses interpret-get-super
         case OP_GET_ELEMENT: {
-            if (!IS_NUMBER(peek(0))) {
-                runtimeError("Index is not number.");
-                return INTERPRET_RUNTIME_ERROR;
-            }
             Value value;
-            double index = AS_NUMBER(peek(0));
-            if (IS_LIST(peek(1))) {
-                ObjList* list = AS_LIST(peek(1));
-                try {
-                    value = list->get((int)index);
+            if (IS_NUMBER(peek(0))) {
+                double index = AS_NUMBER(peek(0));
+                if (IS_LIST(peek(1))) {
+                    ObjList* list = AS_LIST(peek(1));
+                    try {
+                        value = list->get((int)index);
+                    }
+                    catch (std::exception& e) {
+                        runtimeError(e.what());
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
                 }
-                catch (std::exception& e) {
-                    runtimeError(e.what());
+                else if (IS_COL(peek(1))) {
+                    ObjCol* col = AS_COL(peek(1));
+                    try {
+                        value = NUMBER_VAL(col->get((int)index));
+                    }
+                    catch (std::exception& e) {
+                        runtimeError(e.what());
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                }
+                else if (IS_ROW(peek(1))) {
+                    ObjRow* row = AS_ROW(peek(1));
+                    try {
+                        value = NUMBER_VAL(row->get((int)index));
+                    }
+                    catch (std::exception& e) {
+                        runtimeError(e.what());
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                }
+                else {
+                    runtimeError("Only container has elements.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
             }
-            else if (IS_COL(peek(1))) {
-                ObjCol* col = AS_COL(peek(1));
-                try {
-                    value = NUMBER_VAL(col->get((int)index));
+            else if (IS_STRING(peek(0))) {
+                ObjString* index = AS_STRING(peek(0));
+                if (IS_MAP(peek(1))) {
+                    ObjMap* map = AS_MAP(peek(1));
+                    try {
+                        value = map->get(index->chars);
+                    }
+                    catch (std::exception& e) {
+                        runtimeError(e.what());
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
                 }
-                catch (std::exception& e) {
-                    runtimeError(e.what());
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-            }
-            else if (IS_ROW(peek(1))) {
-                ObjRow* row = AS_ROW(peek(1));
-                try {
-                    value = NUMBER_VAL(row->get((int)index));
-                }
-                catch (std::exception& e) {
-                    runtimeError(e.what());
+                else {
+                    runtimeError("Only container has elements.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
             }
             else {
-                runtimeError("Only container has elements.");
+                runtimeError("Index is not number.");
                 return INTERPRET_RUNTIME_ERROR;
             }
             pop();
@@ -1309,51 +1336,70 @@ InterpretResult VM::run(void)
             break;
         }
         case OP_SET_ELEMENT: {
-            if (!IS_NUMBER(peek(1))) {
-                runtimeError("Index is not number.");
-                return INTERPRET_RUNTIME_ERROR;
-            }
-            double index = AS_NUMBER(peek(1));
-            if (IS_LIST(peek(2))) {
-                ObjList* list = AS_LIST(peek(2));
-                try {
-                    list->set((int)index, peek(0));
+            if (IS_NUMBER(peek(1))) {
+                double index = AS_NUMBER(peek(1));
+                if (IS_LIST(peek(2))) {
+                    ObjList* list = AS_LIST(peek(2));
+                    try {
+                        list->set((int)index, peek(0));
+                    }
+                    catch (std::exception& e) {
+                        runtimeError(e.what());
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
                 }
-                catch (std::exception& e) {
-                    runtimeError(e.what());
+                else if (IS_COL(peek(2))) {
+                    if (!IS_NUMBER(peek(0))) {
+                        runtimeError("number is expected");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                    ObjCol* col = AS_COL(peek(2));
+                    try {
+                        col->set((int)index, peek(0));
+                    }
+                    catch (std::exception& e) {
+                        runtimeError(e.what());
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                }
+                else if (IS_ROW(peek(2))) {
+                    if (!IS_NUMBER(peek(0))) {
+                        runtimeError("number is expected");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                    ObjRow* row = AS_ROW(peek(2));
+                    try {
+                        row->set((int)index, peek(0));
+                    }
+                    catch (std::exception& e) {
+                        runtimeError(e.what());
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                }
+                else {
+                    runtimeError("Only container has elements.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
             }
-            else if (IS_COL(peek(2))) {
-                if (!IS_NUMBER(peek(0))) {
-                    runtimeError("number is expected");
-                    return INTERPRET_RUNTIME_ERROR;
+            else if (IS_STRING(peek(1))) {
+                ObjString* index = AS_STRING(peek(1));
+                if (IS_MAP(peek(2))) {
+                    ObjMap* map = AS_MAP(peek(2));
+                    try {
+                        map->set(index->chars, peek(0));
+                    }
+                    catch (std::exception& e) {
+                        runtimeError(e.what());
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
                 }
-                ObjCol* col = AS_COL(peek(2));
-                try {
-                    col->set((int)index, peek(0));
-                }
-                catch (std::exception& e) {
-                    runtimeError(e.what());
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-            }
-            else if (IS_ROW(peek(2))) {
-                if (!IS_NUMBER(peek(0))) {
-                    runtimeError("number is expected");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-                ObjRow* row = AS_ROW(peek(2));
-                try {
-                    row->set((int)index, peek(0));
-                }
-                catch (std::exception& e) {
-                    runtimeError(e.what());
+                else {
+                    runtimeError("Only container has elements.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
             }
             else {
-                runtimeError("Only container has elements.");
+                runtimeError("Index is not number.");
                 return INTERPRET_RUNTIME_ERROR;
             }
             pop();

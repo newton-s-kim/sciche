@@ -912,6 +912,7 @@ void list(bool canAssign, CompilerInterfaceConcrete* ci)
     (void)canAssign;
     uint8_t argCount = ci->ListArgList();
     ci->emitBytes(OP_LIST, argCount);
+    // TODO: more study is needed for var a = []
 }
 void member(bool canAssign, CompilerInterfaceConcrete* ci)
 {
@@ -931,6 +932,17 @@ void map(bool canAssign, CompilerInterfaceConcrete* ci)
     (void)canAssign;
     uint8_t argCount = ci->MapArgList();
     ci->emitBytes(OP_MAP, argCount);
+    // TODO: more study is needed for var a = {}
+    /*
+    if(canAssign && ci->parser.match(TOKEN_EQUAL)) {
+        int arg = ci->resolveLocal(ci->current, &name);
+        if (arg != -1) {
+            ci->emitBytes(OP_SET_LOCAL, arg);
+        } else {
+            ci->emitBytes(OP_SET_GLOBAL, arg);
+        }
+    }
+    */
 }
 //< Calls and Functions compile-call
 //> Classes and Instances compile-dot
