@@ -29,8 +29,6 @@ std::map<std::string, NativeBooundFn> s_list_apis = {
 };
 // clang-format on
 
-// clang-format off
-
 static Value map_size(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
 {
     (void)factory;
@@ -40,6 +38,7 @@ static Value map_size(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
     return NUMBER_VAL(map->container.size());
 }
 
+// clang-format off
 std::map<std::string, NativeBooundFn> s_map_apis = {
     {"size", map_size}
 };
@@ -111,12 +110,37 @@ static Value col_add(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
     return NUMBER_VAL(0);
 }
 
-std::map<std::string, NativeBooundFn> s_col_apis = {{"size", col_size}, {"resize", col_resize}, {"zeros", col_zeros},
-                                                    {"add", col_add},   {"t", col_transpose},   {"randn", col_randn}};
+// clang-format off
+std::map<std::string, NativeBooundFn> s_col_apis = {
+    {"size", col_size},
+    {"resize", col_resize},
+    {"zeros", col_zeros},
+    {"add", col_add},
+    {"t", col_transpose},
+    {"randn", col_randn}
+};
+// clang-format on
 
 std::map<std::string, NativeBooundFn> s_row_apis = {};
 
-std::map<std::string, NativeBooundFn> s_mat_apis = {};
+static Value mat_col(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
+{
+    (void)factory;
+    ObjMat* mat = (ObjMat*)obj;
+    if (2 != argc)
+        throw std::runtime_error("invalid number of arguments");
+    if (!IS_NUMBER(argv[0]))
+        throw std::runtime_error("number is expected.");
+    if (!IS_COL(argv[1]))
+        throw std::runtime_error("vec is expected.");
+    mat->value.col(AS_NUMBER(argv[0])) = AS_COL(argv[1])->value;
+    return NUMBER_VAL(0);
+}
+
+// clang-format off
+std::map<std::string, NativeBooundFn> s_mat_apis = {
+    {"col", mat_col}
+};
 // clang-format on
 
 NativeBooundFn Primitive::find(ObjType type, std::string name)
@@ -136,7 +160,12 @@ NativeBooundFn Primitive::find(ObjType type, std::string name)
         break;
     case OBJ_COL:
         it = s_col_apis.find(name);
-        if (it != s_list_apis.end())
+        if (it != s_col_apis.end())
+            fn = it->second;
+        break;
+    case OBJ_MAT:
+        it = s_mat_apis.find(name);
+        if (it != s_mat_apis.end())
             fn = it->second;
         break;
     default:

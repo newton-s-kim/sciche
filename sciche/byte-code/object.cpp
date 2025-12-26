@@ -378,7 +378,7 @@ Value ObjCol::get(int index)
         index = value.size() + index;
     }
     LAX_LOG("vec[%d] is peeked.", index);
-    return value[index];
+    return NUMBER_VAL(value[index]);
 }
 
 void ObjCol::set(int index, Value v)
@@ -431,7 +431,7 @@ Value ObjRow::get(int index)
         index = value.size() + index;
     }
     LAX_LOG("vec[%d] is peeked.", index);
-    return value[index];
+    return NUMBER_VAL(value[index]);
 }
 
 void ObjRow::set(int index, Value v)

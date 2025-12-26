@@ -153,6 +153,8 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
     case OP_DIVIDE:
         return simpleInstruction("OP_DIVIDE", offset);
         //> Types of Values disassemble-not
+    case OP_MODULO:
+        return simpleInstruction("OP_MODULO", offset);
     case OP_NOT:
         return simpleInstruction("OP_NOT", offset);
         //< Types of Values disassemble-not

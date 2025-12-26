@@ -12,7 +12,7 @@ int main()
     def_vec_int << 1 << 2 << 3 << 4;
 
     // Create parser
-    sp::parser testpar("..\\test.par");
+    sp::parser testpar("./test.par");
 
     std::string my_text = testpar.getString("my_text", "DEFAULT"); // String
     int N = testpar.getParam("N", 125000);                         // Int

@@ -77,7 +77,7 @@ static Value matNative(ObjectFactory* factory, int argc, Value* args)
         rows = AS_NUMBER(args[0]);
         cols = AS_NUMBER(args[1]);
     }
-    else if (2 < argc) {
+    else {
         throw std::runtime_error("invalid arguments");
     }
 

@@ -1287,7 +1287,7 @@ InterpretResult VM::run(void)
                 else if (IS_COL(peek(1))) {
                     ObjCol* col = AS_COL(peek(1));
                     try {
-                        value = NUMBER_VAL(col->get((int)index));
+                        value = col->get((int)index);
                     }
                     catch (std::exception& e) {
                         runtimeError(e.what());
@@ -1297,7 +1297,7 @@ InterpretResult VM::run(void)
                 else if (IS_ROW(peek(1))) {
                     ObjRow* row = AS_ROW(peek(1));
                     try {
-                        value = NUMBER_VAL(row->get((int)index));
+                        value = row->get((int)index);
                     }
                     catch (std::exception& e) {
                         runtimeError(e.what());
