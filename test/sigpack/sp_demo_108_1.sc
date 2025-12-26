@@ -56,4 +56,16 @@ println("Filter coeffs:    ", b.t()); // expect: Filter coeffs:      -0.2000  -0
 // expect:
 println("Estimated coeffs: ", Ghat.get_coeffs().t()); // expect: Estimated coeffs:   -0.2000  -0.1000   0.0999   0.3000   0.7000
 // expect:
+var gp0 = gplot();
+var gp1 = gplot();
+gp0.window("Plot", 10, 10, 500, 500);
+//    gp0.set_output("Wlog.png");
+gp0.plot_add_mat(Wlog, "b");
+gp0.plot_show();
+
+gp1.window("Plot2", 600, 10, 500, 500);
+//    gp1.set_output("LMS_err.png");
+var J = 10 * log10(e % e);
+gp1.plot_add(J, "|Error|^2");
+gp1.plot_show();
 
