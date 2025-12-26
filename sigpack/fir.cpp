@@ -21,6 +21,13 @@ Value FirFilter::invoke(ObjectFactory* factory, std::string name, int argc, Valu
             throw std::runtime_error("column vector is expected.");
         fir_filt.set_coeffs(AS_COL(argv[0])->value);
     }
+    else if ("update_coeffs" == name) {
+        if (1 != argc)
+            throw std::runtime_error("invalid number of arguments.");
+        if (!IS_COL(argv[0]))
+            throw std::runtime_error("column vector is expected.");
+        fir_filt.update_coeffs(AS_COL(argv[0])->value);
+    }
     else if ("get_coeffs" == name) {
         if (0 < argc)
             throw std::runtime_error("invalid number of arguments.");
@@ -53,6 +60,26 @@ Value FirFilter::invoke(ObjectFactory* factory, std::string name, int argc, Valu
         if (!IS_NUMBER(argv[1]))
             throw std::runtime_error("number is expected.");
         fir_filt.setup_lms(AS_NUMBER(argv[0]), AS_NUMBER(argv[1]));
+    }
+    else if ("kalman_adapt" == name) {
+        if (1 != argc)
+            throw std::runtime_error("invalid number of arguments.");
+        if (!IS_NUMBER(argv[0]))
+            throw std::runtime_error("number is expected.");
+        fir_filt.kalman_adapt(AS_NUMBER(argv[0]));
+    }
+    else if ("setup_kalman" == name) {
+        if (4 != argc)
+            throw std::runtime_error("invalid number of arguments.");
+        if (!IS_NUMBER(argv[0]))
+            throw std::runtime_error("number is expected.");
+        if (!IS_NUMBER(argv[1]))
+            throw std::runtime_error("number is expected.");
+        if (!IS_NUMBER(argv[2]))
+            throw std::runtime_error("number is expected.");
+        if (!IS_NUMBER(argv[3]))
+            throw std::runtime_error("number is expected.");
+        fir_filt.setup_kalman(AS_NUMBER(argv[0]), AS_NUMBER(argv[1]), AS_NUMBER(argv[2]), AS_NUMBER(argv[3]));
     }
     else if ("lms_adapt" == name) {
         if (1 != argc)
