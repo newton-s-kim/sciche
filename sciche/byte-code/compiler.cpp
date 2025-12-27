@@ -916,15 +916,14 @@ void list(bool canAssign, CompilerInterfaceConcrete* ci)
 }
 void member(bool canAssign, CompilerInterfaceConcrete* ci)
 {
-    ci->expression();
-    ci->parser.consume(TOKEN_RIGHT_BRACKET, "Expect ']' after arguments.");
+    uint8_t argCount = ci->ListArgList();
     if (canAssign && ci->parser.match(TOKEN_EQUAL)) {
         ci->expression();
-        ci->emitByte(OP_SET_ELEMENT);
+        ci->emitBytes(OP_SET_ELEMENT, argCount);
         //> Methods and Initializers parse-call
     }
     else {
-        ci->emitByte(OP_GET_ELEMENT);
+        ci->emitBytes(OP_GET_ELEMENT, argCount);
     }
 }
 void map(bool canAssign, CompilerInterfaceConcrete* ci)

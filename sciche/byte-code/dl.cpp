@@ -8,6 +8,7 @@ dl::dl(std::string path, std::string name) : m_handle(NULL), m_fn(NULL), m_name(
     if (!m_handle)
         throw std::runtime_error(dlerror());
     m_fn_name = m_name + "_functions";
+    m_sym_name = m_name + "_symbols";
 }
 
 dl::~dl()
@@ -24,4 +25,14 @@ void dl::functions(std::vector<std::string>& names, std::vector<NativeFn>& funct
             throw std::runtime_error(dlerror());
     }
     m_fn(names, functions);
+}
+
+void dl::symbols(std::vector<std::string>& names, std::vector<double>& symbols)
+{
+    if (NULL == m_sym) {
+        m_sym = (libsym)dlsym(m_handle, m_sym_name.c_str());
+        if (!m_sym)
+            throw std::runtime_error(dlerror());
+    }
+    m_sym(names, symbols);
 }

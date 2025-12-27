@@ -11,6 +11,23 @@
 
 #include <sstream>
 
+template <typename T>
+static inline T rectify_index(T index, T imax)
+{
+    if (index >= 0) {
+        if (index >= imax) {
+            throw std::runtime_error("Index is invalid.");
+        }
+    }
+    else {
+        if (-index > imax) {
+            throw std::runtime_error("Index is invalid.");
+        }
+        index = imax + index;
+    }
+    return index;
+}
+
 Obj::Obj(ObjType objType) : type(objType), isMarked(false)
 {
 }
@@ -366,34 +383,14 @@ void ObjCol::blaken(void)
 Value ObjCol::get(int index)
 {
     LAX_LOG("size is %lld", value.n_elem);
-    if (index >= 0) {
-        if (index >= (int)value.n_elem) {
-            throw std::runtime_error("Index is invalid.");
-        }
-    }
-    else {
-        if (-index > (int)value.n_elem) {
-            throw std::runtime_error("Index is invalid.");
-        }
-        index = value.size() + index;
-    }
+    index = rectify_index(index, (int)value.n_elem);
     LAX_LOG("vec[%d] is peeked.", index);
     return NUMBER_VAL(value[index]);
 }
 
 void ObjCol::set(int index, Value v)
 {
-    if (index >= 0) {
-        if (index >= (int)value.n_elem) {
-            throw std::runtime_error("Index is invalid.");
-        }
-    }
-    else {
-        if (-index > (int)value.n_elem) {
-            throw std::runtime_error("Index is invalid.");
-        }
-        index = value.size() + index;
-    }
+    index = rectify_index(index, (int)value.n_elem);
     LAX_LOG("vec[%d] is set.", index);
     value[index] = AS_NUMBER(v);
 }
@@ -419,34 +416,14 @@ void ObjRow::blaken(void)
 
 Value ObjRow::get(int index)
 {
-    if (index >= 0) {
-        if (index >= (int)value.n_elem) {
-            throw std::runtime_error("Index is invalid.");
-        }
-    }
-    else {
-        if (-index > (int)value.n_elem) {
-            throw std::runtime_error("Index is invalid.");
-        }
-        index = value.size() + index;
-    }
+    index = rectify_index(index, (int)value.n_elem);
     LAX_LOG("vec[%d] is peeked.", index);
     return NUMBER_VAL(value[index]);
 }
 
 void ObjRow::set(int index, Value v)
 {
-    if (index >= 0) {
-        if (index >= (int)value.n_elem) {
-            throw std::runtime_error("Index is invalid.");
-        }
-    }
-    else {
-        if (-index > (int)value.n_elem) {
-            throw std::runtime_error("Index is invalid.");
-        }
-        index = value.size() + index;
-    }
+    index = rectify_index(index, (int)value.n_elem);
     value[index] = AS_NUMBER(v);
 }
 
@@ -467,6 +444,55 @@ std::string ObjMat::stringify(void)
 
 void ObjMat::blaken(void)
 {
+}
+
+Value ObjMat::get(int row, int col)
+{
+    row = rectify_index(row, (int)value.n_rows);
+    col = rectify_index(col, (int)value.n_cols);
+    return NUMBER_VAL(value(row, col));
+}
+
+void ObjMat::set(int row, int col, Value v)
+{
+    row = rectify_index(row, (int)value.n_rows);
+    col = rectify_index(col, (int)value.n_cols);
+    value(row, col) = AS_NUMBER(v);
+}
+
+ObjCube::ObjCube() : Obj(OBJ_CUBE)
+{
+}
+
+ObjCube::~ObjCube()
+{
+}
+
+std::string ObjCube::stringify(void)
+{
+    std::stringstream ss;
+    ss << value;
+    return ss.str();
+}
+
+void ObjCube::blaken(void)
+{
+}
+
+Value ObjCube::get(int row, int col, int depth)
+{
+    row = rectify_index(row, (int)value.n_rows);
+    col = rectify_index(col, (int)value.n_cols);
+    depth = rectify_index(depth, (int)value.n_slices);
+    return NUMBER_VAL(value(row, col, depth));
+}
+
+void ObjCube::set(int row, int col, int depth, Value v)
+{
+    row = rectify_index(row, (int)value.n_rows);
+    col = rectify_index(col, (int)value.n_cols);
+    depth = rectify_index(depth, (int)value.n_slices);
+    value(row, col, depth) = AS_NUMBER(v);
 }
 
 ObjNativeObject::ObjNativeObject() : Obj(OBJ_NATIVE_OBJ)

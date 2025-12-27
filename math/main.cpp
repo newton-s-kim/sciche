@@ -139,3 +139,8 @@ extern "C" void math_functions(std::vector<std::string>& names, std::vector<Nati
     names.assign({"sin", "cos", "tan", "sqrt", "abs", "phase", "log10"});
     functions.assign({sinNative, cosNative, tanNative, sqrtNative, absNative, phaseNative, log10Native});
 }
+extern "C" void math_symbols(std::vector<std::string>& names, std::vector<double>& symbols)
+{
+    names.assign({"pi"});
+    symbols.assign({M_PI});
+}

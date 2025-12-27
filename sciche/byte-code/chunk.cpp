@@ -3,6 +3,8 @@
 
 #include "chunk.hpp"
 
+#include "object.hpp"
+
 //< Strings allocate
 #define GROW_CAPACITY(capacity) ((capacity) < 8 ? 8 : (capacity) * 2)
 //> grow-array
@@ -56,6 +58,30 @@ void Chunk::write(uint8_t byte, int line)
 //> add-constant
 int Chunk::addConstant(Value value)
 {
+    if (IS_NUMBER(value)) {
+        for (size_t index = 0; index < constants.size(); index++) {
+            if (!IS_NUMBER(constants[index]))
+                continue;
+            if (AS_NUMBER(value) == AS_NUMBER(constants[index]))
+                return index;
+        }
+    }
+    else if (IS_STRING(value)) {
+        for (size_t index = 0; index < constants.size(); index++) {
+            if (!IS_STRING(constants[index]))
+                continue;
+            if (AS_STRING(value)->chars == AS_STRING(constants[index])->chars)
+                return index;
+        }
+    }
+    else if (IS_COMPLEX(value)) {
+        for (size_t index = 0; index < constants.size(); index++) {
+            if (!IS_COMPLEX(constants[index]))
+                continue;
+            if (AS_COMPLEX(value)->value == AS_COMPLEX(constants[index])->value)
+                return index;
+        }
+    }
     constants.push_back(value);
     return constants.size() - 1;
 }

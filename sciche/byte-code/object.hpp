@@ -48,6 +48,7 @@
 #define IS_COL(value) isObjType(value, OBJ_COL)
 #define IS_ROW(value) isObjType(value, OBJ_ROW)
 #define IS_MAT(value) isObjType(value, OBJ_MAT)
+#define IS_CUBE(value) isObjType(value, OBJ_CUBE)
 
 //> Methods and Initializers as-bound-method
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
@@ -78,6 +79,7 @@
 #define AS_COL(value) ((ObjCol*)AS_OBJ(value))
 #define AS_ROW(value) ((ObjRow*)AS_OBJ(value))
 #define AS_MAT(value) ((ObjMat*)AS_OBJ(value))
+#define AS_CUBE(value) ((ObjCube*)AS_OBJ(value))
 
 typedef enum {
     //> Methods and Initializers obj-type-bound-method
@@ -108,9 +110,19 @@ typedef enum {
     OBJ_COL,
     OBJ_ROW,
     OBJ_MAT,
+    OBJ_CUBE,
     OBJ_NATIVE_OBJ,
 } ObjType;
 //< obj-type
+
+typedef enum {
+    OBJ_FILL_DEFAULT = 0,
+    OBJ_FILL_ZEROS,
+    OBJ_FILL_ONES,
+    OBJ_FILL_RANDU,
+    OBJ_FILL_RANDN,
+    OBJ_FILL_EYE
+} ObjFillType;
 
 class Obj {
 public:
@@ -291,6 +303,19 @@ public:
     ~ObjMat();
     std::string stringify(void);
     void blaken(void);
+    Value get(int row, int col);
+    void set(int row, int col, Value v);
+};
+
+class ObjCube : public Obj {
+public:
+    arma::cube value;
+    ObjCube();
+    ~ObjCube();
+    std::string stringify(void);
+    void blaken(void);
+    Value get(int row, int col, int dep);
+    void set(int row, int col, int dep, Value v);
 };
 
 class NativeClass {
@@ -332,9 +357,11 @@ public:
     virtual Value pop() = 0;
     virtual ObjList* newList(void) = 0;
     virtual ObjMap* newMap(void) = 0;
-    virtual ObjCol* newCol(size_t size = 0) = 0;
-    virtual ObjRow* newRow(size_t size = 0) = 0;
-    virtual ObjMat* newMat(size_t rows = 0, size_t cols = 0) = 0;
+    virtual ObjCol* newCol(size_t size = 0, ObjFillType fill_type = OBJ_FILL_DEFAULT) = 0;
+    virtual ObjRow* newRow(size_t size = 0, ObjFillType fill_type = OBJ_FILL_DEFAULT) = 0;
+    virtual ObjMat* newMat(size_t rows = 0, size_t cols = 0, ObjFillType fill_type = OBJ_FILL_DEFAULT) = 0;
+    virtual ObjCube* newCube(size_t rows = 0, size_t cols = 0, size_t depth = 0,
+                             ObjFillType fill_type = OBJ_FILL_DEFAULT) = 0;
     virtual ObjNativeObject* newNativeObj(NativeClass* klass) = 0;
     virtual bool loadLibrary(std::string path, std::string name) = 0;
 };

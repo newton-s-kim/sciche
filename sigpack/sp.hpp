@@ -12,3 +12,4 @@ Value specgramNative(ObjectFactory* factory, int argc, Value* args);
 Value pwelchNative(ObjectFactory* factory, int argc, Value* args);
 Value freqzNative(ObjectFactory* factory, int argc, Value* args);
 Value phasezNative(ObjectFactory* factory, int argc, Value* args);
+Value kfNative(ObjectFactory* factory, int argc, Value* args);

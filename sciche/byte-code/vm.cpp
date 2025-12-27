@@ -178,6 +178,7 @@ void VM::blackenObject(Obj* object)
     case OBJ_COL:
     case OBJ_ROW:
     case OBJ_MAT:
+    case OBJ_CUBE:
     case OBJ_NATIVE_OBJ:
         break;
     }
@@ -698,6 +699,26 @@ bool VM::invoke(ObjString* name, int argCount)
         push(result);
         return true;
     }
+    else if (IS_CUBE(receiver)) {
+        NativeBooundFn fn = primitive.find(OBJ_CUBE, name->chars);
+        if (NULL == fn) {
+            runtimeError("The method does not exist in mat.");
+            return false;
+        }
+        Value result = 0;
+        try {
+            result = fn(this, AS_CUBE(receiver), argCount, stackTop - argCount);
+        }
+        catch (std::exception& e) {
+            runtimeError(e.what());
+            return false;
+        }
+        for (int i = 0; i < argCount; i++)
+            pop();
+        pop();
+        push(result);
+        return true;
+    }
     else if (IS_NATIVE_OBJECT(receiver)) {
         ObjNativeObject* nobj = AS_NATIVE_OBJECT(receiver);
         Value result = 0;
@@ -757,32 +778,131 @@ ObjMap* VM::newMap(void)
     objects = ret;
     return ret;
 }
-ObjCol* VM::newCol(size_t size)
+ObjCol* VM::newCol(size_t size, ObjFillType fill_type)
 {
     collect(0, sizeof(ObjCol));
     ObjCol* ret = new ObjCol();
-    if (0 < size)
+    if (0 < size) {
         ret->value.resize(size);
+        switch (fill_type) {
+        case OBJ_FILL_ZEROS:
+            ret->value.zeros();
+            break;
+        case OBJ_FILL_ONES:
+            ret->value.ones();
+            break;
+        case OBJ_FILL_RANDU:
+            ret->value.randu();
+            break;
+        case OBJ_FILL_RANDN:
+            ret->value.randn();
+            break;
+        case OBJ_FILL_EYE:
+            ret->value.eye();
+            break;
+        case OBJ_FILL_DEFAULT:
+            break;
+        default:
+            runtimeError("invalid fill type");
+            break;
+        }
+    }
     ret->next = objects;
     objects = ret;
     return ret;
 }
-ObjRow* VM::newRow(size_t size)
+ObjRow* VM::newRow(size_t size, ObjFillType fill_type)
 {
     collect(0, sizeof(ObjRow));
     ObjRow* ret = new ObjRow();
-    if (0 < size)
+    if (0 < size) {
         ret->value.resize(size);
+        switch (fill_type) {
+        case OBJ_FILL_ZEROS:
+            ret->value.zeros();
+            break;
+        case OBJ_FILL_ONES:
+            ret->value.ones();
+            break;
+        case OBJ_FILL_RANDU:
+            ret->value.randu();
+            break;
+        case OBJ_FILL_RANDN:
+            ret->value.randn();
+            break;
+        case OBJ_FILL_EYE:
+            ret->value.eye();
+            break;
+        case OBJ_FILL_DEFAULT:
+            break;
+        default:
+            runtimeError("invalid fill type");
+            break;
+        }
+    }
     ret->next = objects;
     objects = ret;
     return ret;
 }
-ObjMat* VM::newMat(size_t rows, size_t cols)
+ObjMat* VM::newMat(size_t rows, size_t cols, ObjFillType fill_type)
 {
     collect(0, sizeof(ObjMat));
     ObjMat* ret = new ObjMat();
-    if (0 < rows && 0 < cols)
+    if (0 < rows && 0 < cols) {
         ret->value.resize(rows, cols);
+        switch (fill_type) {
+        case OBJ_FILL_ZEROS:
+            ret->value.zeros();
+            break;
+        case OBJ_FILL_ONES:
+            ret->value.ones();
+            break;
+        case OBJ_FILL_RANDU:
+            ret->value.randu();
+            break;
+        case OBJ_FILL_RANDN:
+            ret->value.randn();
+            break;
+        case OBJ_FILL_EYE:
+            ret->value.eye();
+            break;
+        case OBJ_FILL_DEFAULT:
+            break;
+        default:
+            runtimeError("invalid fill type");
+            break;
+        }
+    }
+    ret->next = objects;
+    objects = ret;
+    return ret;
+}
+ObjCube* VM::newCube(size_t rows, size_t cols, size_t depth, ObjFillType fill_type)
+{
+    collect(0, sizeof(ObjCube));
+    ObjCube* ret = new ObjCube();
+    if (0 < rows && 0 < cols && 0 < depth) {
+        ret->value.resize(rows, cols, depth);
+        switch (fill_type) {
+        case OBJ_FILL_ZEROS:
+            ret->value.zeros();
+            break;
+        case OBJ_FILL_ONES:
+            ret->value.ones();
+            break;
+        case OBJ_FILL_RANDU:
+            ret->value.randu();
+            break;
+        case OBJ_FILL_RANDN:
+            ret->value.randn();
+            break;
+        case OBJ_FILL_DEFAULT:
+            break;
+        default:
+            runtimeError("invalid fill type");
+            break;
+        }
+    }
     ret->next = objects;
     objects = ret;
     return ret;
@@ -1271,139 +1391,225 @@ InterpretResult VM::run(void)
             //< Classes and Instances interpret-set-property
             //> Superclasses interpret-get-super
         case OP_GET_ELEMENT: {
+            int argCount = READ_BYTE();
             Value value;
-            if (IS_NUMBER(peek(0))) {
-                double index = AS_NUMBER(peek(0));
-                if (IS_LIST(peek(1))) {
-                    ObjList* list = AS_LIST(peek(1));
-                    try {
-                        value = list->get((int)index);
+            if (1 == argCount) {
+                if (IS_NUMBER(peek(0))) {
+                    double index = AS_NUMBER(peek(0));
+                    if (IS_LIST(peek(1))) {
+                        ObjList* list = AS_LIST(peek(1));
+                        try {
+                            value = list->get((int)index);
+                        }
+                        catch (std::exception& e) {
+                            runtimeError(e.what());
+                            return INTERPRET_RUNTIME_ERROR;
+                        }
                     }
-                    catch (std::exception& e) {
-                        runtimeError(e.what());
+                    else if (IS_COL(peek(1))) {
+                        ObjCol* col = AS_COL(peek(1));
+                        try {
+                            value = col->get((int)index);
+                        }
+                        catch (std::exception& e) {
+                            runtimeError(e.what());
+                            return INTERPRET_RUNTIME_ERROR;
+                        }
+                    }
+                    else if (IS_ROW(peek(1))) {
+                        ObjRow* row = AS_ROW(peek(1));
+                        try {
+                            value = row->get((int)index);
+                        }
+                        catch (std::exception& e) {
+                            runtimeError(e.what());
+                            return INTERPRET_RUNTIME_ERROR;
+                        }
+                    }
+                    else {
+                        runtimeError("Only container has elements.");
                         return INTERPRET_RUNTIME_ERROR;
                     }
                 }
-                else if (IS_COL(peek(1))) {
-                    ObjCol* col = AS_COL(peek(1));
-                    try {
-                        value = col->get((int)index);
+                else if (IS_STRING(peek(0))) {
+                    ObjString* index = AS_STRING(peek(0));
+                    if (IS_MAP(peek(1))) {
+                        ObjMap* map = AS_MAP(peek(1));
+                        try {
+                            value = map->get(index->chars);
+                        }
+                        catch (std::exception& e) {
+                            runtimeError(e.what());
+                            return INTERPRET_RUNTIME_ERROR;
+                        }
                     }
-                    catch (std::exception& e) {
-                        runtimeError(e.what());
-                        return INTERPRET_RUNTIME_ERROR;
-                    }
-                }
-                else if (IS_ROW(peek(1))) {
-                    ObjRow* row = AS_ROW(peek(1));
-                    try {
-                        value = row->get((int)index);
-                    }
-                    catch (std::exception& e) {
-                        runtimeError(e.what());
+                    else {
+                        runtimeError("Only container has elements.");
                         return INTERPRET_RUNTIME_ERROR;
                     }
                 }
                 else {
-                    runtimeError("Only container has elements.");
+                    runtimeError("Index is not number.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
+                pop();
+                pop();
             }
-            else if (IS_STRING(peek(0))) {
-                ObjString* index = AS_STRING(peek(0));
-                if (IS_MAP(peek(1))) {
-                    ObjMap* map = AS_MAP(peek(1));
-                    try {
-                        value = map->get(index->chars);
-                    }
-                    catch (std::exception& e) {
-                        runtimeError(e.what());
-                        return INTERPRET_RUNTIME_ERROR;
-                    }
-                }
-                else {
+            else if (2 == argCount) {
+                if (!IS_MAT(peek(2))) {
                     runtimeError("Only container has elements.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
+                if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {
+                    runtimeError("Index is not number.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                ObjMat* mat = AS_MAT(peek(2));
+                int row = AS_NUMBER(peek(1));
+                int col = AS_NUMBER(peek(0));
+                value = mat->get(row, col);
+                pop();
+                pop();
+                pop();
+            }
+            else if (3 == argCount) {
+                if (!IS_CUBE(peek(3))) {
+                    runtimeError("Only container has elements.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1)) || !IS_NUMBER(peek(2))) {
+                    runtimeError("Index is not number.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                ObjCube* cube = AS_CUBE(peek(3));
+                int row = AS_NUMBER(peek(2));
+                int col = AS_NUMBER(peek(1));
+                int depth = AS_NUMBER(peek(0));
+                value = cube->get(row, col, depth);
+                pop();
+                pop();
+                pop();
+                pop();
             }
             else {
-                runtimeError("Index is not number.");
+                runtimeError("Invalid index");
                 return INTERPRET_RUNTIME_ERROR;
             }
-            pop();
-            pop();
             push(value);
             break;
         }
         case OP_SET_ELEMENT: {
-            if (IS_NUMBER(peek(1))) {
-                double index = AS_NUMBER(peek(1));
-                if (IS_LIST(peek(2))) {
-                    ObjList* list = AS_LIST(peek(2));
-                    try {
-                        list->set((int)index, peek(0));
+            int argCount = READ_BYTE();
+            if (1 == argCount) {
+                if (IS_NUMBER(peek(1))) {
+                    double index = AS_NUMBER(peek(1));
+                    if (IS_LIST(peek(2))) {
+                        ObjList* list = AS_LIST(peek(2));
+                        try {
+                            list->set((int)index, peek(0));
+                        }
+                        catch (std::exception& e) {
+                            runtimeError(e.what());
+                            return INTERPRET_RUNTIME_ERROR;
+                        }
                     }
-                    catch (std::exception& e) {
-                        runtimeError(e.what());
+                    else if (IS_COL(peek(2))) {
+                        if (!IS_NUMBER(peek(0))) {
+                            runtimeError("number is expected");
+                            return INTERPRET_RUNTIME_ERROR;
+                        }
+                        ObjCol* col = AS_COL(peek(2));
+                        try {
+                            col->set((int)index, peek(0));
+                        }
+                        catch (std::exception& e) {
+                            runtimeError(e.what());
+                            return INTERPRET_RUNTIME_ERROR;
+                        }
+                    }
+                    else if (IS_ROW(peek(2))) {
+                        if (!IS_NUMBER(peek(0))) {
+                            runtimeError("number is expected");
+                            return INTERPRET_RUNTIME_ERROR;
+                        }
+                        ObjRow* row = AS_ROW(peek(2));
+                        try {
+                            row->set((int)index, peek(0));
+                        }
+                        catch (std::exception& e) {
+                            runtimeError(e.what());
+                            return INTERPRET_RUNTIME_ERROR;
+                        }
+                    }
+                    else {
+                        runtimeError("Only container has elements.");
                         return INTERPRET_RUNTIME_ERROR;
                     }
                 }
-                else if (IS_COL(peek(2))) {
-                    if (!IS_NUMBER(peek(0))) {
-                        runtimeError("number is expected");
-                        return INTERPRET_RUNTIME_ERROR;
+                else if (IS_STRING(peek(1))) {
+                    ObjString* index = AS_STRING(peek(1));
+                    if (IS_MAP(peek(2))) {
+                        ObjMap* map = AS_MAP(peek(2));
+                        try {
+                            map->set(index->chars, peek(0));
+                        }
+                        catch (std::exception& e) {
+                            runtimeError(e.what());
+                            return INTERPRET_RUNTIME_ERROR;
+                        }
                     }
-                    ObjCol* col = AS_COL(peek(2));
-                    try {
-                        col->set((int)index, peek(0));
-                    }
-                    catch (std::exception& e) {
-                        runtimeError(e.what());
-                        return INTERPRET_RUNTIME_ERROR;
-                    }
-                }
-                else if (IS_ROW(peek(2))) {
-                    if (!IS_NUMBER(peek(0))) {
-                        runtimeError("number is expected");
-                        return INTERPRET_RUNTIME_ERROR;
-                    }
-                    ObjRow* row = AS_ROW(peek(2));
-                    try {
-                        row->set((int)index, peek(0));
-                    }
-                    catch (std::exception& e) {
-                        runtimeError(e.what());
+                    else {
+                        runtimeError("Only container has elements.");
                         return INTERPRET_RUNTIME_ERROR;
                     }
                 }
                 else {
-                    runtimeError("Only container has elements.");
+                    runtimeError("Index is not number.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
+                pop();
+                pop();
             }
-            else if (IS_STRING(peek(1))) {
-                ObjString* index = AS_STRING(peek(1));
-                if (IS_MAP(peek(2))) {
-                    ObjMap* map = AS_MAP(peek(2));
-                    try {
-                        map->set(index->chars, peek(0));
-                    }
-                    catch (std::exception& e) {
-                        runtimeError(e.what());
-                        return INTERPRET_RUNTIME_ERROR;
-                    }
-                }
-                else {
+            else if (2 == argCount) {
+                if (!IS_MAT(peek(3))) {
                     runtimeError("Only container has elements.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
+                if (!IS_NUMBER(peek(2)) || !IS_NUMBER(peek(1))) {
+                    runtimeError("Index is not number.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                ObjMat* mat = AS_MAT(peek(3));
+                int row = AS_NUMBER(peek(2));
+                int col = AS_NUMBER(peek(1));
+                mat->set(row, col, peek(0));
+                pop();
+                pop();
+                pop();
+            }
+            else if (3 == argCount) {
+                if (!IS_CUBE(peek(4))) {
+                    runtimeError("Only container has elements.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                if (!IS_NUMBER(peek(3)) || !IS_NUMBER(peek(2)) || !IS_NUMBER(peek(1))) {
+                    runtimeError("Index is not number.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                ObjCube* cube = AS_CUBE(peek(4));
+                int row = AS_NUMBER(peek(3));
+                int col = AS_NUMBER(peek(2));
+                int depth = AS_NUMBER(peek(1));
+                cube->set(row, col, depth, peek(0));
+                pop();
+                pop();
+                pop();
+                pop();
             }
             else {
-                runtimeError("Index is not number.");
+                runtimeError("Invalid index");
                 return INTERPRET_RUNTIME_ERROR;
             }
-            pop();
-            pop();
             break;
         }
         case OP_GET_SUPER: {
@@ -1532,6 +1738,46 @@ InterpretResult VM::run(void)
                     c->value = a->value + b->value;
                     push(OBJ_VAL(c));
                 }
+                else {
+                    calculated = false;
+                }
+            }
+            else if (IS_ROW(peek(1))) {
+                if (IS_ROW(peek(0))) {
+                    ObjRow* a = AS_ROW(peek(1));
+                    ObjRow* b = AS_ROW(peek(0));
+                    pop();
+                    pop();
+                    ObjRow* r = newRow();
+                    r->value = a->value + b->value;
+                    push(OBJ_VAL(r));
+                }
+                else if (IS_MAT(peek(0))) {
+                    ObjRow* a = AS_ROW(peek(1));
+                    ObjMat* b = AS_MAT(peek(0));
+                    pop();
+                    pop();
+                    ObjRow* r = newRow();
+                    r->value = a->value + b->value;
+                    push(OBJ_VAL(r));
+                }
+                else {
+                    calculated = false;
+                }
+            }
+            else if (IS_MAT(peek(1))) {
+                if (IS_MAT(peek(0))) {
+                    ObjMat* a = AS_MAT(peek(1));
+                    ObjMat* b = AS_MAT(peek(0));
+                    pop();
+                    pop();
+                    ObjMat* m = newMat();
+                    m->value = a->value + b->value;
+                    push(OBJ_VAL(m));
+                }
+                else {
+                    calculated = false;
+                }
             }
             else {
                 calculated = false;
@@ -1580,6 +1826,43 @@ InterpretResult VM::run(void)
                     pop();
                     ObjComplex* c = newComplex(std::complex<double>(a->value - b->value));
                     push(OBJ_VAL(c));
+                }
+                else {
+                    calculated = false;
+                }
+            }
+            else if (IS_ROW(peek(1))) {
+                if (IS_ROW(peek(0))) {
+                    ObjRow* a = AS_ROW(peek(1));
+                    ObjRow* b = AS_ROW(peek(0));
+                    pop();
+                    pop();
+                    ObjRow* r = newRow();
+                    r->value = a->value - b->value;
+                    push(OBJ_VAL(r));
+                }
+                else if (IS_MAT(peek(0))) {
+                    ObjRow* a = AS_ROW(peek(1));
+                    ObjMat* b = AS_MAT(peek(0));
+                    pop();
+                    pop();
+                    ObjRow* r = newRow();
+                    r->value = a->value - b->value;
+                    push(OBJ_VAL(r));
+                }
+                else {
+                    calculated = false;
+                }
+            }
+            else if (IS_MAT(peek(1))) {
+                if (IS_MAT(peek(0))) {
+                    ObjMat* a = AS_MAT(peek(1));
+                    ObjMat* b = AS_MAT(peek(0));
+                    pop();
+                    pop();
+                    ObjMat* m = newMat();
+                    m->value = a->value - b->value;
+                    push(OBJ_VAL(m));
                 }
                 else {
                     calculated = false;
@@ -1662,6 +1945,20 @@ InterpretResult VM::run(void)
                     pop();
                     ObjComplex* c = newComplex(std::complex<double>(a->value * b->value));
                     push(OBJ_VAL(c));
+                }
+                else {
+                    calculated = false;
+                }
+            }
+            else if (IS_MAT(peek(1))) {
+                if (IS_MAT(peek(0))) {
+                    ObjMat* a = AS_MAT(peek(1));
+                    ObjMat* b = AS_MAT(peek(0));
+                    pop();
+                    pop();
+                    ObjMat* m = newMat();
+                    m->value = a->value * b->value;
+                    push(OBJ_VAL(m));
                 }
                 else {
                     calculated = false;
@@ -2080,15 +2377,29 @@ bool VM::loadLibrary(std::string path, std::string name)
     }
     else {
         dl* l = new dl(path, name);
-        std::vector<std::string> names;
-        std::vector<NativeFn> fns;
-        l->functions(names, fns);
-        if (names.size() != fns.size()) {
-            delete l;
-            return false;
+        {
+            std::vector<std::string> names;
+            std::vector<NativeFn> fns;
+            l->functions(names, fns);
+            if (names.size() != fns.size()) {
+                delete l;
+                return false;
+            }
+            for (size_t i = 0; i < names.size(); i++) {
+                defineNative(names[i].c_str(), fns[i]);
+            }
         }
-        for (size_t i = 0; i < names.size(); i++) {
-            defineNative(names[i].c_str(), fns[i]);
+        {
+            std::vector<std::string> names;
+            std::vector<double> syms;
+            l->symbols(names, syms);
+            if (names.size() != syms.size()) {
+                delete l;
+                return false;
+            }
+            for (size_t i = 0; i < names.size(); i++) {
+                defineNumber(names[i].c_str(), syms[i]);
+            }
         }
         m_dl[name] = l;
     }

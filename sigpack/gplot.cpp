@@ -72,7 +72,19 @@ Value gPlot::invoke(ObjectFactory* factory, std::string name, int argc, Value* a
         m_gplot.send2gp(AS_STRING(argv[0])->chars.c_str());
     }
     else if ("plot_add" == name) {
-        if (3 == argc) {
+        if (4 == argc) {
+            if (!IS_COL(argv[0]))
+                throw std::runtime_error("col is expected.");
+            if (!IS_COL(argv[1]))
+                throw std::runtime_error("col is expected.");
+            if (!IS_STRING(argv[2]))
+                std::runtime_error("string is expected.");
+            if (!IS_STRING(argv[3]))
+                std::runtime_error("string is expected.");
+            m_gplot.plot_add(AS_COL(argv[0])->value, AS_COL(argv[1])->value, AS_STRING(argv[2])->chars,
+                             AS_STRING(argv[3])->chars);
+        }
+        else if (3 == argc) {
             if (!IS_COL(argv[0]))
                 throw std::runtime_error("col is expected.");
             if (!IS_COL(argv[1]))

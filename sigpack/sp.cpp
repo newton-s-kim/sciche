@@ -4,6 +4,7 @@
 #include "fir.hpp"
 #include "gplot.hpp"
 #include "iir.hpp"
+#include "kf.hpp"
 
 #include "sigpack-1.2.7/sigpack/sigpack.h"
 
@@ -131,4 +132,19 @@ Value phasezNative(ObjectFactory* factory, int argc, Value* args)
     ObjCol* c = factory->newCol();
     c->value = phasez(AS_COL(args[0])->value, AS_COL(args[1])->value, AS_NUMBER(args[2]));
     return OBJ_VAL(c);
+}
+
+Value kfNative(ObjectFactory* factory, int argc, Value* args)
+{
+    if (3 != argc)
+        throw std::runtime_error("invalid number of arguments.");
+    if (!IS_NUMBER(args[0]))
+        throw std::runtime_error("number is expected.");
+    if (!IS_NUMBER(args[1]))
+        throw std::runtime_error("number is expected.");
+    if (!IS_NUMBER(args[2]))
+        throw std::runtime_error("number is expected.");
+    ObjNativeObject* obj =
+        factory->newNativeObj(new kalmanFilter(AS_NUMBER(args[0]), AS_NUMBER(args[1]), AS_NUMBER(args[2])));
+    return OBJ_VAL(obj);
 }
