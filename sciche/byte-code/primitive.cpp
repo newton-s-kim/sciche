@@ -162,9 +162,15 @@ static Value mat_row(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
     if (2 == argc) {
         if (!IS_NUMBER(argv[0]))
             throw std::runtime_error("number is expected.");
-        if (!IS_ROW(argv[1]))
+        if (IS_ROW(argv[1])) {
+            mat->value.row(AS_NUMBER(argv[0])) = AS_ROW(argv[1])->value;
+        }
+        else if (IS_MAT(argv[1])) {
+            mat->value.row(AS_NUMBER(argv[0])) = AS_MAT(argv[1])->value;
+        }
+        else {
             throw std::runtime_error("rowvec is expected.");
-        mat->value.row(AS_NUMBER(argv[0])) = AS_ROW(argv[1])->value;
+        }
     }
     else if (1 == argc) {
         if (!IS_NUMBER(argv[0]))
@@ -208,9 +214,9 @@ static Value mat_set(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
     size_t idx = 0;
     for (size_t rcnt = 0; rcnt < rows; rcnt++) {
         for (size_t ccnt = 0; ccnt < cols; ccnt++) {
-            if (IS_NIL(argv[idx]))
-                break;
-            mat->value(rcnt, ccnt) = AS_NUMBER(argv[idx]);
+            if (!IS_NIL(argv[idx]))
+                mat->value(rcnt, ccnt) = AS_NUMBER(argv[idx]);
+            idx++;
         }
     }
     return value;
