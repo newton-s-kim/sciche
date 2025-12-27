@@ -211,12 +211,15 @@ static Value mat_set(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
     if (0 == rows || 0 == cols)
         throw std::runtime_error("invalid dimension");
     mat->value.resize(rows, cols);
-    size_t idx = 0;
-    for (size_t rcnt = 0; rcnt < rows; rcnt++) {
-        for (size_t ccnt = 0; ccnt < cols; ccnt++) {
-            if (!IS_NIL(argv[idx]))
-                mat->value(rcnt, ccnt) = AS_NUMBER(argv[idx]);
-            idx++;
+    size_t rcnt = 0, ccnt = 0;
+    for (int idx = 0; idx < argc; idx++) {
+        if (IS_NIL(argv[idx])) {
+            rcnt++;
+            ccnt = 0;
+        }
+        else {
+            mat->value(rcnt, ccnt) = AS_NUMBER(argv[idx]);
+            ccnt++;
         }
     }
     return value;

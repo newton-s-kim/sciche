@@ -73,25 +73,68 @@ Value gPlot::invoke(ObjectFactory* factory, std::string name, int argc, Value* a
     }
     else if ("plot_add" == name) {
         if (4 == argc) {
-            if (!IS_COL(argv[0]))
-                throw std::runtime_error("col is expected.");
-            if (!IS_COL(argv[1]))
-                throw std::runtime_error("col is expected.");
             if (!IS_STRING(argv[2]))
                 std::runtime_error("string is expected.");
             if (!IS_STRING(argv[3]))
                 std::runtime_error("string is expected.");
-            m_gplot.plot_add(AS_COL(argv[0])->value, AS_COL(argv[1])->value, AS_STRING(argv[2])->chars,
-                             AS_STRING(argv[3])->chars);
+            if (IS_COL(argv[0])) {
+                if (IS_COL(argv[1])) {
+                    m_gplot.plot_add(AS_COL(argv[0])->value, AS_COL(argv[1])->value, AS_STRING(argv[2])->chars,
+                                     AS_STRING(argv[3])->chars);
+                }
+                else if (IS_ROW(argv[1])) {
+                    m_gplot.plot_add(AS_COL(argv[0])->value, AS_ROW(argv[1])->value, AS_STRING(argv[2])->chars,
+                                     AS_STRING(argv[3])->chars);
+                }
+                else {
+                    throw std::runtime_error("vec or rowvec is expected.");
+                }
+            }
+            else if (IS_ROW(argv[0])) {
+                if (IS_COL(argv[1])) {
+                    m_gplot.plot_add(AS_ROW(argv[0])->value, AS_COL(argv[1])->value, AS_STRING(argv[2])->chars,
+                                     AS_STRING(argv[3])->chars);
+                }
+                else if (IS_ROW(argv[1])) {
+                    m_gplot.plot_add(AS_ROW(argv[0])->value, AS_ROW(argv[1])->value, AS_STRING(argv[2])->chars,
+                                     AS_STRING(argv[3])->chars);
+                }
+                else {
+                    throw std::runtime_error("vec or rowvec is expected.");
+                }
+            }
+            else {
+                throw std::runtime_error("vec or rowvec is expected.");
+            }
         }
         else if (3 == argc) {
-            if (!IS_COL(argv[0]))
-                throw std::runtime_error("col is expected.");
-            if (!IS_COL(argv[1]))
-                throw std::runtime_error("col is expected.");
             if (!IS_STRING(argv[2]))
                 std::runtime_error("string is expected.");
-            m_gplot.plot_add(AS_COL(argv[0])->value, AS_COL(argv[1])->value, AS_STRING(argv[2])->chars);
+            if (IS_COL(argv[0])) {
+                if (IS_COL(argv[1])) {
+                    m_gplot.plot_add(AS_COL(argv[0])->value, AS_COL(argv[1])->value, AS_STRING(argv[2])->chars);
+                }
+                else if (IS_ROW(argv[1])) {
+                    m_gplot.plot_add(AS_COL(argv[0])->value, AS_ROW(argv[1])->value, AS_STRING(argv[2])->chars);
+                }
+                else {
+                    throw std::runtime_error("col is expected.");
+                }
+            }
+            else if (IS_ROW(argv[0])) {
+                if (IS_COL(argv[1])) {
+                    m_gplot.plot_add(AS_ROW(argv[0])->value, AS_COL(argv[1])->value, AS_STRING(argv[2])->chars);
+                }
+                else if (IS_ROW(argv[1])) {
+                    m_gplot.plot_add(AS_ROW(argv[0])->value, AS_ROW(argv[1])->value, AS_STRING(argv[2])->chars);
+                }
+                else {
+                    throw std::runtime_error("col is expected.");
+                }
+            }
+            else {
+                throw std::runtime_error("vec or rowvec is expected.");
+            }
         }
         else if (2 == argc) {
             if (IS_MAT(argv[0])) {
