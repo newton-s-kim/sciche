@@ -260,7 +260,11 @@ std::string ObjList::stringify(void)
             ss << AS_NUMBER(v);
         }
         else if (IS_OBJ(v)) {
+            if (IS_STRING(v))
+                ss << "\"";
             ss << AS_OBJ(v)->stringify();
+            if (IS_STRING(v))
+                ss << "\"";
         }
     }
     ss << "]";
@@ -318,7 +322,7 @@ std::string ObjMap::stringify(void)
     ss << "{";
     for (std::map<std::string, Value>::iterator it = container.begin(); it != container.end(); it++) {
         if (it != container.begin())
-            ss << ",";
+            ss << ", ";
         ss << "\"" << it->first << "\":";
         Value v = it->second;
         if (IS_NIL(v)) {

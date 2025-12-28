@@ -1585,13 +1585,9 @@ void CompilerInterfaceConcrete::varDeclaration()
 std::string CompilerInterfaceConcrete::findPath(std::string file)
 {
     LAX_LOG("findPath(%s)", file.c_str());
-    const char* dirs[] = {"./build/math/",
-                          "./build/sigpack/",
-                          "/usr/local/lib/sciche/",
-                          "/usr/lib/sciche/",
-                          "/usr/local/share/sciche/",
-                          "/usr/share/sciche/",
-                          NULL};
+    const char* dirs[] = {
+        "./build/math/",    "./build/sigpack/",         "./build/json/",      "/usr/local/lib/sciche/",
+        "/usr/lib/sciche/", "/usr/local/share/sciche/", "/usr/share/sciche/", NULL};
     std::string candidate;
     for (size_t i = 0; i < sizeof(dirs); i++) {
         candidate = dirs[i] + file;
@@ -1609,7 +1605,14 @@ void CompilerInterfaceConcrete::incDeclaration()
         std::string real_name = "lib" + name + ".so";
         std::string path = findPath(real_name);
         if (0 < path.size()) {
-            if (!factory->loadLibrary(path, name)) {
+            bool tf = false;
+            try {
+                tf = factory->loadLibrary(path, name);
+            }
+            catch (std::exception& e) {
+                parser.error(e.what());
+            }
+            if (!tf) {
                 parser.error("failed loading library.");
             }
         }
