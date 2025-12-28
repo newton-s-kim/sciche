@@ -327,6 +327,139 @@ static Value mapNative(ObjectFactory* factory, int argCount, Value* args)
     ObjMap* map = factory->newMap();
     return OBJ_VAL(map);
 }
+
+static Value vecNative(ObjectFactory* factory, int argc, Value* args)
+{
+    ObjFillType fill_type = OBJ_FILL_DEFAULT;
+    size_t sz = 0;
+    switch (argc) {
+    case 2:
+        if (!IS_NUMBER(args[1])) {
+            throw std::runtime_error("number is expected");
+        }
+        fill_type = (ObjFillType)AS_NUMBER(args[1]);
+        if (!IS_NUMBER(args[0])) {
+            throw std::runtime_error("number is expected");
+        }
+        sz = AS_NUMBER(args[0]);
+        break;
+    case 1:
+        if (!IS_NUMBER(args[0])) {
+            throw std::runtime_error("number is expected");
+        }
+        sz = AS_NUMBER(args[0]);
+        break;
+    case 0:
+        break;
+    default:
+        throw std::runtime_error("invalid arguments");
+        break;
+    }
+    return OBJ_VAL(factory->newCol(sz, fill_type));
+}
+
+static Value rowVecNative(ObjectFactory* factory, int argc, Value* args)
+{
+    ObjFillType fill_type = OBJ_FILL_DEFAULT;
+    size_t sz = 0;
+    switch (argc) {
+    case 2:
+        if (!IS_NUMBER(args[1])) {
+            throw std::runtime_error("number is expected");
+        }
+        fill_type = (ObjFillType)AS_NUMBER(args[1]);
+        if (!IS_NUMBER(args[0])) {
+            throw std::runtime_error("number is expected");
+        }
+        sz = AS_NUMBER(args[0]);
+        break;
+    case 1:
+        if (!IS_NUMBER(args[0])) {
+            throw std::runtime_error("number is expected");
+        }
+        sz = AS_NUMBER(args[0]);
+        break;
+    default:
+        throw std::runtime_error("invalid arguments");
+        break;
+    }
+    return OBJ_VAL(factory->newRow(sz, fill_type));
+}
+
+static Value matNative(ObjectFactory* factory, int argc, Value* args)
+{
+    ObjFillType fill_type = OBJ_FILL_DEFAULT;
+    size_t rows = 0, cols = 0;
+    switch (argc) {
+    case 3:
+        if (!IS_NUMBER(args[2])) {
+            throw std::runtime_error("number is expected");
+        }
+        fill_type = (ObjFillType)AS_NUMBER(args[2]);
+        if (!IS_NUMBER(args[0])) {
+            throw std::runtime_error("number is expected");
+        }
+        if (!IS_NUMBER(args[1])) {
+            throw std::runtime_error("number is expected");
+        }
+        rows = AS_NUMBER(args[0]);
+        cols = AS_NUMBER(args[1]);
+        break;
+    case 2:
+        if (!IS_NUMBER(args[0]))
+            throw std::runtime_error("number is expected");
+        if (!IS_NUMBER(args[1]))
+            throw std::runtime_error("number is expected");
+        rows = AS_NUMBER(args[0]);
+        cols = AS_NUMBER(args[1]);
+        break;
+    case 0:
+        break;
+    default:
+        throw std::runtime_error("invalid arguments");
+        break;
+    }
+    return OBJ_VAL(factory->newMat(rows, cols, fill_type));
+}
+
+static Value cubeNative(ObjectFactory* factory, int argc, Value* args)
+{
+    ObjFillType fill_type = OBJ_FILL_DEFAULT;
+    size_t rows = 0, cols = 0, depth = 0;
+    switch (argc) {
+    case 4:
+        if (!IS_NUMBER(args[3])) {
+            throw std::runtime_error("number is expected");
+        }
+        fill_type = (ObjFillType)AS_NUMBER(args[3]);
+        if (!IS_NUMBER(args[0]))
+            throw std::runtime_error("number is expected");
+        if (!IS_NUMBER(args[1]))
+            throw std::runtime_error("number is expected");
+        if (!IS_NUMBER(args[2]))
+            throw std::runtime_error("number is expected");
+        rows = AS_NUMBER(args[0]);
+        cols = AS_NUMBER(args[1]);
+        depth = AS_NUMBER(args[2]);
+        break;
+    case 3:
+        if (!IS_NUMBER(args[0]))
+            throw std::runtime_error("number is expected");
+        if (!IS_NUMBER(args[1]))
+            throw std::runtime_error("number is expected");
+        if (!IS_NUMBER(args[2]))
+            throw std::runtime_error("number is expected");
+        rows = AS_NUMBER(args[0]);
+        cols = AS_NUMBER(args[1]);
+        depth = AS_NUMBER(args[2]);
+        break;
+    default:
+        throw std::runtime_error("invalid arguments");
+        break;
+    }
+    return OBJ_VAL(factory->newCube(rows, cols, depth, fill_type));
+}
+
 //< Calls and Functions clock-native
 //> reset-stack
 void VM::resetStack()
@@ -429,6 +562,17 @@ VM::VM()
     defineNative("clock", clockNative);
     defineNative("List", listNative);
     defineNative("Map", mapNative);
+    defineNative("vec", vecNative);
+    defineNative("rowvec", rowVecNative);
+    defineNative("mat", matNative);
+    defineNative("cube", cubeNative);
+    defineNumber("default", OBJ_FILL_DEFAULT);
+    defineNumber("zeros", OBJ_FILL_ZEROS);
+    defineNumber("ones", OBJ_FILL_ONES);
+    defineNumber("eye", OBJ_FILL_EYE);
+    defineNumber("randu", OBJ_FILL_RANDU);
+    defineNumber("randn", OBJ_FILL_RANDN);
+
     //< Calls and Functions define-native-clock
 }
 
