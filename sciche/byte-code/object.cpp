@@ -248,7 +248,7 @@ std::string ObjList::stringify(void)
     ss << "[";
     for (std::vector<Value>::iterator it = container.begin(); it != container.end(); it++) {
         if (it != container.begin())
-            ss << ", ";
+            ss << ",";
         Value v = *it;
         if (IS_NIL(v)) {
             ss << "nil";
@@ -322,7 +322,7 @@ std::string ObjMap::stringify(void)
     ss << "{";
     for (std::map<std::string, Value>::iterator it = container.begin(); it != container.end(); it++) {
         if (it != container.begin())
-            ss << ", ";
+            ss << ",";
         ss << "\"" << it->first << "\":";
         Value v = it->second;
         if (IS_NIL(v)) {

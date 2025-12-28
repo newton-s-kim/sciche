@@ -11,4 +11,4 @@ var json = json();
 
 var str = json.dump(dict);
 
-print str; //expect: "{\"name\": \"John Doe\", \"age\": 30, \"city\": \"New York\", \"is_student\": false, \"hobbies\": [\"reading\", \"gaming\", \"coding\"]}"
+print str; // expect: {"age":30.0,"city":"New York","hobbies":["reading","gaming","coding"],"is_student":false,"name":"John Doe"}

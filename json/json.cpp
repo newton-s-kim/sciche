@@ -3,7 +3,6 @@
 #include "log.hpp"
 
 #include <iostream>
-#include <rapidjson/reader.h>
 #include <stack>
 #include <stdexcept>
 
@@ -15,6 +14,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
     bool Null()
     {
         LAX_LOG("Null()");
+        // TODO: refactoring
         if (stack.empty())
             throw std::runtime_error("no container to add");
         Obj* obj = stack.top();
@@ -34,6 +34,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
     bool Bool(bool b)
     {
         LAX_LOG("Bool(%s)", (b ? "true" : "false"));
+        // TODO: refactoring
         if (stack.empty())
             throw std::runtime_error("no container to add");
         Obj* obj = stack.top();
@@ -53,6 +54,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
     bool Int(int i)
     {
         LAX_LOG("Int(%d)", i);
+        // TODO: refactoring
         if (stack.empty())
             throw std::runtime_error("no container to add");
         Obj* obj = stack.top();
@@ -72,6 +74,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
     bool Uint(unsigned u)
     {
         LAX_LOG("Uint(%u)", u);
+        // TODO: refactoring
         if (stack.empty())
             throw std::runtime_error("no container to add");
         Obj* obj = stack.top();
@@ -91,6 +94,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
     bool Int64(int64_t i)
     {
         LAX_LOG("Int64(%ld)", i);
+        // TODO: refactoring
         if (stack.empty())
             throw std::runtime_error("no container to add");
         Obj* obj = stack.top();
@@ -110,6 +114,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
     bool Uint64(uint64_t u)
     {
         LAX_LOG("Uint64(%lu)", u);
+        // TODO: refactoring
         if (stack.empty())
             throw std::runtime_error("no container to add");
         Obj* obj = stack.top();
@@ -129,6 +134,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
     bool Double(double d)
     {
         LAX_LOG("Double(%f)", d);
+        // TODO: refactoring
         if (stack.empty())
             throw std::runtime_error("no container to add");
         Obj* obj = stack.top();
@@ -152,6 +158,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
         LAX_LOG("String(%s, %u, %s)", str, length, (copy ? "true" : "false"));
         if (stack.empty())
             throw std::runtime_error("no container to add");
+        // TODO: refactoring
         Obj* obj = stack.top();
         ObjString* s = factory->newString(str);
         if (OBJ_LIST == obj->type) {
@@ -172,6 +179,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
         LAX_LOG("StartObject()");
         ObjMap* map = factory->newMap();
         if (!stack.empty()) {
+            // TODO: refactoring
             Obj* obj = stack.top();
             if (OBJ_LIST == obj->type) {
                 ObjList* list = (ObjList*)obj;
@@ -211,6 +219,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
         LAX_LOG("StartArray()");
         ObjList* list = factory->newList();
         if (!stack.empty()) {
+            // TODO: refactoring
             Obj* obj = stack.top();
             if (OBJ_LIST == obj->type) {
                 ObjList* list = (ObjList*)obj;
@@ -245,6 +254,36 @@ JsonInterface::~JsonInterface()
 {
 }
 
+void JsonInterface::write(rapidjson::Writer<rapidjson::StringBuffer>& writer, Value value)
+{
+    if (IS_MAP(value)) {
+        ObjMap* map = AS_MAP(value);
+	writer.StartObject();
+	for(std::map<std::string, Value>::iterator it = map->container.begin(); it != map->container.end() ; it++) {
+		writer.Key(it->first.c_str());
+		write(writer, it->second);
+	}
+	writer.EndObject();
+    }
+    else if (IS_LIST(value)) {
+        ObjList* list = AS_LIST(value);
+	writer.StartArray();
+        for (std::vector<Value>::iterator it = list->container.begin(); it != list->container.end(); it++) {
+            write(writer, *it);
+        }
+	writer.EndArray();
+    }
+    else if (IS_NUMBER(value)) {
+	    writer.Double(AS_NUMBER(value));
+    }
+    else if (IS_STRING(value)) {
+	    writer.String(AS_STRING(value)->chars.c_str());
+    }
+    else if (IS_BOOL(value)) {
+	    writer.Bool(AS_BOOL(value));
+    }
+}
+
 Value JsonInterface::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
 {
     Value value = 0;
@@ -267,6 +306,13 @@ Value JsonInterface::invoke(ObjectFactory* factory, std::string name, int argc, 
     else if ("dump" == name) {
         if (1 != argc)
             throw std::runtime_error("invalid number of arguments");
+        if (!IS_MAP(argv[0]) && !IS_LIST(argv[0]))
+            throw std::runtime_error("either map or list is expected.");
+        rapidjson::StringBuffer s;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+        write(writer, argv[0]);
+        ObjString* str = factory->newString(s.GetString());
+        value = OBJ_VAL(str);
     }
     else {
         throw std::runtime_error("invalid mothod");
