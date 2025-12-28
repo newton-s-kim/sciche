@@ -2,7 +2,7 @@
 
 #include <dlfcn.h>
 
-dl::dl(std::string path, std::string name) : m_handle(NULL), m_fn(NULL), m_name(name)
+dl::dl(std::string path, std::string name) : m_handle(NULL), m_fn(NULL), m_sym(NULL), m_name(name)
 {
     m_handle = dlopen(path.c_str(), RTLD_LAZY);
     if (!m_handle)

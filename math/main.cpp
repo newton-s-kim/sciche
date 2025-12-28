@@ -194,16 +194,12 @@ static Value logNative(ObjectFactory* factory, int argc, Value* args)
         throw std::runtime_error("invalid arguments");
     Value r = 0;
     if (IS_NUMBER(args[0])) {
-        double v = AS_NUMBER(args[0]);
-        if (0 > v) {
-            throw std::runtime_error("positive number is expected.");
-        }
-        r = NUMBER_VAL(log10(v));
+        r = NUMBER_VAL(log(AS_NUMBER(args[0])));
     }
     else if (IS_COL(args[0])) {
         ObjCol* c = AS_COL(args[0]);
         ObjCol* ret = factory->newCol();
-        ret->value = log10(c->value);
+        ret->value = log(c->value);
         r = OBJ_VAL(ret);
     }
     else if (IS_MAT(args[0])) {
@@ -225,11 +221,7 @@ static Value log2Native(ObjectFactory* factory, int argc, Value* args)
         throw std::runtime_error("invalid arguments");
     Value r = 0;
     if (IS_NUMBER(args[0])) {
-        double v = AS_NUMBER(args[0]);
-        if (0 > v) {
-            throw std::runtime_error("positive number is expected.");
-        }
-        r = NUMBER_VAL(log2(v));
+        r = NUMBER_VAL(log2(AS_NUMBER(args[0])));
     }
     else if (IS_COL(args[0])) {
         ObjCol* c = AS_COL(args[0]);
@@ -256,11 +248,7 @@ static Value log10Native(ObjectFactory* factory, int argc, Value* args)
         throw std::runtime_error("invalid arguments");
     Value r = 0;
     if (IS_NUMBER(args[0])) {
-        double v = AS_NUMBER(args[0]);
-        if (0 > v) {
-            throw std::runtime_error("positive number is expected.");
-        }
-        r = NUMBER_VAL(log10(v));
+        r = NUMBER_VAL(log10(AS_NUMBER(args[0])));
     }
     else if (IS_COL(args[0])) {
         ObjCol* c = AS_COL(args[0]);
