@@ -230,7 +230,7 @@ class Test:
 
             match = _expectedRuntimeErrorPattern.search(line)
             if match is not None:
-                #this._expectedRuntimeError = "[line {}] {}".format(lineNum, match[1])
+                # this._expectedRuntimeError = "[line {}] {}".format(lineNum, match[1])
                 this._expectedRuntimeError = "{}".format(match[1])
                 # If we expect a runtime error, it should exit with EX_SOFTWARE.
                 this._expectedExitCode = 70

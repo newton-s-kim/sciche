@@ -12,3 +12,5 @@ do
 		find $dir -name "*.$ext" -exec clang-format -i {} \;
 	done
 done
+
+find . -name *.py -exec black {} \;
