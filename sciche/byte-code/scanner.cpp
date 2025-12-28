@@ -221,6 +221,13 @@ Token Scanner::number()
         while (isDigit(peek()))
             advance();
     }
+    if (peek() == 'e') {
+        advance();
+        if (peek() == '+' || peek() == '-')
+            advance();
+        while (isDigit(peek()))
+            advance();
+    }
     if ('j' == peek()) {
         token_type = TOKEN_COMPLEX_NUMBER;
         advance();

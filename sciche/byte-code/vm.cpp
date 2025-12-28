@@ -2043,9 +2043,9 @@ InterpretResult VM::run(void)
             bool calculated = true;
             if (IS_NUMBER(peek(1))) {
                 if (IS_NUMBER(peek(0))) {
-                    int b = (int)AS_NUMBER(pop());
-                    int a = (int)AS_NUMBER(pop());
-                    push(NUMBER_VAL(a % b));
+                    double b = (int)AS_NUMBER(pop());
+                    double a = AS_NUMBER(pop());
+                    push(NUMBER_VAL(fmod(a, b)));
                 }
                 else {
                     calculated = false;
