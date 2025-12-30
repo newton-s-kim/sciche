@@ -148,3 +148,31 @@ Value kfNative(ObjectFactory* factory, int argc, Value* args)
         factory->newNativeObj(new kalmanFilter(AS_NUMBER(args[0]), AS_NUMBER(args[1]), AS_NUMBER(args[2])));
     return OBJ_VAL(obj);
 }
+
+SigpackInterface::SigpackInterface()
+{
+}
+
+SigpackInterface::~SigpackInterface()
+{
+}
+
+std::map<std::string, NativeFn> s_sigpack_api = {{"FIR_filt", firFiltNative},
+                                                 {"IIR_filt", iirFiltNative},
+                                                 {"fir1", fir1Native},
+                                                 {"Delay", delayNative},
+                                                 {"gplot", gplotNative},
+                                                 {"linspace", linspaceNative},
+                                                 {"specgram", specgramNative},
+                                                 {"pwelch", pwelchNative},
+                                                 {"freqz", freqzNative},
+                                                 {"phasez", phasezNative},
+                                                 {"KF", kfNative}};
+
+Value SigpackInterface::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
+{
+    std::map<std::string, NativeFn>::iterator it = s_sigpack_api.find(name);
+    if (s_sigpack_api.end() == it)
+        throw std::runtime_error("undefined method");
+    return it->second(factory, argc, argv);
+}

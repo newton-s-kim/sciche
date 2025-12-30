@@ -15,7 +15,7 @@ int main()
 
     // Create two tone sig
     t = linspace(0, N - 1, N);
-    complex<double> j(0, 1);
+    std::complex<double> j(0, 1);
     cx = exp(j * (datum::pi * 0.1) * t) + 0.8 * exp(j * (datum::pi * 0.2) * t) + 0.01 * n.randn();
 
     // Calc spectrum

@@ -2,6 +2,7 @@
 
 #include "object.hpp"
 
+/*
 Value firFiltNative(ObjectFactory* factory, int argc, Value* args);
 Value iirFiltNative(ObjectFactory* factory, int argc, Value* args);
 Value fir1Native(ObjectFactory* factory, int argc, Value* args);
@@ -13,3 +14,11 @@ Value pwelchNative(ObjectFactory* factory, int argc, Value* args);
 Value freqzNative(ObjectFactory* factory, int argc, Value* args);
 Value phasezNative(ObjectFactory* factory, int argc, Value* args);
 Value kfNative(ObjectFactory* factory, int argc, Value* args);
+*/
+
+class SigpackInterface : public NativeClass {
+public:
+    SigpackInterface();
+    ~SigpackInterface();
+    Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
+};
