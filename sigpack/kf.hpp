@@ -11,4 +11,5 @@ public:
     kalmanFilter(int n, int m, int l);
     ~kalmanFilter();
     Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
+    Value property(ObjectFactory* factory, std::string name);
 };

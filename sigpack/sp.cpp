@@ -176,3 +176,10 @@ Value SigpackInterface::invoke(ObjectFactory* factory, std::string name, int arg
         throw std::runtime_error("undefined method");
     return it->second(factory, argc, argv);
 }
+
+Value SigpackInterface::property(ObjectFactory* factory, std::string name)
+{
+    (void)factory;
+    (void)name;
+    throw std::runtime_error("invalid property");
+}

@@ -1486,30 +1486,45 @@ InterpretResult VM::run(void)
             //> Classes and Instances interpret-get-property
         case OP_GET_PROPERTY: {
             //> get-not-instance
-            if (!IS_INSTANCE(peek(0))) {
-                runtimeError("Only instances have properties.");
-                return INTERPRET_RUNTIME_ERROR;
-            }
+            if (IS_INSTANCE(peek(0))) {
+                //< get-not-instance
+                ObjInstance* instance = AS_INSTANCE(peek(0));
+                ObjString* name = READ_STRING();
 
-            //< get-not-instance
-            ObjInstance* instance = AS_INSTANCE(peek(0));
-            ObjString* name = READ_STRING();
+                Value value;
+                if (instance->fields.get(name->chars, &value)) {
+                    pop(); // Instance.
+                    push(value);
+                    break;
+                }
+                //> get-undefined
 
-            Value value;
-            if (instance->fields.get(name->chars, &value)) {
-                pop(); // Instance.
-                push(value);
-                break;
-            }
-            //> get-undefined
-
-            //< get-undefined
-            /* Classes and Instances get-undefined < Methods and Initializers get-method
-                    runtimeError("Undefined property '%s'.", name->chars);
+                //< get-undefined
+                /* Classes and Instances get-undefined < Methods and Initializers get-method
+                        runtimeError("Undefined property '%s'.", name->chars);
+                        return INTERPRET_RUNTIME_ERROR;
+                */
+                //> Methods and Initializers get-method
+                if (!bindMethod(instance->klass, name)) {
                     return INTERPRET_RUNTIME_ERROR;
-            */
-            //> Methods and Initializers get-method
-            if (!bindMethod(instance->klass, name)) {
+                }
+            }
+            else if (IS_NATIVE_OBJECT(peek(0))) {
+                ObjNativeObject* nobj = AS_NATIVE_OBJECT(peek(0));
+                ObjString* name = READ_STRING();
+                Value result = 0;
+                try {
+                    result = nobj->klass->property(this, name->chars);
+                    pop();
+                    push(result);
+                }
+                catch (std::exception& e) {
+                    runtimeError(e.what());
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+            }
+            else {
+                runtimeError("Only instances have properties.");
                 return INTERPRET_RUNTIME_ERROR;
             }
             break;

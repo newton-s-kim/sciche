@@ -189,3 +189,10 @@ Value gPlot::invoke(ObjectFactory* factory, std::string name, int argc, Value* a
     }
     return ret;
 }
+
+Value gPlot::property(ObjectFactory* factory, std::string name)
+{
+    (void)factory;
+    (void)name;
+    throw std::runtime_error("invalid property");
+}

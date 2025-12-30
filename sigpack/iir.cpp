@@ -37,3 +37,10 @@ Value IirFilter::invoke(ObjectFactory* factory, std::string name, int argc, Valu
     }
     return ret;
 }
+
+Value IirFilter::property(ObjectFactory* factory, std::string name)
+{
+    (void)factory;
+    (void)name;
+    throw std::runtime_error("invalid property");
+}

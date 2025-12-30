@@ -98,3 +98,10 @@ Value kalmanFilter::invoke(ObjectFactory* factory, std::string name, int argc, V
     }
     return ret;
 }
+
+Value kalmanFilter::property(ObjectFactory* factory, std::string name)
+{
+    (void)factory;
+    (void)name;
+    throw std::runtime_error("invalid property");
+}

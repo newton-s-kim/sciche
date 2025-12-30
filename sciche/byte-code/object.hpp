@@ -324,6 +324,7 @@ public:
     {
     }
     virtual Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv) = 0;
+    virtual Value property(ObjectFactory* factory, std::string name) = 0;
 };
 
 class ObjNativeObject : public Obj {

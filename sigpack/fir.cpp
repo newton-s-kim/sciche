@@ -93,3 +93,10 @@ Value FirFilter::invoke(ObjectFactory* factory, std::string name, int argc, Valu
     }
     return ret;
 }
+
+Value FirFilter::property(ObjectFactory* factory, std::string name)
+{
+    (void)factory;
+    (void)name;
+    throw std::runtime_error("invalid property");
+}

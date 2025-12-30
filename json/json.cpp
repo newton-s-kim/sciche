@@ -319,3 +319,10 @@ Value JsonInterface::invoke(ObjectFactory* factory, std::string name, int argc, 
     }
     return value;
 }
+
+Value JsonInterface::property(ObjectFactory* factory, std::string name)
+{
+    (void)factory;
+    (void)name;
+    throw std::runtime_error("invalid property");
+}

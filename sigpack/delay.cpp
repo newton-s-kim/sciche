@@ -32,3 +32,10 @@ Value DelayFilter::invoke(ObjectFactory* factory, std::string name, int argc, Va
     }
     return ret;
 }
+
+Value DelayFilter::property(ObjectFactory* factory, std::string name)
+{
+    (void)factory;
+    (void)name;
+    throw std::runtime_error("invalid property");
+}
