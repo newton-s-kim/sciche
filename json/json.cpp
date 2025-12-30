@@ -258,29 +258,29 @@ void JsonInterface::write(rapidjson::Writer<rapidjson::StringBuffer>& writer, Va
 {
     if (IS_MAP(value)) {
         ObjMap* map = AS_MAP(value);
-	writer.StartObject();
-	for(std::map<std::string, Value>::iterator it = map->container.begin(); it != map->container.end() ; it++) {
-		writer.Key(it->first.c_str());
-		write(writer, it->second);
-	}
-	writer.EndObject();
+        writer.StartObject();
+        for (std::map<std::string, Value>::iterator it = map->container.begin(); it != map->container.end(); it++) {
+            writer.Key(it->first.c_str());
+            write(writer, it->second);
+        }
+        writer.EndObject();
     }
     else if (IS_LIST(value)) {
         ObjList* list = AS_LIST(value);
-	writer.StartArray();
+        writer.StartArray();
         for (std::vector<Value>::iterator it = list->container.begin(); it != list->container.end(); it++) {
             write(writer, *it);
         }
-	writer.EndArray();
+        writer.EndArray();
     }
     else if (IS_NUMBER(value)) {
-	    writer.Double(AS_NUMBER(value));
+        writer.Double(AS_NUMBER(value));
     }
     else if (IS_STRING(value)) {
-	    writer.String(AS_STRING(value)->chars.c_str());
+        writer.String(AS_STRING(value)->chars.c_str());
     }
     else if (IS_BOOL(value)) {
-	    writer.Bool(AS_BOOL(value));
+        writer.Bool(AS_BOOL(value));
     }
 }
 
