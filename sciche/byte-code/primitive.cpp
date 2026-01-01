@@ -6,19 +6,21 @@
 
 typedef Value (*NativeValueBooundFn)(ObjectFactory* factory, Value value, int argc, Value* argv);
 
-static Value list_size(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
+static Value list_size(ObjectFactory* factory, Value value, int argc, Value* argv)
 {
     (void)factory;
     (void)argc;
     (void)argv;
-    ObjList* list = (ObjList*)obj;
+    if(!IS_LIST(value)) throw std::runtime_error("list is expected.");
+    ObjList* list = AS_LIST(value);
     return NUMBER_VAL(list->container.size());
 }
 
-static Value list_add(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
+static Value list_add(ObjectFactory* factory, Value value, int argc, Value* argv)
 {
     (void)factory;
-    ObjList* list = (ObjList*)obj;
+    if(!IS_LIST(value)) throw std::runtime_error("list is expected.");
+    ObjList* list = AS_LIST(value);
     for (int idx = 0; idx < argc; idx++) {
         list->container.push_back(argv[idx]);
     }
@@ -26,7 +28,7 @@ static Value list_add(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
 }
 
 // clang-format off
-std::map<std::string, NativeBooundFn> s_list_apis = {
+std::map<std::string, NativeValueBooundFn> s_list_apis = {
     {"size", list_size},
     {"add", list_add}
 };
@@ -284,11 +286,6 @@ NativeBooundFn Primitive::find(ObjType type, std::string name)
     NativeBooundFn fn = NULL;
     std::map<std::string, NativeBooundFn>::iterator it;
     switch (type) {
-    case OBJ_LIST:
-        it = s_list_apis.find(name);
-        if (it != s_list_apis.end())
-            fn = it->second;
-        break;
     case OBJ_MAP:
         it = s_map_apis.find(name);
         if (it != s_map_apis.end())
@@ -354,6 +351,13 @@ Value Primitive::call(ObjectFactory* factory, Value value, std::string name, int
             ret = it->second(factory, value, argc, argv);
         else
             throw std::runtime_error("The method does not exist in bool.");
+    }
+    else if (IS_LIST(value)) {
+        it = s_list_apis.find(name);
+        if (it != s_list_apis.end())
+            ret = it->second(factory, value, argc, argv);
+	else
+            throw std::runtime_error("The method does not exist in List.");
     }
     else {
         throw std::runtime_error("Only instances have methods.");

@@ -750,34 +750,6 @@ bool VM::invoke(ObjString* name, int argCount)
         //< invoke-field
         return invokeFromClass(instance->klass, name, argCount);
     }
-    else if (IS_NUMBER(receiver)) {
-        Value result = 0;
-        try {
-            result = primitive.call(this, receiver, name->chars, argCount, stackTop - argCount);
-        }
-        catch (std::exception& e) {
-            runtimeError(e.what());
-            return false;
-        }
-        for (int i = 0; i < argCount; i++)
-            pop();
-        pop();
-        push(result);
-        return true;
-    }
-    else if (IS_LIST(receiver)) {
-        NativeBooundFn fn = primitive.find(OBJ_LIST, name->chars);
-        if (NULL == fn) {
-            runtimeError("The method does not exist in List.");
-            return false;
-        }
-        Value result = fn(this, AS_LIST(receiver), argCount, stackTop - argCount);
-        for (int i = 0; i < argCount; i++)
-            pop();
-        pop();
-        push(result);
-        return true;
-    }
     else if (IS_MAP(receiver)) {
         NativeBooundFn fn = primitive.find(OBJ_MAP, name->chars);
         if (NULL == fn) {
@@ -895,8 +867,19 @@ bool VM::invoke(ObjString* name, int argCount)
         return true;
     }
     else {
-        runtimeError("Only instances have methods.");
-        return false;
+        Value result = 0;
+        try {
+            result = primitive.call(this, receiver, name->chars, argCount, stackTop - argCount);
+        }
+        catch (std::exception& e) {
+            runtimeError(e.what());
+            return false;
+        }
+        for (int i = 0; i < argCount; i++)
+            pop();
+        pop();
+        push(result);
+        return true;
     }
     return false;
 }
