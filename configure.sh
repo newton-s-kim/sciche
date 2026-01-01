@@ -10,9 +10,19 @@ BUILD_TYPE="Release"
 OLD_BUILD_TYPE=""
 
 CLEAN_FORCED=no
+DEBUG_TRACE=no
+DEBUG_PRINT_CODE=no
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    -p|--print-code)
+      DEBUG_PRINT_CODE=yes
+      shift
+      ;;
+    -t|--trace)
+      DEBUG_TRACE=yes
+      shift
+      ;;
     -d|--debug)
       BUILD_TYPE="Debug"
       shift
@@ -27,6 +37,18 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+function config_common_h() {
+  COMMON_H=sciche/byte-code/common.hpp
+  COMMON_H_IN=${COMMON_H}.in
+  cp $COMMON_H_IN $COMMON_H
+    echo "#undef DEBUG_PRINT_CODE" >> $COMMON_H
+  if [ "$DEBUG_TRACE" != "yes" ]; then
+    echo "#undef DEBUG_TRACE_EXECUTION" >> $COMMON_H
+  fi
+    echo "#undef DEBUG_STRESS_GC" >> $COMMON_H
+    echo "#undef DEBUG_LOG_GC" >> $COMMON_H
+  echo "//< omit" >> $COMMON_H
+}
 
 buildtype_mismatch() {
   if [ -f "$BUILD_TYPE_FILE_PATH" ]; then
@@ -37,6 +59,8 @@ buildtype_mismatch() {
   fi
   return 0
 }
+
+config_common_h
 
 if [ $CLEAN_FORCED == "yes" ] || buildtype_mismatch ; then
   rm -rf "$BUILD"

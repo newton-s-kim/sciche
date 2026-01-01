@@ -1,7 +1,10 @@
 #include "primitive.hpp"
+#include "log.hpp"
 
 #include <map>
 #include <string>
+
+typedef Value (*NativeValueBooundFn)(ObjectFactory* factory, Value value, int argc, Value* argv);
 
 static Value list_size(ObjectFactory* factory, Obj* obj, int argc, Value* argv)
 {
@@ -306,9 +309,54 @@ NativeBooundFn Primitive::find(ObjType type, std::string name)
         if (it != s_cube_apis.end())
             fn = it->second;
         break;
-        break;
     default:
+        throw std::runtime_error("unsupported object type");
         break;
     }
     return fn;
+}
+
+static Value num_ceil(ObjectFactory* factory, Value value, int argc, Value* argv)
+{
+    (void)factory;
+    (void)argc;
+    (void)argv;
+    if (!IS_NUMBER(value))
+        throw std::runtime_error("Number is expected.");
+    int v = ceil(AS_NUMBER(value));
+    LAX_LOG("ceil(%f) is %d", AS_NUMBER(value), v);
+    return NUMBER_VAL(v);
+}
+
+// clang-format off
+std::map<std::string, NativeValueBooundFn> s_number_apis = {
+    {"ceil", num_ceil}
+};
+
+std::map<std::string, NativeValueBooundFn> s_bool_apis = {
+};
+// clang-format on
+
+Value Primitive::call(ObjectFactory* factory, Value value, std::string name, int argc, Value* argv)
+{
+    Value ret = 0;
+    std::map<std::string, NativeValueBooundFn>::iterator it;
+    if (IS_NUMBER(value)) {
+        it = s_number_apis.find(name);
+        if (it != s_number_apis.end())
+            ret = it->second(factory, value, argc, argv);
+        else
+            throw std::runtime_error("The method does not exist in number.");
+    }
+    else if (IS_BOOL(value)) {
+        it = s_bool_apis.find(name);
+        if (it != s_bool_apis.end())
+            ret = it->second(factory, value, argc, argv);
+        else
+            throw std::runtime_error("The method does not exist in bool.");
+    }
+    else {
+        throw std::runtime_error("Only instances have methods.");
+    }
+    return ret;
 }

@@ -1585,9 +1585,17 @@ void CompilerInterfaceConcrete::varDeclaration()
 std::string CompilerInterfaceConcrete::findPath(std::string file)
 {
     LAX_LOG("findPath(%s)", file.c_str());
+    // clang-format off
     const char* dirs[] = {
-        "./build/math/",    "./build/sigpack/",         "./build/json/",      "/usr/local/lib/sciche/",
-        "/usr/lib/sciche/", "/usr/local/share/sciche/", "/usr/share/sciche/", NULL};
+        "./build/libs/math/",
+        "./build/libs/sigpack/",
+	"./build/libs/json/",
+  	"/usr/local/lib/sciche/",
+        "/usr/lib/sciche/",
+       	"/usr/local/share/sciche/",
+       	"/usr/share/sciche/",
+	NULL};
+    // clang-format on
     std::string candidate;
     for (size_t i = 0; i < sizeof(dirs); i++) {
         candidate = dirs[i] + file;

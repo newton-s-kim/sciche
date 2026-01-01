@@ -750,6 +750,21 @@ bool VM::invoke(ObjString* name, int argCount)
         //< invoke-field
         return invokeFromClass(instance->klass, name, argCount);
     }
+    else if (IS_NUMBER(receiver)) {
+        Value result = 0;
+        try {
+            result = primitive.call(this, receiver, name->chars, argCount, stackTop - argCount);
+        }
+        catch (std::exception& e) {
+            runtimeError(e.what());
+            return false;
+        }
+        for (int i = 0; i < argCount; i++)
+            pop();
+        pop();
+        push(result);
+        return true;
+    }
     else if (IS_LIST(receiver)) {
         NativeBooundFn fn = primitive.find(OBJ_LIST, name->chars);
         if (NULL == fn) {
@@ -2202,8 +2217,9 @@ InterpretResult VM::run(void)
             bool calculated = true;
             if (IS_NUMBER(peek(1))) {
                 if (IS_NUMBER(peek(0))) {
-                    double b = (int)AS_NUMBER(pop());
+                    double b = AS_NUMBER(pop());
                     double a = AS_NUMBER(pop());
+                    LAX_LOG("fmod(%f, %f) is %f", a, b, fmod(a, b));
                     push(NUMBER_VAL(fmod(a, b)));
                 }
                 else {
