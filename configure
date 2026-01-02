@@ -41,12 +41,14 @@ function config_common_h() {
   COMMON_H=sciche/byte-code/common.hpp
   COMMON_H_IN=${COMMON_H}.in
   cp $COMMON_H_IN $COMMON_H
+  if [ "$DEBUG_PRINT_CODE" != "yes" ]; then
     echo "#undef DEBUG_PRINT_CODE" >> $COMMON_H
+  fi
   if [ "$DEBUG_TRACE" != "yes" ]; then
     echo "#undef DEBUG_TRACE_EXECUTION" >> $COMMON_H
   fi
-    echo "#undef DEBUG_STRESS_GC" >> $COMMON_H
-    echo "#undef DEBUG_LOG_GC" >> $COMMON_H
+  echo "#undef DEBUG_STRESS_GC" >> $COMMON_H
+  echo "#undef DEBUG_LOG_GC" >> $COMMON_H
   echo "//< omit" >> $COMMON_H
 }
 
