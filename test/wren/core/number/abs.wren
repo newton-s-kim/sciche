@@ -1,7 +1,7 @@
 include "math";
-print abs(123);      // expect: 123
-print abs(-123);   // expect: 123
-print abs(0);        // expect: 0
-print abs(-0);     // expect: 0
-print abs(-0.12);  // expect: 0.12
-print abs(12.34);    // expect: 12.34
+print 123.abs;      // expect: 123
+print (-123).abs;   // expect: 123
+print 0.abs;        // expect: 0
+print (-0).abs;     // expect: 0
+print (-0.12).abs;  // expect: 0.12
+print 12.34.abs;    // expect: 12.34

@@ -326,12 +326,84 @@ static Value num_ceil(ObjectFactory* factory, Value value)
     return NUMBER_VAL(v);
 }
 
+static Value num_floor(ObjectFactory* factory, Value value)
+{
+    (void)factory;
+    if (!IS_NUMBER(value))
+        throw std::runtime_error("Number is expected.");
+    int v = floor(AS_NUMBER(value));
+    LAX_LOG("floor(%f) is %d", AS_NUMBER(value), v);
+    return NUMBER_VAL(v);
+}
+
+static Value num_round(ObjectFactory* factory, Value value)
+{
+    (void)factory;
+    if (!IS_NUMBER(value))
+        throw std::runtime_error("Number is expected.");
+    int v = round(AS_NUMBER(value));
+    LAX_LOG("round(%f) is %d", AS_NUMBER(value), v);
+    return NUMBER_VAL(v);
+}
+
+static Value num_sign(ObjectFactory* factory, Value value)
+{
+    (void)factory;
+    if (!IS_NUMBER(value))
+        throw std::runtime_error("Number is expected.");
+    double v = (AS_NUMBER(value));
+    int sgn = 0;
+    if (0 < v)
+        sgn = 1;
+    else if (0 > v)
+        sgn = -1;
+    LAX_LOG("sng(%f) is %f", AS_NUMBER(value), sgn);
+    return NUMBER_VAL(sgn);
+}
+
+static Value num_abs(ObjectFactory* factory, Value value)
+{
+    (void)factory;
+    if (!IS_NUMBER(value))
+        throw std::runtime_error("Number is expected.");
+    double v = fabs(AS_NUMBER(value));
+    LAX_LOG("abs(%f) is %f", AS_NUMBER(value), v);
+    return NUMBER_VAL(v);
+}
+
+static Value num_fraction(ObjectFactory* factory, Value value)
+{
+    (void)factory;
+    if (!IS_NUMBER(value))
+        throw std::runtime_error("Number is expected.");
+    double v = AS_NUMBER(value);
+    double r = v - (int)v;
+    LAX_LOG("floor(%f) is %f", v, r);
+    return NUMBER_VAL(r);
+}
+
+static Value num_truncate(ObjectFactory* factory, Value value)
+{
+    (void)factory;
+    if (!IS_NUMBER(value))
+        throw std::runtime_error("Number is expected.");
+    int v = trunc(AS_NUMBER(value));
+    LAX_LOG("truncate(%f) is %d", AS_NUMBER(value), v);
+    return NUMBER_VAL(v);
+}
+
 // clang-format off
 std::map<std::string, NativeBoundFn> s_number_apis = {
 };
 
 std::map<std::string, NativeBoundProperty> s_number_props = {
-    {"ceil", num_ceil}
+    {"ceil", num_ceil},
+    {"floor", num_floor},
+    {"round", num_round},
+    {"fraction", num_fraction},
+    {"sign", num_sign},
+    {"abs", num_abs},
+    {"truncate", num_truncate}
 };
 
 std::map<std::string, NativeBoundFn> s_bool_apis = {

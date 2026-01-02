@@ -151,28 +151,6 @@ static Value cbrtNative(ObjectFactory* factory, int argc, Value* args)
     return value;
 }
 
-static Value absNative(ObjectFactory* factory, int argc, Value* args)
-{
-    (void)factory;
-    if (1 != argc)
-        throw std::runtime_error("invalid arguments");
-    if (IS_NUMBER(args[0])) {
-        return NUMBER_VAL(fabs(AS_NUMBER(args[0])));
-    }
-    else if (IS_COMPLEX(args[0])) {
-        return NUMBER_VAL(abs(AS_COMPLEX(args[0])->value));
-    }
-    else if (IS_MAT(args[0])) {
-        ObjMat* m = factory->newMat();
-        m->value = abs(AS_MAT(args[0])->value);
-        return OBJ_VAL(m);
-    }
-    else {
-        throw std::runtime_error("number is expected");
-    }
-    return NUMBER_VAL(0);
-}
-
 static Value phaseNative(ObjectFactory* factory, int argc, Value* args)
 {
     (void)factory;
@@ -303,10 +281,9 @@ static Value expNative(ObjectFactory* factory, int argc, Value* args)
 
 extern "C" void math_functions(std::vector<std::string>& names, std::vector<NativeFn>& functions)
 {
-    names.assign(
-        {"acos", "asin", "atan", "sin", "cos", "tan", "sqrt", "cbrt", "abs", "phase", "log10", "log2", "log", "exp"});
+    names.assign({"acos", "asin", "atan", "sin", "cos", "tan", "sqrt", "cbrt", "phase", "log10", "log2", "log", "exp"});
     functions.assign({acosNative, asinNative, atanNative, sinNative, cosNative, tanNative, sqrtNative, cbrtNative,
-                      absNative, phaseNative, log10Native, log2Native, logNative, expNative});
+                      phaseNative, log10Native, log2Native, logNative, expNative});
 }
 extern "C" void math_symbols(std::vector<std::string>& names, std::vector<double>& symbols)
 {
