@@ -1422,8 +1422,17 @@ InterpretResult VM::run(void)
                 }
             }
             else {
-                runtimeError("Only instances have properties.");
-                return INTERPRET_RUNTIME_ERROR;
+                ObjString* name = READ_STRING();
+                Value result = 0;
+                try {
+                    result = primitive.property(this, peek(0), name->chars);
+                    pop();
+                    push(result);
+                }
+                catch (std::exception& e) {
+                    runtimeError(e.what());
+                    return INTERPRET_RUNTIME_ERROR;
+                }
             }
             break;
             //< Methods and Initializers get-method

@@ -15,7 +15,7 @@ b.add(-0.2, -0.1, 0.1, 0.3, 0.7);
 var c = vec();
 c.add(-0.4, 0.0, 0.2, 0.1, 0.4);
 G.set_coeffs(b);
-var M = b.size();
+var M = b.size;
 
 // Setup adaptive filter
 //	Ghat.setup_rls(M, 0.8, 5);

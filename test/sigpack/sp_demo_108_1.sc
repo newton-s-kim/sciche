@@ -13,7 +13,7 @@ var Ghat = sp.FIR_filt();
 var b = vec();
 b.add(-0.2, -0.1, 0.1, 0.3, 0.7);
 G.set_coeffs(b);
-var M = b.size();
+var M = b.size;
 
 // Setup adaptive filter
 //	Ghat.setup_rls(M, 0.95, 50);

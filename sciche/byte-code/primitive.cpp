@@ -5,12 +5,11 @@
 #include <string>
 
 typedef Value (*NativeBoundFn)(ObjectFactory* factory, Value value, int argc, Value* argv);
+typedef Value (*NativeBoundProperty)(ObjectFactory* factory, Value value);
 
-static Value list_size(ObjectFactory* factory, Value value, int argc, Value* argv)
+static Value list_size(ObjectFactory* factory, Value value)
 {
     (void)factory;
-    (void)argc;
-    (void)argv;
     if (!IS_LIST(value))
         throw std::runtime_error("list is expected.");
     ObjList* list = AS_LIST(value);
@@ -31,16 +30,17 @@ static Value list_add(ObjectFactory* factory, Value value, int argc, Value* argv
 
 // clang-format off
 std::map<std::string, NativeBoundFn> s_list_apis = {
-    {"size", list_size},
     {"add", list_add}
+};
+
+std::map<std::string, NativeBoundProperty> s_list_props = {
+    {"size", list_size},
 };
 // clang-format on
 
-static Value map_size(ObjectFactory* factory, Value value, int argc, Value* argv)
+static Value map_size(ObjectFactory* factory, Value value)
 {
     (void)factory;
-    (void)argc;
-    (void)argv;
     if (!IS_MAP(value))
         throw std::runtime_error("map is expected.");
     ObjMap* map = AS_MAP(value);
@@ -49,15 +49,16 @@ static Value map_size(ObjectFactory* factory, Value value, int argc, Value* argv
 
 // clang-format off
 std::map<std::string, NativeBoundFn> s_map_apis = {
+};
+
+std::map<std::string, NativeBoundProperty> s_map_props = {
     {"size", map_size}
 };
 // clang-format on
 
-static Value col_size(ObjectFactory* factory, Value value, int argc, Value* argv)
+static Value col_size(ObjectFactory* factory, Value value)
 {
     (void)factory;
-    (void)argc;
-    (void)argv;
     if (!IS_COL(value))
         throw std::runtime_error("vector is expected.");
     ObjCol* col = AS_COL(value);
@@ -133,16 +134,19 @@ static Value col_add(ObjectFactory* factory, Value value, int argc, Value* argv)
 
 // clang-format off
 std::map<std::string, NativeBoundFn> s_col_apis = {
-    {"size", col_size},
     {"resize", col_resize},
     {"zeros", col_zeros},
     {"add", col_add},
     {"t", col_transpose},
     {"randn", col_randn}
 };
+std::map<std::string, NativeBoundProperty> s_col_props = {
+    {"size", col_size}
+};
 // clang-format on
 
 std::map<std::string, NativeBoundFn> s_row_apis = {};
+std::map<std::string, NativeBoundProperty> s_row_props = {};
 
 static Value mat_col(ObjectFactory* factory, Value value, int argc, Value* argv)
 {
@@ -272,6 +276,8 @@ std::map<std::string, NativeBoundFn> s_mat_apis = {
     {"set", mat_set},
     {"t", mat_transpose}
 };
+std::map<std::string, NativeBoundProperty> s_mat_props = {
+};
 // clang-format on
 
 static Value cube_slice(ObjectFactory* factory, Value value, int argc, Value* argv)
@@ -306,13 +312,13 @@ static Value cube_slice(ObjectFactory* factory, Value value, int argc, Value* ar
 std::map<std::string, NativeBoundFn> s_cube_apis = {
     {"slice", cube_slice}
 };
+std::map<std::string, NativeBoundProperty> s_cube_props = {
+};
 // clang-format on
 
-static Value num_ceil(ObjectFactory* factory, Value value, int argc, Value* argv)
+static Value num_ceil(ObjectFactory* factory, Value value)
 {
     (void)factory;
-    (void)argc;
-    (void)argv;
     if (!IS_NUMBER(value))
         throw std::runtime_error("Number is expected.");
     int v = ceil(AS_NUMBER(value));
@@ -322,10 +328,15 @@ static Value num_ceil(ObjectFactory* factory, Value value, int argc, Value* argv
 
 // clang-format off
 std::map<std::string, NativeBoundFn> s_number_apis = {
+};
+
+std::map<std::string, NativeBoundProperty> s_number_props = {
     {"ceil", num_ceil}
 };
 
 std::map<std::string, NativeBoundFn> s_bool_apis = {
+};
+std::map<std::string, NativeBoundProperty> s_bool_props = {
 };
 // clang-format on
 
@@ -391,6 +402,73 @@ Value Primitive::call(ObjectFactory* factory, Value value, std::string name, int
     }
     else {
         throw std::runtime_error("Only instances have methods.");
+    }
+    return ret;
+}
+
+Value Primitive::property(ObjectFactory* factory, Value value, std::string name)
+{
+    (void)factory;
+    Value ret = 0;
+    std::map<std::string, NativeBoundProperty>::iterator it;
+    if (IS_NUMBER(value)) {
+        it = s_number_props.find(name);
+        if (it != s_number_props.end())
+            ret = it->second(factory, value);
+        else
+            throw std::runtime_error("The property does not exist in number.");
+    }
+    else if (IS_BOOL(value)) {
+        it = s_bool_props.find(name);
+        if (it != s_bool_props.end())
+            ret = it->second(factory, value);
+        else
+            throw std::runtime_error("The property does not exist in bool.");
+    }
+    else if (IS_LIST(value)) {
+        it = s_list_props.find(name);
+        if (it != s_list_props.end())
+            ret = it->second(factory, value);
+        else
+            throw std::runtime_error("The property does not exist in List.");
+    }
+    else if (IS_MAP(value)) {
+        it = s_map_props.find(name);
+        if (it != s_map_props.end())
+            ret = it->second(factory, value);
+        else
+            throw std::runtime_error("The property does not exist in Map.");
+    }
+    else if (IS_COL(value)) {
+        it = s_col_props.find(name);
+        if (it != s_col_props.end())
+            ret = it->second(factory, value);
+        else
+            throw std::runtime_error("The property does not exist in vec.");
+    }
+    else if (IS_ROW(value)) {
+        it = s_row_props.find(name);
+        if (it != s_row_props.end())
+            ret = it->second(factory, value);
+        else
+            throw std::runtime_error("The property does not exist in rowvec.");
+    }
+    else if (IS_MAT(value)) {
+        it = s_mat_props.find(name);
+        if (it != s_mat_props.end())
+            ret = it->second(factory, value);
+        else
+            throw std::runtime_error("The property does not exist in mat.");
+    }
+    else if (IS_CUBE(value)) {
+        it = s_cube_props.find(name);
+        if (it != s_mat_props.end())
+            ret = it->second(factory, value);
+        else
+            throw std::runtime_error("The property does not exist in cube.");
+    }
+    else {
+        throw std::runtime_error("Only instances have properties.");
     }
     return ret;
 }
