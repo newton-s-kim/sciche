@@ -1,4 +1,4 @@
-include "scjson";
+include "json";
 
 var dict = Map();
 dict["name"] = "John Doe";

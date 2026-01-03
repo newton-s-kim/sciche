@@ -1610,7 +1610,7 @@ void CompilerInterfaceConcrete::incDeclaration()
 {
     if (parser.match(TOKEN_STRING)) {
         std::string name(parser.previous.start + 1, parser.previous.length - 2);
-        std::string real_name = "lib" + name + ".so";
+        std::string real_name = "libsc" + name + ".so";
         std::string path = findPath(real_name);
         if (0 < path.size()) {
             bool tf = false;
