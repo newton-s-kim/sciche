@@ -79,7 +79,7 @@ def _runSuite(name, option):
 
     for dirpath, _, filenames in os.walk("test"):
         for filename in filenames:
-            if filename.endswith("~"):
+            if filename.endswith("~") or filename.endswith("swp"):
                 continue
             filepath = os.path.join(dirpath, filename)
             _runTest(filepath, option)
