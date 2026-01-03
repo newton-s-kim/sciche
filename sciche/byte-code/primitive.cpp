@@ -145,7 +145,21 @@ std::map<std::string, NativeBoundProperty> s_col_props = {
 };
 // clang-format on
 
-std::map<std::string, NativeBoundFn> s_row_apis = {};
+static Value row_transpose(ObjectFactory* factory, Value value, int argc, Value* argv)
+{
+    (void)argc;
+    (void)argv;
+    if (!IS_ROW(value))
+        throw std::runtime_error("vector is expected.");
+    ObjRow* row = AS_ROW(value);
+    ObjCol* col = factory->newCol();
+    col->value = row->value.t();
+    return OBJ_VAL(col);
+}
+
+std::map<std::string, NativeBoundFn> s_row_apis = {
+    {"t", row_transpose},
+};
 std::map<std::string, NativeBoundProperty> s_row_props = {};
 
 static Value mat_col(ObjectFactory* factory, Value value, int argc, Value* argv)
@@ -214,6 +228,28 @@ static Value mat_row(ObjectFactory* factory, Value value, int argc, Value* argv)
     return ret;
 }
 
+static Value mat_rows(ObjectFactory* factory, Value value, int argc, Value* argv)
+{
+    (void)factory;
+    Value ret = 0;
+    if (!IS_MAT(value))
+        throw std::runtime_error("mat is expected");
+    ObjMat* mat = AS_MAT(value);
+    if (2 == argc) {
+        if (!IS_NUMBER(argv[0]))
+            throw std::runtime_error("number is expected.");
+        if (!IS_NUMBER(argv[1]))
+            throw std::runtime_error("number is expected.");
+        ObjMat* r = factory->newMat();
+        r->value = mat->value.rows(AS_NUMBER(argv[0]), AS_NUMBER(argv[1]));
+        ret = OBJ_VAL(r);
+    }
+    else {
+        throw std::runtime_error("invalid number of arguments");
+    }
+    return ret;
+}
+
 static Value mat_set(ObjectFactory* factory, Value value, int argc, Value* argv)
 {
     (void)factory;
@@ -269,14 +305,26 @@ static Value mat_transpose(ObjectFactory* factory, Value value, int argc, Value*
     return OBJ_VAL(tmat);
 }
 
+static Value mat_abs(ObjectFactory* factory, Value value)
+{
+    if (!IS_MAT(value))
+        throw std::runtime_error("mat is expected");
+    ObjMat* mat = AS_MAT(value);
+    ObjMat* r = factory->newMat();
+    r->value = abs(mat->value);
+    return OBJ_VAL(r);
+}
+
 // clang-format off
 std::map<std::string, NativeBoundFn> s_mat_apis = {
     {"col", mat_col},
     {"row", mat_row},
+    {"rows", mat_rows},
     {"set", mat_set},
     {"t", mat_transpose}
 };
 std::map<std::string, NativeBoundProperty> s_mat_props = {
+    {"abs", mat_abs}
 };
 // clang-format on
 

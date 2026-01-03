@@ -1590,6 +1590,7 @@ std::string CompilerInterfaceConcrete::findPath(std::string file)
         "./build/libs/math/",
         "./build/libs/sigpack/",
 	"./build/libs/json/",
+	"./build/libs/io/",
   	"/usr/local/lib/sciche/",
         "/usr/lib/sciche/",
        	"/usr/local/share/sciche/",
@@ -1597,7 +1598,7 @@ std::string CompilerInterfaceConcrete::findPath(std::string file)
 	NULL};
     // clang-format on
     std::string candidate;
-    for (size_t i = 0; i < sizeof(dirs); i++) {
+    for (size_t i = 0; NULL != dirs[i]; i++) {
         candidate = dirs[i] + file;
         if (std::filesystem::exists(candidate))
             return candidate;
