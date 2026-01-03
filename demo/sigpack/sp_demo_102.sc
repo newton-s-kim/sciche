@@ -5,9 +5,9 @@ var N = 25000;
 var NFFT = 512;
 var n = vec(N);
 
-var gp0 = gplot();
-var gp1 = gplot();
-var gp2 = gplot();
+var gp0 = sigpack.gplot();
+var gp1 = sigpack.gplot();
+var gp2 = sigpack.gplot();
 gp0.window("Spectrum", 10, 10, 500, 400);
 gp1.window("Time", 550, 10, 900, 400);
 gp2.window("Spectrogram", 10, 450, 1440, 500);

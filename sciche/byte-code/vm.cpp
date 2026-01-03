@@ -529,7 +529,6 @@ void VM::defineNative(const char* name, NativeFn function)
 }
 void VM::defineSymbol(const char* name, NativeClass* klass)
 {
-    std::cout << "here" << std::endl;
     push(OBJ_VAL(newString(name)));
     push(OBJ_VAL(newNativeObj(klass)));
     globals.set(AS_STRING(stack[0])->chars, stack[1]);

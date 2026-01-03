@@ -1,13 +1,12 @@
 include "sigpack";
 include "math";
 
-var sp = sigpack();
 // Number of samples
 var N = 200;
 
 // Create a FIR filter and adaptive
-var G = sp.FIR_filt();
-var Ghat = sp.FIR_filt();
+var G = sigpack.FIR_filt();
+var Ghat = sigpack.FIR_filt();
 
 // Filter coeffs.
 var b = vec();
@@ -54,8 +53,8 @@ println("Filter coeffs:    ", b.t()); // expect: Filter coeffs:      -0.2000  -0
 // expect:
 println("Estimated coeffs: ", Ghat.get_coeffs().t()); // expect: Estimated coeffs:   -0.2000  -0.1000   0.0999   0.3000   0.7000
 // expect:
-var gp0 = sp.gplot();
-var gp1 = sp.gplot();
+var gp0 = sigpack.gplot();
+var gp1 = sigpack.gplot();
 gp0.window("Plot", 10, 10, 500, 500);
 //    gp0.set_output("Wlog.png");
 gp0.plot_add_mat(Wlog, "b");

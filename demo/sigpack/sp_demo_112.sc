@@ -7,7 +7,7 @@ var M = 2; // Nr of measurements
 var L = 1; // Nr of inputs
 
 // Instatiate a Kalman Filter
-var kalman = KF(N, M, L);
+var kalman = sigpack.KF(N, M, L);
 
 // Initialisation and setup of system
 var P0 = 100;
@@ -78,7 +78,7 @@ for (var n = 0; n < Nsamp; n = n + 1) {
 kalman.rts_smooth(x_log, P_log, xs_log, Ps_log);
 
 // Display result
-var gp0 = gplot();
+var gp0 = sigpack.gplot();
 gp0.window("Plot", 10, 10, 700, 500);
 gp0.plot_add(z0.row(0), z0.row(1), "True Y", "lines dashtype 2 linecolor \"black\"");
 gp0.plot_add(z.row(0), z.row(1), "Meas Y", "points");
