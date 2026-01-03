@@ -357,7 +357,7 @@ static Value num_sign(ObjectFactory* factory, Value value)
         sgn = 1;
     else if (0 > v)
         sgn = -1;
-    LAX_LOG("sng(%f) is %f", AS_NUMBER(value), sgn);
+    LAX_LOG("sng(%f) is %d", AS_NUMBER(value), sgn);
     return NUMBER_VAL(sgn);
 }
 

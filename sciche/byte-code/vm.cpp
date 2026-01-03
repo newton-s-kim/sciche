@@ -527,6 +527,15 @@ void VM::defineNative(const char* name, NativeFn function)
     pop();
     pop();
 }
+void VM::defineSymbol(const char* name, NativeClass* klass)
+{
+    std::cout << "here" << std::endl;
+    push(OBJ_VAL(newString(name)));
+    push(OBJ_VAL(newNativeObj(klass)));
+    globals.set(AS_STRING(stack[0])->chars, stack[1]);
+    pop();
+    pop();
+}
 //< Calls and Functions define-native
 void VM::defineNumber(const char* name, double v)
 {
@@ -2458,14 +2467,26 @@ bool VM::loadLibrary(std::string path, std::string name)
         }
         {
             std::vector<std::string> names;
-            std::vector<double> syms;
-            l->symbols(names, syms);
-            if (names.size() != syms.size()) {
+            std::vector<NativeClass*> klasses;
+            l->symbols(names, klasses);
+            if (names.size() != klasses.size()) {
                 delete l;
                 return false;
             }
             for (size_t i = 0; i < names.size(); i++) {
-                defineNumber(names[i].c_str(), syms[i]);
+                defineSymbol(names[i].c_str(), klasses[i]);
+            }
+        }
+        {
+            std::vector<std::string> names;
+            std::vector<double> consts;
+            l->constants(names, consts);
+            if (names.size() != consts.size()) {
+                delete l;
+                return false;
+            }
+            for (size_t i = 0; i < names.size(); i++) {
+                defineNumber(names[i].c_str(), consts[i]);
             }
         }
         m_dl[name] = l;

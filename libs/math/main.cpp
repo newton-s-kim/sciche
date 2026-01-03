@@ -285,8 +285,13 @@ extern "C" void math_functions(std::vector<std::string>& names, std::vector<Nati
     functions.assign({acosNative, asinNative, atanNative, sinNative, cosNative, tanNative, sqrtNative, cbrtNative,
                       phaseNative, log10Native, log2Native, logNative, expNative});
 }
-extern "C" void math_symbols(std::vector<std::string>& names, std::vector<double>& symbols)
+extern "C" void math_symbols(std::vector<std::string>& names, std::vector<NativeClass*>& syms)
+{
+    names.assign({});
+    syms.assign({});
+}
+extern "C" void math_constants(std::vector<std::string>& names, std::vector<double>& consts)
 {
     names.assign({"pi"});
-    symbols.assign({M_PI});
+    consts.assign({M_PI});
 }

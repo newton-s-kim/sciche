@@ -16,8 +16,13 @@ extern "C" void scjson_functions(std::vector<std::string>& names, std::vector<Na
     names.assign({"json"});
     functions.assign({jsonNative});
 }
-extern "C" void scjson_symbols(std::vector<std::string>& names, std::vector<double>& symbols)
+extern "C" void scjson_symbols(std::vector<std::string>& names, std::vector<NativeClass*>& syms)
 {
     names.assign({});
-    symbols.assign({});
+    syms.assign({});
+}
+extern "C" void scjson_constants(std::vector<std::string>& names, std::vector<double>& consts)
+{
+    names.assign({});
+    consts.assign({});
 }
