@@ -14,4 +14,5 @@ tc:
 
 distclean:
 	rm Makefile
+	rm sciche/byte-code/common.hpp
 	rm -rf $(BUILD_DIR)
