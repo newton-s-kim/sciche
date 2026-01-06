@@ -44,7 +44,12 @@ int main(int argc, char const* argv[])
     std::string filepath;
 
     const char* short_opts = "hm";
-    const option long_opts[] = {{"help", no_argument, nullptr, 'h'}, {"version", no_argument, nullptr, 'v'}};
+    // clang-format off
+    const option long_opts[] = {
+        {"help", no_argument, nullptr, 'h'},
+        {"version", no_argument, nullptr, 'v'}
+    };
+    // clang-format on
 
     while (true) {
         const auto opt = getopt_long(argc, (char* const*)argv, short_opts, long_opts, nullptr);
@@ -68,9 +73,9 @@ int main(int argc, char const* argv[])
     if (optind == argc - 1)
         filepath = argv[optind];
 
-    VM vm;
-    vm.defineNative("println", printLnNative);
-    vm.defineNative("exit", exitNative);
+    VM* vm = new VM();
+    vm->defineNative("println", printLnNative);
+    vm->defineNative("exit", exitNative);
     std::string prompt;
     prompt = ">> ";
     // std::unique_ptr<ByteCodeMachine> runner = std::make_unique<ByteCodeMachine>();
@@ -79,7 +84,7 @@ int main(int argc, char const* argv[])
         ReadLine rl;
         while (true) {
             input = rl.read(prompt);
-            result = vm.interpret(input.c_str());
+            result = vm->interpret(input.c_str());
         }
     }
     else {
@@ -91,7 +96,7 @@ int main(int argc, char const* argv[])
 
         std::string source{std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
 
-        result = vm.interpret(source.c_str());
+        result = vm->interpret(source.c_str());
 
 #ifdef CLOXX_GC_DEBUG
         LOX_ASSERT(LoxObject::instanceCount() == 0);

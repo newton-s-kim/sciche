@@ -187,13 +187,15 @@ void VM::blackenObject(Obj* object)
 //> Garbage Collection mark-roots
 void VM::markRoots()
 {
-    for (Value* slot = stack; slot < stackTop; slot++) {
-        markValue(*slot);
-    }
-    //> mark-closures
+    for (Thread* thd = threads; thd; thd = thd->next) {
+        for (Value* slot = thd->stack; slot < thd->stackTop; slot++) {
+            markValue(*slot);
+        }
+        //> mark-closures
 
-    for (int i = 0; i < frameCount; i++) {
-        markObject((Obj*)frames[i].closure);
+        for (int i = 0; i < thd->frameCount; i++) {
+            markObject((Obj*)thd->frames[i].closure);
+        }
     }
     //< mark-closures
     //> mark-open-upvalues
@@ -464,9 +466,9 @@ static Value cubeNative(ObjectFactory* factory, int argc, Value* args)
 //> reset-stack
 void VM::resetStack()
 {
-    stackTop = stack;
+    thread->stackTop = thread->stack;
     //> Calls and Functions reset-frame-count
-    frameCount = 0;
+    thread->frameCount = 0;
     //< Calls and Functions reset-frame-count
     //> Closures init-open-upvalues
     openUpvalues = NULL;
@@ -495,13 +497,13 @@ void VM::runtimeError(const char* format, ...)
       fprintf(stderr, "[line %d] in script\n", line);
     */
     //> Calls and Functions runtime-error-stack
-    for (int i = frameCount - 1; i >= 0; i--) {
-        CallFrame* frame = &frames[i];
+    for (int i = thread->frameCount - 1; i >= 0; i--) {
+        CallFrame* frame = &thread->frames[i];
         /* Calls and Functions runtime-error-stack < Closures runtime-error-function
             ObjFunction* function = frame->function;
         */
         //> Closures runtime-error-function
-        ObjFunction* function = frame->closure->function;
+        ObjFunction* function = thread->frames[thread->frameCount - 1].closure->function;
         //< Closures runtime-error-function
         size_t instruction = frame->ip - function->chunk.code - 1;
         fprintf(stderr, "[line %d] in ", // [minus]
@@ -523,7 +525,7 @@ void VM::defineNative(const char* name, NativeFn function)
 {
     push(OBJ_VAL(newString(name)));
     push(OBJ_VAL(newNative(function)));
-    globals.set(AS_STRING(stack[0])->chars, stack[1]);
+    globals.set(AS_STRING(thread->stack[0])->chars, thread->stack[1]);
     pop();
     pop();
 }
@@ -531,7 +533,7 @@ void VM::defineSymbol(const char* name, NativeClass* klass)
 {
     push(OBJ_VAL(newString(name)));
     push(OBJ_VAL(newNativeObj(klass)));
-    globals.set(AS_STRING(stack[0])->chars, stack[1]);
+    globals.set(AS_STRING(thread->stack[0])->chars, thread->stack[1]);
     pop();
     pop();
 }
@@ -540,13 +542,15 @@ void VM::defineNumber(const char* name, double v)
 {
     push(OBJ_VAL(newString(name)));
     push(NUMBER_VAL(v));
-    globals.set(AS_STRING(stack[0])->chars, stack[1]);
+    globals.set(AS_STRING(thread->stack[0])->chars, thread->stack[1]);
     pop();
     pop();
 }
 
 VM::VM()
 {
+    memset(threads, 0, sizeof(threads));
+    thread = threads;
     compiler = CompilerFactory::instance()->create(this);
     //> call-reset-stack
     resetStack();
@@ -602,21 +606,21 @@ VM::~VM()
 //> push
 void VM::push(Value value)
 {
-    *stackTop = value;
-    stackTop++;
+    *thread->stackTop = value;
+    thread->stackTop++;
 }
 //< push
 //> pop
 Value VM::pop()
 {
-    stackTop--;
-    return *stackTop;
+    thread->stackTop--;
+    return *thread->stackTop;
 }
 //< pop
 //> Types of Values peek
 Value VM::peek(int distance)
 {
-    return stackTop[-1 - distance];
+    return thread->stackTop[-1 - distance];
 }
 //< Types of Values peek
 /* Calls and Functions call < Closures call-signature
@@ -642,13 +646,13 @@ bool VM::call(ObjClosure* closure, int argCount)
 
     //< check-arity
     //> check-overflow
-    if (frameCount == FRAMES_MAX) {
+    if (thread->frameCount == FRAMES_MAX) {
         runtimeError("Stack overflow.");
         return false;
     }
 
     //< check-overflow
-    CallFrame* frame = &frames[frameCount++];
+    CallFrame* frame = &thread->frames[thread->frameCount++];
     /* Calls and Functions call < Closures call-init-closure
       frame->function = function;
       frame->ip = function->chunk.code;
@@ -657,7 +661,7 @@ bool VM::call(ObjClosure* closure, int argCount)
     frame->closure = closure;
     frame->ip = closure->function->chunk.code;
     //< Closures call-init-closure
-    frame->slots = stackTop - argCount - 1;
+    frame->slots = thread->stackTop - argCount - 1;
     return true;
 }
 //< Calls and Functions call
@@ -670,7 +674,7 @@ bool VM::callValue(Value callee, int argCount)
         case OBJ_BOUND_METHOD: {
             ObjBoundMethod* bound = AS_BOUND_METHOD(callee);
             //> store-receiver
-            stackTop[-argCount - 1] = bound->receiver;
+            thread->stackTop[-argCount - 1] = bound->receiver;
             //< store-receiver
             return call(bound->method, argCount);
         }
@@ -678,7 +682,7 @@ bool VM::callValue(Value callee, int argCount)
             //> Classes and Instances call-class
         case OBJ_CLASS: {
             ObjClass* klass = AS_CLASS(callee);
-            stackTop[-argCount - 1] = OBJ_VAL(newInstance(klass));
+            thread->stackTop[-argCount - 1] = OBJ_VAL(newInstance(klass));
             //> Methods and Initializers call-init
             Value initializer;
             if (klass->methods.get(initString->chars, &initializer)) {
@@ -707,13 +711,13 @@ bool VM::callValue(Value callee, int argCount)
             NativeFn native = AS_NATIVE(callee);
             Value result = 0;
             try {
-                result = native(this, argCount, stackTop - argCount);
+                result = native(this, argCount, thread->stackTop - argCount);
             }
             catch (std::exception& e) {
                 runtimeError(e.what());
                 return false;
             }
-            stackTop -= argCount + 1;
+            thread->stackTop -= argCount + 1;
             push(result);
             return true;
         }
@@ -751,7 +755,7 @@ bool VM::invoke(ObjString* name, int argCount)
 
         Value value;
         if (instance->fields.get(name->chars, &value)) {
-            stackTop[-argCount - 1] = value;
+            thread->stackTop[-argCount - 1] = value;
             return callValue(value, argCount);
         }
 
@@ -762,7 +766,7 @@ bool VM::invoke(ObjString* name, int argCount)
         ObjNativeObject* nobj = AS_NATIVE_OBJECT(receiver);
         Value result = 0;
         try {
-            result = nobj->klass->invoke(this, name->chars, argCount, stackTop - argCount);
+            result = nobj->klass->invoke(this, name->chars, argCount, thread->stackTop - argCount);
         }
         catch (std::exception& e) {
             runtimeError(e.what());
@@ -777,7 +781,7 @@ bool VM::invoke(ObjString* name, int argCount)
     else {
         Value result = 0;
         try {
-            result = primitive.call(this, receiver, name->chars, argCount, stackTop - argCount);
+            result = primitive.call(this, receiver, name->chars, argCount, thread->stackTop - argCount);
         }
         catch (std::exception& e) {
             runtimeError(e.what());
@@ -1212,7 +1216,7 @@ void VM::concatenate()
 InterpretResult VM::run(void)
 {
     //> Calls and Functions run
-    CallFrame* frame = &frames[frameCount - 1];
+    // CallFrame* frame = &thread->frames[frameCount - 1];
 
 /* A Virtual Machine run < Calls and Functions run
 #define READ_BYTE() (*ip++)
@@ -1261,7 +1265,8 @@ InterpretResult VM::run(void)
     } while (false)
     //< Types of Values binary-op
 
-    for (;;) {
+    for (thread = threads; thread; thread = (thread->next) ? thread->next : threads) {
+        CallFrame* frame = &thread->frames[thread->frameCount - 1];
 //> trace-execution
 #ifdef DEBUG_TRACE_EXECUTION
         //> trace-stack
@@ -2215,7 +2220,7 @@ InterpretResult VM::run(void)
                 return INTERPRET_RUNTIME_ERROR;
             }
             //> update-frame-after-call
-            frame = &frames[frameCount - 1];
+            frame = &thread->frames[thread->frameCount - 1];
             //< update-frame-after-call
             break;
         }
@@ -2227,7 +2232,7 @@ InterpretResult VM::run(void)
             if (!invoke(method, argCount)) {
                 return INTERPRET_RUNTIME_ERROR;
             }
-            frame = &frames[frameCount - 1];
+            frame = &thread->frames[thread->frameCount - 1];
             break;
         }
             //< Methods and Initializers interpret-invoke
@@ -2239,7 +2244,7 @@ InterpretResult VM::run(void)
             if (!invokeFromClass(superclass, method, argCount)) {
                 return INTERPRET_RUNTIME_ERROR;
             }
-            frame = &frames[frameCount - 1];
+            frame = &thread->frames[thread->frameCount - 1];
             break;
         }
             //< Superclasses interpret-super-invoke
@@ -2265,7 +2270,7 @@ InterpretResult VM::run(void)
             //< Closures interpret-closure
             //> Closures interpret-close-upvalue
         case OP_CLOSE_UPVALUE:
-            closeUpvalues(stackTop - 1);
+            closeUpvalues(thread->stackTop - 1);
             pop();
             break;
             //< Closures interpret-close-upvalue
@@ -2285,15 +2290,15 @@ InterpretResult VM::run(void)
             //> Closures return-close-upvalues
             closeUpvalues(frame->slots);
             //< Closures return-close-upvalues
-            frameCount--;
-            if (frameCount == 0) {
+            thread->frameCount--;
+            if (thread->frameCount == 0) {
                 pop();
                 return INTERPRET_OK;
             }
 
-            stackTop = frame->slots;
+            thread->stackTop = frame->slots;
             push(result);
-            frame = &frames[frameCount - 1];
+            frame = &thread->frames[thread->frameCount - 1];
             break;
             //< Calls and Functions interpret-return
         }
@@ -2355,6 +2360,7 @@ InterpretResult VM::run(void)
 //> undef-binary-op
 #undef BINARY_OP
     //< undef-binary-op
+    return INTERPRET_OK;
 }
 //< run
 //> omit

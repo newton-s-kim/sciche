@@ -21,21 +21,13 @@
 #include "compiler.hpp"
 #include "dl.hpp"
 #include "primitive.hpp"
+#include "thread.hpp"
 
 #include <map>
 #include <stack>
 #include <string>
 
-//< stack-max
-/* A Virtual Machine stack-max < Calls and Functions frame-max
-#define STACK_MAX 256
-*/
-//> Calls and Functions frame-max
-#define FRAMES_MAX 64
-#define STACK_MAX (FRAMES_MAX * UINT8_COUNT)
-//< Calls and Functions frame-max
-//> Calls and Functions call-frame
-
+#define THREAD_MAX 64
 // clang-format off
 //> interpret-result
 typedef enum {
@@ -45,17 +37,6 @@ typedef enum {
 } InterpretResult;
 // clang-format on
 
-class CallFrame {
-public:
-    /* Calls and Functions call-frame < Closures call-frame-closure
-      ObjFunction* function;
-    */
-    //> Closures call-frame-closure
-    ObjClosure* closure;
-    //< Closures call-frame-closure
-    uint8_t* ip;
-    Value* slots;
-};
 //< Calls and Functions call-frame
 
 class VM : public ObjectFactory {
@@ -80,15 +61,9 @@ private:
 
 public:
     CompilerInterface* compiler;
-    //> Calls and Functions frame-array
-    CallFrame frames[FRAMES_MAX];
-    int frameCount;
+    Thread threads[THREAD_MAX];
+    Thread* thread;
 
-    //< Calls and Functions frame-array
-    //> vm-stack
-    Value stack[STACK_MAX];
-    Value* stackTop;
-    //< vm-stack
     //> Global Variables vm-globals
     Table globals;
     //< Global Variables vm-globals
