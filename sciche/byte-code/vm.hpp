@@ -21,13 +21,12 @@
 #include "compiler.hpp"
 #include "dl.hpp"
 #include "primitive.hpp"
-#include "thread.hpp"
 
 #include <map>
 #include <stack>
 #include <string>
 
-#define THREAD_MAX 64
+#define THREAD_MAX 4
 // clang-format off
 //> interpret-result
 typedef enum {
@@ -61,8 +60,7 @@ private:
 
 public:
     CompilerInterface* compiler;
-    Thread threads[THREAD_MAX];
-    Thread* thread;
+    ObjThread* thread;
 
     //> Global Variables vm-globals
     Table globals;
@@ -149,6 +147,8 @@ public:
     ObjMat* newMat(size_t rows = 0, size_t cols = 0, ObjFillType fill_type = OBJ_FILL_DEFAULT);
     ObjCube* newCube(size_t rows = 0, size_t cols = 0, size_t depth = 0, ObjFillType fill_type = OBJ_FILL_DEFAULT);
     ObjNativeObject* newNativeObj(NativeClass* klass);
+    ObjThread* newThread(void);
+    ObjThread* newThread(ObjClosure* closure);
     bool loadLibrary(std::string path, std::string name);
 };
 

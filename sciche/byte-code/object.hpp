@@ -49,6 +49,7 @@
 #define IS_ROW(value) isObjType(value, OBJ_ROW)
 #define IS_MAT(value) isObjType(value, OBJ_MAT)
 #define IS_CUBE(value) isObjType(value, OBJ_CUBE)
+#define IS_THREAD(value) isObjType(value, OBJ_THREAD)
 
 //> Methods and Initializers as-bound-method
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
@@ -80,6 +81,7 @@
 #define AS_ROW(value) ((ObjRow*)AS_OBJ(value))
 #define AS_MAT(value) ((ObjMat*)AS_OBJ(value))
 #define AS_CUBE(value) ((ObjCube*)AS_OBJ(value))
+#define AS_THREAD(value) ((ObjThread*)AS_OBJ(value))
 
 typedef enum {
     //> Methods and Initializers obj-type-bound-method
@@ -112,6 +114,7 @@ typedef enum {
     OBJ_MAT,
     OBJ_CUBE,
     OBJ_NATIVE_OBJ,
+    OBJ_THREAD
 } ObjType;
 //< obj-type
 
@@ -336,6 +339,50 @@ public:
     void blaken(void);
 };
 
+//< stack-max
+/* A Virtual Machine stack-max < Calls and Functions frame-max
+#define STACK_MAX 256
+*/
+//> Calls and Functions frame-max
+#define FRAMES_MAX 64
+#define STACK_MAX (FRAMES_MAX * UINT8_COUNT)
+//< Calls and Functions frame-max
+//> Calls and Functions call-frame
+
+class CallFrame {
+public:
+    /* Calls and Functions call-frame < Closures call-frame-closure
+      ObjFunction* function;
+    */
+    //> Closures call-frame-closure
+    ObjClosure* closure;
+    //< Closures call-frame-closure
+    uint8_t* ip;
+    Value* slots;
+};
+//< Calls and Functions call-frame
+
+class ObjThread : public Obj {
+public:
+    ObjThread();
+    ObjThread(ObjClosure* closure);
+    ~ObjThread();
+    //> Calls and Functions frame-array
+    CallFrame frames[FRAMES_MAX];
+    int frameCount;
+
+    //< Calls and Functions frame-array
+    //> vm-stack
+    Value stack[STACK_MAX];
+    Value* stackTop;
+    //< vm-stack
+    ObjThread* caller;
+
+public:
+    std::string stringify(void);
+    void blaken(void);
+};
+
 //< copy-string-h
 //> is-obj-type
 static inline bool isObjType(Value value, ObjType type)
@@ -364,6 +411,7 @@ public:
     virtual ObjCube* newCube(size_t rows = 0, size_t cols = 0, size_t depth = 0,
                              ObjFillType fill_type = OBJ_FILL_DEFAULT) = 0;
     virtual ObjNativeObject* newNativeObj(NativeClass* klass) = 0;
+    virtual ObjThread* newThread(ObjClosure* closure) = 0;
     virtual bool loadLibrary(std::string path, std::string name) = 0;
 };
 

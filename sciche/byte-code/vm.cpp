@@ -181,13 +181,28 @@ void VM::blackenObject(Obj* object)
     case OBJ_CUBE:
     case OBJ_NATIVE_OBJ:
         break;
+    case OBJ_THREAD: {
+        ObjThread* thd = (ObjThread*)object;
+        // TODO:refactoring
+        for (Value* slot = thd->stack; slot < thd->stackTop; slot++) {
+            markValue(*slot);
+        }
+        //> mark-closures
+
+        for (int i = 0; i < thd->frameCount; i++) {
+            markObject((Obj*)thd->frames[i].closure);
+        }
+        break;
+    }
     }
 }
 //< Garbage Collection blacken-object
 //> Garbage Collection mark-roots
 void VM::markRoots()
 {
-    for (Thread* thd = threads; thd; thd = thd->next) {
+    for (ObjThread* thd = thread; thd; thd = thd->caller) {
+        markObject(thd);
+        // TODO:refactoring
         for (Value* slot = thd->stack; slot < thd->stackTop; slot++) {
             markValue(*slot);
         }
@@ -328,6 +343,15 @@ static Value mapNative(ObjectFactory* factory, int argCount, Value* args)
     (void)args;
     ObjMap* map = factory->newMap();
     return OBJ_VAL(map);
+}
+static Value threadNative(ObjectFactory* factory, int argCount, Value* args)
+{
+    if (1 != argCount)
+        throw std::runtime_error("invalid number of arguments.");
+    if (!IS_CLOSURE(args[0]))
+        throw std::runtime_error("Closure is expected.");
+    ObjThread* thread = factory->newThread(AS_CLOSURE(args[0]));
+    return OBJ_VAL(thread);
 }
 
 static Value vecNative(ObjectFactory* factory, int argc, Value* args)
@@ -547,16 +571,15 @@ void VM::defineNumber(const char* name, double v)
     pop();
 }
 
-VM::VM()
+VM::VM() : thread(NULL), openUpvalues(NULL), objects(NULL)
 {
-    memset(threads, 0, sizeof(threads));
-    thread = threads;
+    thread = new ObjThread();
     compiler = CompilerFactory::instance()->create(this);
     //> call-reset-stack
     resetStack();
     //< call-reset-stack
     //> Strings init-objects-root
-    objects = NULL;
+    objects = thread;
     //< Strings init-objects-root
     //> Garbage Collection init-gc-fields
     bytesAllocated = 0;
@@ -578,6 +601,7 @@ VM::VM()
     defineNative("rowvec", rowVecNative);
     defineNative("mat", matNative);
     defineNative("cube", cubeNative);
+    defineNative("thread", threadNative);
     defineNumber("default", OBJ_FILL_DEFAULT);
     defineNumber("zeros", OBJ_FILL_ZEROS);
     defineNumber("ones", OBJ_FILL_ONES);
@@ -970,6 +994,22 @@ ObjNativeObject* VM::newNativeObj(NativeClass* klass)
     objects = ret;
     return ret;
 }
+ObjThread* VM::newThread(void)
+{
+    collect(0, sizeof(ObjThread));
+    ObjThread* ret = new ObjThread();
+    ret->next = objects;
+    objects = ret;
+    return ret;
+}
+ObjThread* VM::newThread(ObjClosure* closure)
+{
+    collect(0, sizeof(ObjThread));
+    ObjThread* ret = new ObjThread(closure);
+    ret->next = objects;
+    objects = ret;
+    return ret;
+}
 //> Closures new-closure
 ObjClosure* VM::newClosure(ObjFunction* function)
 {
@@ -1265,14 +1305,14 @@ InterpretResult VM::run(void)
     } while (false)
     //< Types of Values binary-op
 
-    for (thread = threads; thread; thread = (thread->next) ? thread->next : threads) {
+    for (;;) {
         CallFrame* frame = &thread->frames[thread->frameCount - 1];
 //> trace-execution
 #ifdef DEBUG_TRACE_EXECUTION
         //> trace-stack
         printf("          ");
         ValueUtil util;
-        for (Value* slot = stack; slot < stackTop; slot++) {
+        for (Value* slot = thread->stack; slot < thread->stackTop; slot++) {
             printf("[ ");
             util.print(*slot);
             printf(" ]");
