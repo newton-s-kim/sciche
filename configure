@@ -13,6 +13,17 @@ CLEAN_FORCED=no
 DEBUG_TRACE=no
 DEBUG_PRINT_CODE=no
 
+function print_help(){
+   echo $1 written by Newton Kim
+   echo "USAGE: $1 [OPTION...]"
+   echo "OPTION:"
+   echo "  -p, --print-code  prints code"
+   echo "  -t, --trace  enables stack tracing mode"
+   echo "  -d, --debug  builds in debug mode"
+   echo "  -c, --clean  forces cleaning up"
+   echo "  -h, --help  prints this screen"
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -p|--print-code)
@@ -30,6 +41,10 @@ while [[ $# -gt 0 ]]; do
     -c|--clean)
       CLEAN_FORCED=yes
       shift
+      ;;
+    -h|--help)
+      print_help $0
+      exit 0
       ;;
     *) # unknown option - skip
       shift
