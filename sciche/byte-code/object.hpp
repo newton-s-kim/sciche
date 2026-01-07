@@ -411,8 +411,10 @@ public:
     virtual ObjCube* newCube(size_t rows = 0, size_t cols = 0, size_t depth = 0,
                              ObjFillType fill_type = OBJ_FILL_DEFAULT) = 0;
     virtual ObjNativeObject* newNativeObj(NativeClass* klass) = 0;
+    virtual ObjThread* newThread(void) = 0;
     virtual ObjThread* newThread(ObjClosure* closure) = 0;
     virtual bool loadLibrary(std::string path, std::string name) = 0;
+    virtual bool callFunction(Value value, int argc, Value* argv) = 0;
 };
 
 //< is-obj-type

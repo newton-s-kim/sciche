@@ -27,10 +27,25 @@ static Value list_add(ObjectFactory* factory, Value value, int argc, Value* argv
     }
     return NUMBER_VAL(argc);
 }
+static Value list_each(ObjectFactory* factory, Value value, int argc, Value* argv)
+{
+    if (!IS_LIST(value))
+        throw std::runtime_error("list is expected.");
+    ObjList* list = AS_LIST(value);
+    if (1 != argc)
+        throw std::runtime_error("invalid number of arguments.");
+    if (!IS_CLOSURE(argv[0]))
+        throw std::runtime_error("closure is expected.");
+    for (size_t idx = 0; idx < list->container.size(); idx++) {
+        factory->callFunction(argv[0], 1, &list->container[idx]);
+    }
+    return NIL_VAL;
+}
 
 // clang-format off
 std::map<std::string, NativeBoundFn> s_list_apis = {
-    {"add", list_add}
+    {"add", list_add},
+    {"each", list_each},
 };
 
 std::map<std::string, NativeBoundProperty> s_list_props = {

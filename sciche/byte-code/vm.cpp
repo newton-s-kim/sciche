@@ -2332,8 +2332,14 @@ InterpretResult VM::run(void)
             //< Closures return-close-upvalues
             thread->frameCount--;
             if (thread->frameCount == 0) {
-                pop();
-                return INTERPRET_OK;
+                if (NULL == thread->caller) {
+                    pop();
+                    return INTERPRET_OK;
+                }
+                else {
+                    thread = thread->caller;
+                    continue;
+                }
             }
 
             thread->stackTop = frame->slots;
@@ -2539,4 +2545,17 @@ bool VM::loadLibrary(std::string path, std::string name)
     return true;
 }
 
+bool VM::callFunction(Value value, int argc, Value* argv)
+{
+    ObjThread* thd = newThread();
+    thd->caller = thread;
+    thread = thd;
+    for (int i = 0; i < argc; i++)
+        push(argv[i]);
+    bool ret = callValue(value, argc);
+    run();
+    for (int i = 0; i < argc; i++)
+        pop();
+    return ret;
+}
 //< interpret
