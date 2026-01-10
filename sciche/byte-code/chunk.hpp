@@ -6,6 +6,7 @@
 //> chunk-h-include-value
 #include "value.hpp"
 //< chunk-h-include-value
+#include "log.hpp"
 //> op-enum
 
 typedef enum {
@@ -147,6 +148,7 @@ public:
 
 int Chunk::getLine(int pos)
 {
+    LAX_LOG("%d / %d", pos, capacity);
     return lines[pos];
 }
 #endif

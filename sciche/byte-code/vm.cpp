@@ -202,15 +202,9 @@ void VM::markRoots()
 {
     for (ObjThread* thd = thread; thd; thd = thd->caller) {
         markObject(thd);
-        // TODO:refactoring
-        for (Value* slot = thd->stack; slot < thd->stackTop; slot++) {
-            markValue(*slot);
-        }
-        //> mark-closures
-
-        for (int i = 0; i < thd->frameCount; i++) {
-            markObject((Obj*)thd->frames[i].closure);
-        }
+    }
+    for (std::vector<ObjThread*>::iterator it = threadStack.begin(); it != threadStack.end(); it++) {
+        markObject(*it);
     }
     //< mark-closures
     //> mark-open-upvalues
@@ -2334,6 +2328,10 @@ InterpretResult VM::run(void)
             if (thread->frameCount == 0) {
                 if (NULL == thread->caller) {
                     pop();
+                    if (!threadStack.empty()) {
+                        thread = threadStack.back();
+                        threadStack.pop_back();
+                    }
                     return INTERPRET_OK;
                 }
                 else {
@@ -2548,7 +2546,7 @@ bool VM::loadLibrary(std::string path, std::string name)
 bool VM::callFunction(Value value, int argc, Value* argv)
 {
     ObjThread* thd = newThread();
-    thd->caller = thread;
+    threadStack.push_back(thread);
     thread = thd;
     for (int i = 0; i < argc; i++)
         push(argv[i]);

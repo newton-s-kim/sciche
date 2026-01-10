@@ -61,6 +61,7 @@ private:
 public:
     CompilerInterface* compiler;
     ObjThread* thread;
+    std::vector<ObjThread*> threadStack;
 
     //> Global Variables vm-globals
     Table globals;
