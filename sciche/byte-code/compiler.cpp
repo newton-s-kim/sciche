@@ -73,11 +73,13 @@ call           → primary ( "(" arguments? ")" | "[" arguments "]" | "." IDENTI
 primary        → "true" | "false" | "nil" | "this"
                | NUMBER | STRING | IDENTIFIER | "(" expression ")"
                | "super" "." IDENTIFIER ;
-               | list | map ;
+               | list | map | lambda;
 
 list           → "[" ( arguments )? "]" ;
 map            → "{" ( named_args )? "}" ;
-function       → IDENTIFIER "(" parameters? ")" block ;
+function       → IDENTIFIER functionBody ;
+lambda         → functionBody ;
+functionBody   → "(" parameters? ")" block
 parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
 arguments      → expression ( "," expression )* ;
 named_args     → STRING ":" expression ( "," STRING ":" expression )* ;
@@ -239,6 +241,7 @@ private:
     friend void or_(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void unary(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void number(bool canAssign, CompilerInterfaceConcrete* ci);
+    friend void function(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void complex_number(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void string(bool canAssign, CompilerInterfaceConcrete* ci);
     friend void literal(bool canAssign, CompilerInterfaceConcrete* ci);
@@ -1020,6 +1023,11 @@ void number(bool canAssign, CompilerInterfaceConcrete* ci)
     ci->emitConstant(NUMBER_VAL(value));
     //< Types of Values const-number-val
 }
+void function(bool canAssign, CompilerInterfaceConcrete* ci)
+{
+    (void)canAssign;
+    ci->function(TYPE_FUNCTION);
+}
 void complex_number(bool canAssign, CompilerInterfaceConcrete* ci)
 {
     (void)canAssign;
@@ -1308,7 +1316,7 @@ ParseRule rules[] = {
     [TOKEN_FALSE] = {literal, NULL, PREC_NONE},
     //< Types of Values table-false
     [TOKEN_FOR] = {NULL, NULL, PREC_NONE},
-    [TOKEN_FUN] = {NULL, NULL, PREC_NONE},
+    [TOKEN_FUN] = {function, NULL, PREC_NONE},
     [TOKEN_IF] = {NULL, NULL, PREC_NONE},
     /* Compiling Expressions rules < Types of Values table-nil
       [TOKEN_NIL]           = {NULL,     NULL,   PREC_NONE},
@@ -1379,7 +1387,8 @@ void CompilerInterfaceConcrete::parsePrecedence(Precedence precedence)
             infixRule();
         */
         //> Global Variables infix-rule
-        infixRule(canAssign, this);
+        if (infixRule)
+            infixRule(canAssign, this);
         //< Global Variables infix-rule
     }
     //> Global Variables invalid-assign
