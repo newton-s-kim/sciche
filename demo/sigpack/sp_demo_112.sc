@@ -35,28 +35,28 @@ H.set(1, 0, 0, 0, 0, 0, nil,
       0, 1, 0, 0, 0, 0);
 kalman.set_meas_mat(H);
 
-var P = P0 * mat(N, N, eye);
+var P = P0 * mat(N, N, mat.eye);
 kalman.set_err_cov(P);
-var Q = mat(N, N, zeros);
+var Q = mat(N, N, mat.zeros);
 Q[N - 2, N - 2] = 1;
 Q[N - 1, N - 1] = 1;
 Q = Q0 * Q;
 kalman.set_proc_noise(Q);
 
-var R = R0 * mat(M, M, eye);
+var R = R0 * mat(M, M, mat.eye);
 kalman.set_meas_noise(R);
 
 // Create simulation data
-var z = mat(M, Nsamp, zeros);
-var z0 = mat(M, Nsamp, zeros);
+var z = mat(M, Nsamp, mat.zeros);
+var z0 = mat(M, Nsamp, mat.zeros);
 var xx = x.t();
 for (var n = 1; n < Nsamp; n = n + 1) {
-    xx = A * xx + 0.1 * Q * mat(N, 1, randn);
+    xx = A * xx + 0.1 * Q * mat(N, 1, mat.randn);
     z0.col(n, H * xx); //
 }
 
-z.row(0, z0.row(0) + 0.001 * R0 * mat(1, Nsamp, randn));
-z.row(1, z0.row(1) + 0.8 * R0 * mat(1, Nsamp, randn));
+z.row(0, z0.row(0) + 0.001 * R0 * mat(1, Nsamp, mat.randn));
+z.row(1, z0.row(1) + 0.8 * R0 * mat(1, Nsamp, mat.randn));
 
 var x_log = mat(N, Nsamp);
 var e_log = mat(M, Nsamp);

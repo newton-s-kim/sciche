@@ -412,6 +412,13 @@ public:
     Value constant(ObjectFactory* factory, std::string name);
 };
 
+class matNative : public NativeClass {
+public:
+    Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
+    Value call(ObjectFactory* factory, int argc, Value* argv);
+    Value constant(ObjectFactory* factory, std::string name);
+};
+
 //< copy-string-h
 //> is-obj-type
 static inline bool isObjType(Value value, ObjType type)
@@ -444,7 +451,7 @@ public:
     virtual ObjThread* newThread(void) = 0;
     virtual ObjThread* newThread(ObjClosure* closure) = 0;
     virtual bool loadLibrary(std::string path, std::string name) = 0;
-    virtual bool callFunction(Value value, int argc, Value* argv) = 0;
+    virtual bool callFunction(Value value, int argc, Value* argv, bool startNew) = 0;
 };
 
 //< is-obj-type

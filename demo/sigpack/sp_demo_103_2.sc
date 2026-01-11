@@ -7,7 +7,7 @@ gp.window(0, "Filter plots", 10, 10, 700, 700);
 var a = vec();
 a.add(1);
 var b = sigpack.fir1(44, 0.25);
-var Mg = 20 * log10(freqz(b, a, 1024));
+var Mg = 20 * log10(sigpack.freqz(b, a, 1024));
 var Ph = sigpack.phasez(b, a, 1024);
 
 // Plot

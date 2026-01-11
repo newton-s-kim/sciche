@@ -12,16 +12,16 @@ gp0.window("Spectrum", 10, 10, 500, 400);
 gp1.window("Time", 550, 10, 900, 400);
 gp2.window("Spectrogram", 10, 450, 1440, 500);
 
-var t = linspace(0, N - 1, N);
+var t = sigpack.linspace(0, N - 1, N);
 var f = 0.01 + 0.45 * t / N;
 n.randn();
 var x = sin((pi * f) % t) + 0.01 * n;
 
 // Calc spectrum
-var S = 10 * log10(pwelch(x, NFFT, NFFT / 2));
+var S = 10 * log10(sigpack.pwelch(x, NFFT, NFFT / 2));
 
 // Calc spectrogram
-var P = 10 * log10(abs(specgram(x, NFFT, NFFT / 4)));
+var P = 10 * log10(sigpack.specgram(x, NFFT, NFFT / 4).abs);
 
 x.resize(2000);
 t.resize(2000);

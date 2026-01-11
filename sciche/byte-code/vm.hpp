@@ -152,7 +152,7 @@ public:
     ObjThread* newThread(void);
     ObjThread* newThread(ObjClosure* closure);
     bool loadLibrary(std::string path, std::string name);
-    bool callFunction(Value value, int argc, Value* argv);
+    bool callFunction(Value value, int argc, Value* argv, bool startNew);
 };
 
 //< interpret-result

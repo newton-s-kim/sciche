@@ -37,7 +37,7 @@ static Value list_each(ObjectFactory* factory, Value value, int argc, Value* arg
     if (!IS_CLOSURE(argv[0]))
         throw std::runtime_error("closure is expected.");
     for (size_t idx = 0; idx < list->container.size(); idx++) {
-        factory->callFunction(argv[0], 1, &list->container[idx]);
+        factory->callFunction(argv[0], 1, &list->container[idx], true);
     }
     return NIL_VAL;
 }

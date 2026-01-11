@@ -377,42 +377,6 @@ static Value rowVecNative(ObjectFactory* factory, int argc, Value* args)
     return OBJ_VAL(factory->newRow(sz, fill_type));
 }
 
-static Value matNative(ObjectFactory* factory, int argc, Value* args)
-{
-    ObjFillType fill_type = OBJ_FILL_DEFAULT;
-    size_t rows = 0, cols = 0;
-    switch (argc) {
-    case 3:
-        if (!IS_NUMBER(args[2])) {
-            throw std::runtime_error("number is expected");
-        }
-        fill_type = (ObjFillType)AS_NUMBER(args[2]);
-        if (!IS_NUMBER(args[0])) {
-            throw std::runtime_error("number is expected");
-        }
-        if (!IS_NUMBER(args[1])) {
-            throw std::runtime_error("number is expected");
-        }
-        rows = AS_NUMBER(args[0]);
-        cols = AS_NUMBER(args[1]);
-        break;
-    case 2:
-        if (!IS_NUMBER(args[0]))
-            throw std::runtime_error("number is expected");
-        if (!IS_NUMBER(args[1]))
-            throw std::runtime_error("number is expected");
-        rows = AS_NUMBER(args[0]);
-        cols = AS_NUMBER(args[1]);
-        break;
-    case 0:
-        break;
-    default:
-        throw std::runtime_error("invalid arguments");
-        break;
-    }
-    return OBJ_VAL(factory->newMat(rows, cols, fill_type));
-}
-
 static Value cubeNative(ObjectFactory* factory, int argc, Value* args)
 {
     ObjFillType fill_type = OBJ_FILL_DEFAULT;
@@ -564,7 +528,7 @@ VM::VM() : thread(NULL), openUpvalues(NULL), objects(NULL)
     defineNative("Map", mapNative);
     defineSymbol("vec", new vecNative);
     defineNative("rowvec", rowVecNative);
-    defineNative("mat", matNative);
+    defineSymbol("mat", new matNative);
     defineNative("cube", cubeNative);
     defineNative("thread", threadNative);
     //< Calls and Functions define-native-clock
@@ -2560,10 +2524,15 @@ bool VM::loadLibrary(std::string path, std::string name)
     return true;
 }
 
-bool VM::callFunction(Value value, int argc, Value* argv)
+bool VM::callFunction(Value value, int argc, Value* argv, bool startNew)
 {
     ObjThread* thd = newThread();
-    threadStack.push_back(thread);
+    if (startNew) {
+        threadStack.push_back(thread);
+    }
+    else {
+        thd->caller = thread;
+    }
     thread = thd;
     for (int i = 0; i < argc; i++)
         push(argv[i]);
