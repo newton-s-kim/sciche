@@ -349,36 +349,6 @@ static Value threadNative(ObjectFactory* factory, int argCount, Value* args)
     return OBJ_VAL(thread);
 }
 
-static Value vecNative(ObjectFactory* factory, int argc, Value* args)
-{
-    ObjFillType fill_type = OBJ_FILL_DEFAULT;
-    size_t sz = 0;
-    switch (argc) {
-    case 2:
-        if (!IS_NUMBER(args[1])) {
-            throw std::runtime_error("number is expected");
-        }
-        fill_type = (ObjFillType)AS_NUMBER(args[1]);
-        if (!IS_NUMBER(args[0])) {
-            throw std::runtime_error("number is expected");
-        }
-        sz = AS_NUMBER(args[0]);
-        break;
-    case 1:
-        if (!IS_NUMBER(args[0])) {
-            throw std::runtime_error("number is expected");
-        }
-        sz = AS_NUMBER(args[0]);
-        break;
-    case 0:
-        break;
-    default:
-        throw std::runtime_error("invalid arguments");
-        break;
-    }
-    return OBJ_VAL(factory->newCol(sz, fill_type));
-}
-
 static Value rowVecNative(ObjectFactory* factory, int argc, Value* args)
 {
     ObjFillType fill_type = OBJ_FILL_DEFAULT;
@@ -592,18 +562,11 @@ VM::VM() : thread(NULL), openUpvalues(NULL), objects(NULL)
     defineNative("clock", clockNative);
     defineNative("List", listNative);
     defineNative("Map", mapNative);
-    defineNative("vec", vecNative);
+    defineSymbol("vec", new vecNative);
     defineNative("rowvec", rowVecNative);
     defineNative("mat", matNative);
     defineNative("cube", cubeNative);
     defineNative("thread", threadNative);
-    defineNumber("default", OBJ_FILL_DEFAULT);
-    defineNumber("zeros", OBJ_FILL_ZEROS);
-    defineNumber("ones", OBJ_FILL_ONES);
-    defineNumber("eye", OBJ_FILL_EYE);
-    defineNumber("randu", OBJ_FILL_RANDU);
-    defineNumber("randn", OBJ_FILL_RANDN);
-
     //< Calls and Functions define-native-clock
 }
 

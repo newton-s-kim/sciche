@@ -24,11 +24,11 @@ Ghat.setup_kalman(M, 10, 1, 5);
 //	Ghat.setup_newt(M,0.99,0.01,15);
 
 // Signal vectors
-var x = vec(N, randn); // Input sig
-var y = vec(N, zeros); // Model sig
-var d = vec(N, zeros); // Output sig
-var z = vec(N, randn); // Measurement noise
-var e = vec(N, zeros); // Err sig
+var x = vec(N, vec.randn); // Input sig
+var y = vec(N, vec.zeros); // Model sig
+var d = vec(N, vec.zeros); // Output sig
+var z = vec(N, vec.randn); // Measurement noise
+var e = vec(N, vec.zeros); // Err sig
 
 // Log matrix
 var Wlog = mat(M, N);

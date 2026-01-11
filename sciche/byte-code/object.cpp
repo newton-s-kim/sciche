@@ -561,3 +561,62 @@ std::string ObjThread::stringify(void)
 void ObjThread::blaken(void)
 {
 }
+
+Value vecNative::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv) {
+    (void)factory;
+    (void)name;
+    (void)argc;
+    (void)argv;
+    throw std::runtime_error("invalid method.");
+    return NIL_VAL;
+}
+
+Value vecNative::call(ObjectFactory* factory, int argc, Value* args)
+{
+    ObjFillType fill_type = OBJ_FILL_DEFAULT;
+    size_t sz = 0;
+    switch (argc) {
+    case 2:
+        if (!IS_NUMBER(args[1])) {
+            throw std::runtime_error("number is expected");
+        }
+        fill_type = (ObjFillType)AS_NUMBER(args[1]);
+        if (!IS_NUMBER(args[0])) {
+            throw std::runtime_error("number is expected");
+        }
+        sz = AS_NUMBER(args[0]);
+        break;
+    case 1:
+        if (!IS_NUMBER(args[0])) {
+            throw std::runtime_error("number is expected");
+        }
+        sz = AS_NUMBER(args[0]);
+        break;
+    case 0:
+        break;
+    default:
+        throw std::runtime_error("invalid arguments");
+        break;
+    }
+    return OBJ_VAL(factory->newCol(sz, fill_type));
+}
+
+Value vecNative::constant(ObjectFactory* factory, std::string name) {
+ (void)factory;
+    Value ret = 0;
+    if("default" == name) {
+	    ret = NUMBER_VAL(OBJ_FILL_DEFAULT);
+    } else if("zeros" == name) {
+	    ret = NUMBER_VAL(OBJ_FILL_ZEROS);
+    } else if("ones" == name) {
+	    ret = NUMBER_VAL(OBJ_FILL_ONES);
+     } else if("eye" == name) {
+	    ret = NUMBER_VAL(OBJ_FILL_EYE);
+     } else if("randu" == name) {
+	    ret = NUMBER_VAL(OBJ_FILL_RANDU);
+     } else if("randn" == name) {
+	    ret = NUMBER_VAL(OBJ_FILL_RANDN);
+    }
+    return ret;
+}
+

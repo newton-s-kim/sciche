@@ -405,6 +405,13 @@ public:
     void blaken(void);
 };
 
+class vecNative : public NativeClass {
+public:
+    Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
+    Value call(ObjectFactory* factory, int argc, Value* argv);
+    Value constant(ObjectFactory* factory, std::string name);
+};
+
 //< copy-string-h
 //> is-obj-type
 static inline bool isObjType(Value value, ObjType type)

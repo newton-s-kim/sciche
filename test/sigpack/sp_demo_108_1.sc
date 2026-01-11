@@ -20,10 +20,10 @@ var M = b.size;
 Ghat.setup_lms(M, 0.05);
 
 // Signal vectors
-var x = vec(N, randn); // Input sig
-var y = vec(N, zeros); // Model sig
-var z = vec(N, randn); // Measurement noise
-var e = vec(N, zeros); // Err sig
+var x = vec(N, vec.randn); // Input sig
+var y = vec(N, vec.zeros); // Model sig
+var z = vec(N, vec.randn); // Measurement noise
+var e = vec(N, vec.zeros); // Err sig
 
 // Log matrix
 var Wlog = mat(M, N);
