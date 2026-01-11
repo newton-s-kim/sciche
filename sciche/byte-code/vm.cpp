@@ -179,6 +179,7 @@ void VM::blackenObject(Obj* object)
     case OBJ_ROW:
     case OBJ_MAT:
     case OBJ_CUBE:
+    case OBJ_NATIVE_CLASS:
     case OBJ_NATIVE_OBJ:
         break;
     case OBJ_THREAD: {
@@ -550,7 +551,7 @@ void VM::defineNative(const char* name, NativeFn function)
 void VM::defineSymbol(const char* name, NativeClass* klass)
 {
     push(OBJ_VAL(newString(name)));
-    push(OBJ_VAL(newNativeObj(klass)));
+    push(OBJ_VAL(newNativeClass(klass)));
     globals.set(AS_STRING(thread->stack[0])->chars, thread->stack[1]);
     pop();
     pop();
@@ -739,6 +740,20 @@ bool VM::callValue(Value callee, int argCount)
             push(result);
             return true;
         }
+        case OBJ_NATIVE_CLASS: {
+            ObjNativeClass* native = AS_NATIVE_CLASS(callee);
+            Value result = 0;
+            try {
+                result = native->klass->call(this, argCount, thread->stackTop - argCount);
+            }
+            catch (std::exception& e) {
+                runtimeError(e.what());
+                return false;
+            }
+            thread->stackTop -= argCount + 1;
+            push(result);
+            return true;
+        }
             //< call-native
         default:
             LAX_LOG("non-callable type %d.", OBJ_TYPE(callee));
@@ -780,11 +795,27 @@ bool VM::invoke(ObjString* name, int argCount)
         //< invoke-field
         return invokeFromClass(instance->klass, name, argCount);
     }
+    else if (IS_NATIVE_CLASS(receiver)) {
+        ObjNativeClass* klass = AS_NATIVE_CLASS(receiver);
+        Value result = 0;
+        try {
+            result = klass->klass->invoke(this, name->chars, argCount, thread->stackTop - argCount);
+        }
+        catch (std::exception& e) {
+            runtimeError(e.what());
+            return false;
+        }
+        for (int i = 0; i < argCount; i++)
+            pop();
+        pop();
+        push(result);
+        return true;
+    }
     else if (IS_NATIVE_OBJECT(receiver)) {
         ObjNativeObject* nobj = AS_NATIVE_OBJECT(receiver);
         Value result = 0;
         try {
-            result = nobj->klass->invoke(this, name->chars, argCount, thread->stackTop - argCount);
+            result = nobj->object->invoke(this, name->chars, argCount, thread->stackTop - argCount);
         }
         catch (std::exception& e) {
             runtimeError(e.what());
@@ -979,11 +1010,20 @@ ObjCube* VM::newCube(size_t rows, size_t cols, size_t depth, ObjFillType fill_ty
     objects = ret;
     return ret;
 }
-ObjNativeObject* VM::newNativeObj(NativeClass* klass)
+ObjNativeClass* VM::newNativeClass(NativeClass* klass)
+{
+    collect(0, sizeof(ObjNativeClass));
+    ObjNativeClass* ret = new ObjNativeClass();
+    ret->klass = klass;
+    ret->next = objects;
+    objects = ret;
+    return ret;
+}
+ObjNativeObject* VM::newNativeObj(NativeObject* obj)
 {
     collect(0, sizeof(ObjNativeObject));
     ObjNativeObject* ret = new ObjNativeObject();
-    ret->klass = klass;
+    ret->object = obj;
     ret->next = objects;
     objects = ret;
     return ret;
@@ -1454,12 +1494,26 @@ InterpretResult VM::run(void)
                     return INTERPRET_RUNTIME_ERROR;
                 }
             }
+            else if (IS_NATIVE_CLASS(peek(0))) {
+                ObjNativeClass* klass = AS_NATIVE_CLASS(peek(0));
+                ObjString* name = READ_STRING();
+                Value result = 0;
+                try {
+                    result = klass->klass->constant(this, name->chars);
+                    pop();
+                    push(result);
+                }
+                catch (std::exception& e) {
+                    runtimeError(e.what());
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+            }
             else if (IS_NATIVE_OBJECT(peek(0))) {
                 ObjNativeObject* nobj = AS_NATIVE_OBJECT(peek(0));
                 ObjString* name = READ_STRING();
                 Value result = 0;
                 try {
-                    result = nobj->klass->property(this, name->chars);
+                    result = nobj->object->property(this, name->chars);
                     pop();
                     push(result);
                 }

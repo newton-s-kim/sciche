@@ -2,24 +2,11 @@
 
 #include "object.hpp"
 
-/*
-Value firFiltNative(ObjectFactory* factory, int argc, Value* args);
-Value iirFiltNative(ObjectFactory* factory, int argc, Value* args);
-Value fir1Native(ObjectFactory* factory, int argc, Value* args);
-Value delayNative(ObjectFactory* factory, int argc, Value* args);
-Value gplotNative(ObjectFactory* factory, int argc, Value* args);
-Value linspaceNative(ObjectFactory* factory, int argc, Value* args);
-Value specgramNative(ObjectFactory* factory, int argc, Value* args);
-Value pwelchNative(ObjectFactory* factory, int argc, Value* args);
-Value freqzNative(ObjectFactory* factory, int argc, Value* args);
-Value phasezNative(ObjectFactory* factory, int argc, Value* args);
-Value kfNative(ObjectFactory* factory, int argc, Value* args);
-*/
-
 class SigpackInterface : public NativeClass {
 public:
     SigpackInterface();
     ~SigpackInterface();
     Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
-    Value property(ObjectFactory* factory, std::string name);
+    Value call(ObjectFactory* factory, int argc, Value* argv);
+    Value constant(ObjectFactory* factory, std::string name);
 };

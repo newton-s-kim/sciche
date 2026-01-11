@@ -3,7 +3,7 @@
 #include "object.hpp"
 #include "sigpack-1.2.7/sigpack/sigpack.h"
 
-class IirFilter : public NativeClass {
+class IirFilter : public NativeObject {
 private:
     sp::IIR_filt<double, double, double> iir_filt;
 

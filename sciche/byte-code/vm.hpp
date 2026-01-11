@@ -147,7 +147,8 @@ public:
     ObjRow* newRow(size_t size = 0, ObjFillType fill_type = OBJ_FILL_DEFAULT);
     ObjMat* newMat(size_t rows = 0, size_t cols = 0, ObjFillType fill_type = OBJ_FILL_DEFAULT);
     ObjCube* newCube(size_t rows = 0, size_t cols = 0, size_t depth = 0, ObjFillType fill_type = OBJ_FILL_DEFAULT);
-    ObjNativeObject* newNativeObj(NativeClass* klass);
+    ObjNativeClass* newNativeClass(NativeClass* klass);
+    ObjNativeObject* newNativeObj(NativeObject* klass);
     ObjThread* newThread(void);
     ObjThread* newThread(ObjClosure* closure);
     bool loadLibrary(std::string path, std::string name);

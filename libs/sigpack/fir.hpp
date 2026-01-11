@@ -3,7 +3,7 @@
 #include "object.hpp"
 #include "sigpack-1.2.7/sigpack/sigpack.h"
 
-class FirFilter : public NativeClass {
+class FirFilter : public NativeObject {
 private:
     sp::FIR_filt<double, double, double> fir_filt;
 

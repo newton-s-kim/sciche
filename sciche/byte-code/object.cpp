@@ -499,14 +499,33 @@ void ObjCube::set(int row, int col, int depth, Value v)
     value(row, col, depth) = AS_NUMBER(v);
 }
 
-ObjNativeObject::ObjNativeObject() : Obj(OBJ_NATIVE_OBJ), klass(NULL)
+ObjNativeClass::ObjNativeClass() : Obj(OBJ_NATIVE_CLASS), klass(NULL)
+{
+}
+
+ObjNativeClass::~ObjNativeClass()
+{
+    if (klass)
+        delete klass;
+}
+
+std::string ObjNativeClass::stringify(void)
+{
+    return "<native obj>";
+}
+
+void ObjNativeClass::blaken(void)
+{
+}
+
+ObjNativeObject::ObjNativeObject() : Obj(OBJ_NATIVE_OBJ), object(NULL)
 {
 }
 
 ObjNativeObject::~ObjNativeObject()
 {
-    if (klass)
-        delete klass;
+    if (object)
+        delete object;
 }
 
 std::string ObjNativeObject::stringify(void)

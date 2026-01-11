@@ -320,7 +320,15 @@ Value JsonInterface::invoke(ObjectFactory* factory, std::string name, int argc, 
     return value;
 }
 
-Value JsonInterface::property(ObjectFactory* factory, std::string name)
+Value JsonInterface::call(ObjectFactory* factory, int argc, Value* argv)
+{
+    (void)factory;
+    (void)argc;
+    (void)argv;
+    return NIL_VAL;
+}
+
+Value JsonInterface::constant(ObjectFactory* factory, std::string name)
 {
     (void)factory;
     (void)name;

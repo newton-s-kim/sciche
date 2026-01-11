@@ -44,6 +44,7 @@
 //> as-string
 #define IS_LIST(value) isObjType(value, OBJ_LIST)
 #define IS_MAP(value) isObjType(value, OBJ_MAP)
+#define IS_NATIVE_CLASS(value) isObjType(value, OBJ_NATIVE_CLASS)
 #define IS_NATIVE_OBJECT(value) isObjType(value, OBJ_NATIVE_OBJ)
 #define IS_COL(value) isObjType(value, OBJ_COL)
 #define IS_ROW(value) isObjType(value, OBJ_ROW)
@@ -76,6 +77,7 @@
 //> obj-type
 #define AS_LIST(value) ((ObjList*)AS_OBJ(value))
 #define AS_MAP(value) ((ObjMap*)AS_OBJ(value))
+#define AS_NATIVE_CLASS(value) ((ObjNativeClass*)AS_OBJ(value))
 #define AS_NATIVE_OBJECT(value) ((ObjNativeObject*)AS_OBJ(value))
 #define AS_COL(value) ((ObjCol*)AS_OBJ(value))
 #define AS_ROW(value) ((ObjRow*)AS_OBJ(value))
@@ -113,6 +115,7 @@ typedef enum {
     OBJ_ROW,
     OBJ_MAT,
     OBJ_CUBE,
+    OBJ_NATIVE_CLASS,
     OBJ_NATIVE_OBJ,
     OBJ_THREAD
 } ObjType;
@@ -327,12 +330,31 @@ public:
     {
     }
     virtual Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv) = 0;
+    virtual Value call(ObjectFactory* factory, int argc, Value* argv) = 0;
+    virtual Value constant(ObjectFactory* factory, std::string name) = 0;
+};
+
+class ObjNativeClass : public Obj {
+public:
+    NativeClass* klass;
+    ObjNativeClass();
+    ~ObjNativeClass();
+    std::string stringify(void);
+    void blaken(void);
+};
+
+class NativeObject {
+public:
+    virtual ~NativeObject()
+    {
+    }
+    virtual Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv) = 0;
     virtual Value property(ObjectFactory* factory, std::string name) = 0;
 };
 
 class ObjNativeObject : public Obj {
 public:
-    NativeClass* klass;
+    NativeObject* object;
     ObjNativeObject();
     ~ObjNativeObject();
     std::string stringify(void);
@@ -410,7 +432,8 @@ public:
     virtual ObjMat* newMat(size_t rows = 0, size_t cols = 0, ObjFillType fill_type = OBJ_FILL_DEFAULT) = 0;
     virtual ObjCube* newCube(size_t rows = 0, size_t cols = 0, size_t depth = 0,
                              ObjFillType fill_type = OBJ_FILL_DEFAULT) = 0;
-    virtual ObjNativeObject* newNativeObj(NativeClass* klass) = 0;
+    virtual ObjNativeClass* newNativeClass(NativeClass* klass) = 0;
+    virtual ObjNativeObject* newNativeObj(NativeObject* object) = 0;
     virtual ObjThread* newThread(void) = 0;
     virtual ObjThread* newThread(ObjClosure* closure) = 0;
     virtual bool loadLibrary(std::string path, std::string name) = 0;

@@ -2,7 +2,7 @@
 
 #include <sndfile.h>
 
-class SndWav : public NativeClass {
+class SndWav : public NativeObject {
 private:
     SNDFILE* m_handle;
     SF_INFO m_info;

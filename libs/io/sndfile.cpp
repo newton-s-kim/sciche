@@ -45,7 +45,16 @@ Value SndFile::invoke(ObjectFactory* factory, std::string name, int argc, Value*
     return value;
 }
 
-Value SndFile::property(ObjectFactory* factory, std::string name)
+Value SndFile::call(ObjectFactory* factory, int argc, Value* argv)
+{
+    (void)factory;
+    (void)argc;
+    (void)argv;
+    throw std::runtime_error("invalid call");
+    return NIL_VAL;
+}
+
+Value SndFile::constant(ObjectFactory* factory, std::string name)
 {
     Value value = 0;
     (void)factory;

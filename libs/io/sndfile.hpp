@@ -6,5 +6,6 @@ public:
     SndFile();
     ~SndFile();
     Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
-    Value property(ObjectFactory* factory, std::string name);
+    Value call(ObjectFactory* factory, int argc, Value* argv);
+    Value constant(ObjectFactory* factory, std::string name);
 };

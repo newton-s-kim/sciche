@@ -3,7 +3,7 @@
 #include "object.hpp"
 #include "sigpack-1.2.7/sigpack/sigpack.h"
 
-class kalmanFilter : public NativeClass {
+class kalmanFilter : public NativeObject {
 private:
     sp::KF kalman;
 

@@ -3,7 +3,7 @@
 #include "object.hpp"
 #include "sigpack-1.2.7/sigpack/sigpack.h"
 
-class DelayFilter : public NativeClass {
+class DelayFilter : public NativeObject {
 private:
     sp::Delay<double> delay;
 

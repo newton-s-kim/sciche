@@ -3,7 +3,7 @@
 #include "object.hpp"
 #include "sigpack-1.2.7/sigpack/sigpack.h"
 
-class gPlot : public NativeClass {
+class gPlot : public NativeObject {
 private:
     sp::gplot m_gplot;
 

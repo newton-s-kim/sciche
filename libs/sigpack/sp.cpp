@@ -177,7 +177,16 @@ Value SigpackInterface::invoke(ObjectFactory* factory, std::string name, int arg
     return it->second(factory, argc, argv);
 }
 
-Value SigpackInterface::property(ObjectFactory* factory, std::string name)
+Value SigpackInterface::call(ObjectFactory* factory, int argc, Value* argv)
+{
+    (void)factory;
+    (void)argc;
+    (void)argv;
+    throw std::runtime_error("undefined call");
+    return NIL_VAL;
+}
+
+Value SigpackInterface::constant(ObjectFactory* factory, std::string name)
 {
     (void)factory;
     (void)name;
