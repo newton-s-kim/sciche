@@ -571,7 +571,7 @@ static Value vec_class_convolute(ObjectFactory* factory, int argc, Value* argv)
     if (!IS_COL(argv[1]))
         throw std::runtime_error("vec is expected.");
     ObjCol* col = factory->newCol();
-    col->value = arma::cov(AS_COL(argv[0])->value, AS_COL(argv[1])->value);
+    col->value = arma::conv(AS_COL(argv[0])->value, AS_COL(argv[1])->value);
     return OBJ_VAL(col);
 }
 
@@ -588,8 +588,12 @@ static Value vec_class_correlate(ObjectFactory* factory, int argc, Value* argv)
     return OBJ_VAL(col);
 }
 
-std::map<std::string, NativeFn> s_vec_class_api = {{"convolute", vec_class_convolute},
-                                                   {"correlate", vec_class_correlate}};
+// clang-format off
+std::map<std::string, NativeFn> s_vec_class_api = {
+    {"conv", vec_class_convolute},
+    {"corr", vec_class_correlate}
+};
+// clang-format on
 
 Value vecNative::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
 {
