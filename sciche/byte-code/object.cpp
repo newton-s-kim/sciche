@@ -562,14 +562,44 @@ void ObjThread::blaken(void)
 {
 }
 
+static Value vec_class_convolute(ObjectFactory* factory, int argc, Value* argv)
+{
+    if (2 != argc)
+        throw std::runtime_error("invalid number of arguments.");
+    if (!IS_COL(argv[0]))
+        throw std::runtime_error("vec is expected.");
+    if (!IS_COL(argv[1]))
+        throw std::runtime_error("vec is expected.");
+    ObjCol* col = factory->newCol();
+    col->value = arma::cov(AS_COL(argv[0])->value, AS_COL(argv[1])->value);
+    return OBJ_VAL(col);
+}
+
+static Value vec_class_correlate(ObjectFactory* factory, int argc, Value* argv)
+{
+    if (2 != argc)
+        throw std::runtime_error("invalid number of arguments.");
+    if (!IS_COL(argv[0]))
+        throw std::runtime_error("vec is expected.");
+    if (!IS_COL(argv[1]))
+        throw std::runtime_error("vec is expected.");
+    ObjCol* col = factory->newCol();
+    col->value = arma::cor(AS_COL(argv[0])->value, AS_COL(argv[1])->value);
+    return OBJ_VAL(col);
+}
+
+std::map<std::string, NativeFn> s_vec_class_api = {{"convolute", vec_class_convolute},
+                                                   {"correlate", vec_class_correlate}};
+
 Value vecNative::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
 {
-    (void)factory;
-    (void)name;
-    (void)argc;
-    (void)argv;
-    throw std::runtime_error("invalid method.");
-    return NIL_VAL;
+    Value ret = 0;
+    std::map<std::string, NativeFn>::iterator it = s_vec_class_api.find(name);
+    if (it != s_vec_class_api.end())
+        ret = it->second(factory, argc, argv);
+    else
+        throw std::runtime_error("invalid method.");
+    return ret;
 }
 
 Value vecNative::call(ObjectFactory* factory, int argc, Value* args)
