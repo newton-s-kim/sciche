@@ -577,14 +577,29 @@ static Value vec_class_convolute(ObjectFactory* factory, int argc, Value* argv)
 
 static Value vec_class_correlate(ObjectFactory* factory, int argc, Value* argv)
 {
-    if (2 != argc)
-        throw std::runtime_error("invalid number of arguments.");
-    if (!IS_COL(argv[0]))
-        throw std::runtime_error("vec is expected.");
-    if (!IS_COL(argv[1]))
-        throw std::runtime_error("vec is expected.");
     ObjCol* col = factory->newCol();
-    col->value = arma::cor(AS_COL(argv[0])->value, AS_COL(argv[1])->value);
+    arma::vec x;
+    if (2 == argc) {
+        if (!IS_COL(argv[0]))
+            throw std::runtime_error("vec is expected.");
+        if (!IS_COL(argv[1]))
+            throw std::runtime_error("vec is expected.");
+        x = AS_COL(argv[1])->value;
+    }
+    else if (1 == argc) {
+        if (!IS_COL(argv[0]))
+            throw std::runtime_error("vec is expected.");
+        x = AS_COL(argv[0])->value;
+    }
+    else {
+        throw std::runtime_error("invalid number of arguments.");
+    }
+    col->value.resize(x.size());
+    for (size_t idx = 0; idx < x.size(); idx++) {
+        arma::vec s = arma::shift(x, idx);
+        arma::vec y = arma::cor(AS_COL(argv[0])->value, s);
+        col->value[idx] = y[0];
+    }
     return OBJ_VAL(col);
 }
 
