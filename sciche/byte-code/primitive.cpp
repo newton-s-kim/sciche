@@ -4,8 +4,8 @@
 #include <map>
 #include <string>
 
-typedef Value (*NativeBoundFn)(ObjectFactory* factory, Value value, int argc, Value* argv);
-typedef Value (*NativeBoundProperty)(ObjectFactory* factory, Value value);
+typedef Value (*PrimitiveBoundFn)(ObjectFactory* factory, Value value, int argc, Value* argv);
+typedef Value (*PrimitiveBoundProperty)(ObjectFactory* factory, Value value);
 
 static Value list_size(ObjectFactory* factory, Value value)
 {
@@ -43,12 +43,12 @@ static Value list_each(ObjectFactory* factory, Value value, int argc, Value* arg
 }
 
 // clang-format off
-std::map<std::string, NativeBoundFn> s_list_apis = {
+std::map<std::string, PrimitiveBoundFn> s_list_apis = {
     {"add", list_add},
     {"each", list_each},
 };
 
-std::map<std::string, NativeBoundProperty> s_list_props = {
+std::map<std::string, PrimitiveBoundProperty> s_list_props = {
     {"size", list_size},
 };
 // clang-format on
@@ -63,10 +63,10 @@ static Value map_size(ObjectFactory* factory, Value value)
 }
 
 // clang-format off
-std::map<std::string, NativeBoundFn> s_map_apis = {
+std::map<std::string, PrimitiveBoundFn> s_map_apis = {
 };
 
-std::map<std::string, NativeBoundProperty> s_map_props = {
+std::map<std::string, PrimitiveBoundProperty> s_map_props = {
     {"size", map_size}
 };
 // clang-format on
@@ -148,14 +148,14 @@ static Value col_add(ObjectFactory* factory, Value value, int argc, Value* argv)
 }
 
 // clang-format off
-std::map<std::string, NativeBoundFn> s_col_apis = {
+std::map<std::string, PrimitiveBoundFn> s_col_apis = {
     {"resize", col_resize},
     {"zeros", col_zeros},
     {"add", col_add},
     {"t", col_transpose},
     {"randn", col_randn}
 };
-std::map<std::string, NativeBoundProperty> s_col_props = {
+std::map<std::string, PrimitiveBoundProperty> s_col_props = {
     {"size", col_size}
 };
 // clang-format on
@@ -172,10 +172,10 @@ static Value row_transpose(ObjectFactory* factory, Value value, int argc, Value*
     return OBJ_VAL(col);
 }
 
-std::map<std::string, NativeBoundFn> s_row_apis = {
+std::map<std::string, PrimitiveBoundFn> s_row_apis = {
     {"t", row_transpose},
 };
-std::map<std::string, NativeBoundProperty> s_row_props = {};
+std::map<std::string, PrimitiveBoundProperty> s_row_props = {};
 
 static Value mat_col(ObjectFactory* factory, Value value, int argc, Value* argv)
 {
@@ -331,14 +331,14 @@ static Value mat_abs(ObjectFactory* factory, Value value)
 }
 
 // clang-format off
-std::map<std::string, NativeBoundFn> s_mat_apis = {
+std::map<std::string, PrimitiveBoundFn> s_mat_apis = {
     {"col", mat_col},
     {"row", mat_row},
     {"rows", mat_rows},
     {"set", mat_set},
     {"t", mat_transpose}
 };
-std::map<std::string, NativeBoundProperty> s_mat_props = {
+std::map<std::string, PrimitiveBoundProperty> s_mat_props = {
     {"abs", mat_abs}
 };
 // clang-format on
@@ -372,10 +372,10 @@ static Value cube_slice(ObjectFactory* factory, Value value, int argc, Value* ar
 }
 
 // clang-format off
-std::map<std::string, NativeBoundFn> s_cube_apis = {
+std::map<std::string, PrimitiveBoundFn> s_cube_apis = {
     {"slice", cube_slice}
 };
-std::map<std::string, NativeBoundProperty> s_cube_props = {
+std::map<std::string, PrimitiveBoundProperty> s_cube_props = {
 };
 // clang-format on
 
@@ -456,10 +456,10 @@ static Value num_truncate(ObjectFactory* factory, Value value)
 }
 
 // clang-format off
-std::map<std::string, NativeBoundFn> s_number_apis = {
+std::map<std::string, PrimitiveBoundFn> s_number_apis = {
 };
 
-std::map<std::string, NativeBoundProperty> s_number_props = {
+std::map<std::string, PrimitiveBoundProperty> s_number_props = {
     {"ceil", num_ceil},
     {"floor", num_floor},
     {"round", num_round},
@@ -469,16 +469,16 @@ std::map<std::string, NativeBoundProperty> s_number_props = {
     {"truncate", num_truncate}
 };
 
-std::map<std::string, NativeBoundFn> s_bool_apis = {
+std::map<std::string, PrimitiveBoundFn> s_bool_apis = {
 };
-std::map<std::string, NativeBoundProperty> s_bool_props = {
+std::map<std::string, PrimitiveBoundProperty> s_bool_props = {
 };
 // clang-format on
 
 Value Primitive::call(ObjectFactory* factory, Value value, std::string name, int argc, Value* argv)
 {
     Value ret = 0;
-    std::map<std::string, NativeBoundFn>::iterator it;
+    std::map<std::string, PrimitiveBoundFn>::iterator it;
     if (IS_NUMBER(value)) {
         it = s_number_apis.find(name);
         if (it != s_number_apis.end())
@@ -545,7 +545,7 @@ Value Primitive::property(ObjectFactory* factory, Value value, std::string name)
 {
     (void)factory;
     Value ret = 0;
-    std::map<std::string, NativeBoundProperty>::iterator it;
+    std::map<std::string, PrimitiveBoundProperty>::iterator it;
     if (IS_NUMBER(value)) {
         it = s_number_props.find(name);
         if (it != s_number_props.end())
