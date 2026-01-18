@@ -324,6 +324,11 @@ public:
     void set(int row, int col, int dep, Value v);
 };
 
+class NativeClass;
+
+typedef Value (*NativeClassBoundFn)(ObjectFactory* factory, NativeClass* klass, int argc, Value* argv);
+typedef Value (*NativeClassBoundProperty)(ObjectFactory* factory, NativeClass* klass);
+
 class NativeClass {
 public:
     virtual ~NativeClass()
@@ -342,6 +347,11 @@ public:
     std::string stringify(void);
     void blaken(void);
 };
+
+class NativeObject;
+
+typedef Value (*NativeObjectBoundFn)(ObjectFactory* factory, NativeObject* klass, int argc, Value* argv);
+typedef Value (*NativeObjectBoundProperty)(ObjectFactory* factory, NativeObject* klass);
 
 class NativeObject {
 public:
