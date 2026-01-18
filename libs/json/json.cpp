@@ -316,30 +316,6 @@ void JsonInterface::write(rapidjson::Writer<rapidjson::StringBuffer>& writer, Va
     }
 }
 
-Value JsonInterface::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
-{
-    std::map<std::string, NativeClassBoundFn>::iterator it = m_apis.find(name);
-    if (it == m_apis.end())
-        throw std::runtime_error("invalid method");
-    return it->second(factory, this, argc, argv);
-}
-
-Value JsonInterface::call(ObjectFactory* factory, int argc, Value* argv)
-{
-    (void)factory;
-    (void)argc;
-    (void)argv;
-    return NIL_VAL;
-}
-
-Value JsonInterface::constant(ObjectFactory* factory, std::string name)
-{
-    std::map<std::string, NativeClassBoundProperty>::iterator it = m_constants.find(name);
-    if (it == m_constants.end())
-        throw std::runtime_error("invalid property");
-    return it->second(factory, this);
-}
-
 Value JsonInterface::load(std::string str, ObjectFactory* factory)
 {
     MyHandler handler;

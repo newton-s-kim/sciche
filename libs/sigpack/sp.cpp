@@ -185,28 +185,3 @@ SigpackInterface::SigpackInterface() : NativeClass(s_sigpack_apis, s_sigpack_pro
 SigpackInterface::~SigpackInterface()
 {
 }
-
-Value SigpackInterface::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
-{
-    std::map<std::string, NativeClassBoundFn>::iterator it = m_apis.find(name);
-    if (m_apis.end() == it)
-        throw std::runtime_error("undefined method");
-    return it->second(factory, this, argc, argv);
-}
-
-Value SigpackInterface::call(ObjectFactory* factory, int argc, Value* argv)
-{
-    (void)factory;
-    (void)argc;
-    (void)argv;
-    throw std::runtime_error("undefined call");
-    return NIL_VAL;
-}
-
-Value SigpackInterface::constant(ObjectFactory* factory, std::string name)
-{
-    std::map<std::string, NativeClassBoundProperty>::iterator it = m_constants.find(name);
-    if (it == m_constants.end())
-        throw std::runtime_error("invalid property");
-    return it->second(factory, this);
-}

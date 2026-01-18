@@ -338,9 +338,9 @@ public:
     NativeClass(std::map<std::string, NativeClassBoundFn>& apis,
                 std::map<std::string, NativeClassBoundProperty>& constants);
     virtual ~NativeClass();
-    virtual Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv) = 0;
-    virtual Value call(ObjectFactory* factory, int argc, Value* argv) = 0;
-    virtual Value constant(ObjectFactory* factory, std::string name) = 0;
+    Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
+    virtual Value call(ObjectFactory* factory, int argc, Value* argv);
+    Value constant(ObjectFactory* factory, std::string name);
 };
 
 class ObjNativeClass : public Obj {
@@ -366,8 +366,8 @@ public:
     NativeObject(std::map<std::string, NativeObjectBoundFn>& apis,
                  std::map<std::string, NativeObjectBoundProperty>& properties);
     virtual ~NativeObject();
-    virtual Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv) = 0;
-    virtual Value property(ObjectFactory* factory, std::string name) = 0;
+    Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
+    Value property(ObjectFactory* factory, std::string name);
 };
 
 class ObjNativeObject : public Obj {
@@ -426,17 +426,13 @@ public:
 class vecNative : public NativeClass {
 public:
     vecNative();
-    Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
     Value call(ObjectFactory* factory, int argc, Value* argv);
-    Value constant(ObjectFactory* factory, std::string name);
 };
 
 class matNative : public NativeClass {
 public:
     matNative();
-    Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
     Value call(ObjectFactory* factory, int argc, Value* argv);
-    Value constant(ObjectFactory* factory, std::string name);
 };
 
 //< copy-string-h

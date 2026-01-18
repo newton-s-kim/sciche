@@ -509,6 +509,31 @@ NativeClass::~NativeClass()
 {
 }
 
+Value NativeClass::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
+{
+    std::map<std::string, NativeClassBoundFn>::iterator it = m_apis.find(name);
+    if (it == m_apis.end())
+        throw std::runtime_error("invalid method");
+    return it->second(factory, this, argc, argv);
+}
+
+Value NativeClass::call(ObjectFactory* factory, int argc, Value* argv)
+{
+    (void)factory;
+    (void)argc;
+    (void)argv;
+    throw std::runtime_error("invalid call");
+    return NIL_VAL;
+}
+
+Value NativeClass::constant(ObjectFactory* factory, std::string name)
+{
+    std::map<std::string, NativeClassBoundProperty>::iterator it = m_constants.find(name);
+    if (it == m_constants.end())
+        throw std::runtime_error("invalid property");
+    return it->second(factory, this);
+}
+
 ObjNativeClass::ObjNativeClass() : Obj(OBJ_NATIVE_CLASS), klass(NULL)
 {
 }
@@ -536,6 +561,22 @@ NativeObject::NativeObject(std::map<std::string, NativeObjectBoundFn>& apis,
 
 NativeObject::~NativeObject()
 {
+}
+
+Value NativeObject::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
+{
+    std::map<std::string, NativeObjectBoundFn>::iterator it = m_apis.find(name);
+    if (it == m_apis.end())
+        throw std::runtime_error("invalid method");
+    return it->second(factory, this, argc, argv);
+}
+
+Value NativeObject::property(ObjectFactory* factory, std::string name)
+{
+    std::map<std::string, NativeObjectBoundProperty>::iterator it = m_properties.find(name);
+    if (it == m_properties.end())
+        throw std::runtime_error("invalid property");
+    return it->second(factory, this);
 }
 
 ObjNativeObject::ObjNativeObject() : Obj(OBJ_NATIVE_OBJ), object(NULL)
@@ -687,17 +728,6 @@ vecNative::vecNative() : NativeClass(s_vec_class_apis, s_vec_class_constants)
 {
 }
 
-Value vecNative::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
-{
-    Value ret = 0;
-    std::map<std::string, NativeClassBoundFn>::iterator it = m_apis.find(name);
-    if (it != m_apis.end())
-        ret = it->second(factory, this, argc, argv);
-    else
-        throw std::runtime_error("invalid method.");
-    return ret;
-}
-
 Value vecNative::call(ObjectFactory* factory, int argc, Value* args)
 {
     ObjFillType fill_type = OBJ_FILL_DEFAULT;
@@ -728,14 +758,6 @@ Value vecNative::call(ObjectFactory* factory, int argc, Value* args)
     return OBJ_VAL(factory->newCol(sz, fill_type));
 }
 
-Value vecNative::constant(ObjectFactory* factory, std::string name)
-{
-    std::map<std::string, NativeClassBoundProperty>::iterator it = m_constants.find(name);
-    if (it == m_constants.end())
-        throw std::runtime_error("invalid property");
-    return it->second(factory, this);
-}
-
 // clang-format off
 std::map<std::string, NativeClassBoundFn> s_mat_class_apis;
 
@@ -751,14 +773,6 @@ std::map<std::string, NativeClassBoundProperty> s_mat_class_constants = {
 
 matNative::matNative() : NativeClass(s_mat_class_apis, s_mat_class_constants)
 {
-}
-
-Value matNative::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
-{
-    std::map<std::string, NativeClassBoundFn>::iterator it = m_apis.find(name);
-    if (it == m_apis.end())
-        throw std::runtime_error("invalid method.");
-    return it->second(factory, this, argc, argv);
 }
 
 Value matNative::call(ObjectFactory* factory, int argc, Value* args)
@@ -795,12 +809,4 @@ Value matNative::call(ObjectFactory* factory, int argc, Value* args)
         break;
     }
     return OBJ_VAL(factory->newMat(rows, cols, fill_type));
-}
-
-Value matNative::constant(ObjectFactory* factory, std::string name)
-{
-    std::map<std::string, NativeClassBoundProperty>::iterator it = m_constants.find(name);
-    if (it == m_constants.end())
-        throw std::runtime_error("invalid property");
-    return it->second(factory, this);
 }

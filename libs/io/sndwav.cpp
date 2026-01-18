@@ -43,22 +43,6 @@ SndWav::~SndWav()
         sf_close(m_handle);
 }
 
-Value SndWav::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
-{
-    std::map<std::string, NativeObjectBoundFn>::iterator it = m_apis.find(name);
-    if (it == m_apis.end())
-        throw std::runtime_error("invalid method");
-    return it->second(factory, this, argc, argv);
-}
-
-Value SndWav::property(ObjectFactory* factory, std::string name)
-{
-    std::map<std::string, NativeObjectBoundProperty>::iterator it = m_properties.find(name);
-    if (it == m_properties.end())
-        throw std::runtime_error("invalid property");
-    return it->second(factory, this);
-}
-
 int SndWav::read(arma::mat& mat)
 {
     if (NULL == m_handle)

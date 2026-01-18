@@ -141,19 +141,3 @@ FirFilter::FirFilter() : NativeObject(s_fir_apis, s_fir_properties)
 FirFilter::~FirFilter()
 {
 }
-
-Value FirFilter::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
-{
-    std::map<std::string, NativeObjectBoundFn>::iterator it = m_apis.find(name);
-    if (it == m_apis.end())
-        throw std::runtime_error("invalid method");
-    return it->second(factory, this, argc, argv);
-}
-
-Value FirFilter::property(ObjectFactory* factory, std::string name)
-{
-    std::map<std::string, NativeObjectBoundProperty>::iterator it = m_properties.find(name);
-    if (it == m_properties.end())
-        throw std::runtime_error("invalid property");
-    return it->second(factory, this);
-}

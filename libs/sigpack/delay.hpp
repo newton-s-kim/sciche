@@ -11,6 +11,4 @@ public:
     DelayFilter();
     DelayFilter(int nDelay);
     ~DelayFilter();
-    Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
-    Value property(ObjectFactory* factory, std::string name);
 };

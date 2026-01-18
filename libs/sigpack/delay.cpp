@@ -34,19 +34,3 @@ DelayFilter::DelayFilter(int nDelay) : NativeObject(s_delay_apis, s_delay_proper
 DelayFilter::~DelayFilter()
 {
 }
-
-Value DelayFilter::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
-{
-    std::map<std::string, NativeObjectBoundFn>::iterator it = m_apis.find(name);
-    if (it == m_apis.end())
-        throw std::runtime_error("invalid method");
-    return it->second(factory, this, argc, argv);
-}
-
-Value DelayFilter::property(ObjectFactory* factory, std::string name)
-{
-    std::map<std::string, NativeObjectBoundProperty>::iterator it = m_properties.find(name);
-    if (it == m_properties.end())
-        throw std::runtime_error("invalid property");
-    return it->second(factory, this);
-}

@@ -67,31 +67,6 @@ SndFile::~SndFile()
 {
 }
 
-Value SndFile::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
-{
-    std::map<std::string, NativeClassBoundFn>::iterator it = m_apis.find(name);
-    if (it == m_apis.end())
-        throw std::runtime_error("invalid method");
-    return it->second(factory, this, argc, argv);
-}
-
-Value SndFile::call(ObjectFactory* factory, int argc, Value* argv)
-{
-    (void)factory;
-    (void)argc;
-    (void)argv;
-    throw std::runtime_error("invalid call");
-    return NIL_VAL;
-}
-
-Value SndFile::constant(ObjectFactory* factory, std::string name)
-{
-    std::map<std::string, NativeClassBoundProperty>::iterator it = m_constants.find(name);
-    if (it == m_constants.end())
-        throw std::runtime_error("invalid property");
-    return it->second(factory, this);
-}
-
 SndWav* SndFile::open(std::string path, int mode)
 {
     return new SndWav(path, mode);
