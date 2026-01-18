@@ -29,7 +29,7 @@ std::map<std::string, NativeObjectBoundFn> s_sndwav_apis = {
 std::map<std::string, NativeObjectBoundProperty> s_sndwav_properties;
 // clang-format on
 
-SndWav::SndWav(std::string path, int mode) : m_handle(NULL), m_apis(s_sndwav_apis), m_properties(s_sndwav_properties)
+SndWav::SndWav(std::string path, int mode) : NativeObject(s_sndwav_apis, s_sndwav_properties), m_handle(NULL)
 {
     memset(&m_info, 0, sizeof(m_info));
     m_handle = sf_open(path.c_str(), mode, &m_info);

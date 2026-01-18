@@ -178,7 +178,7 @@ std::map<std::string, NativeClassBoundFn> s_sigpack_apis = {
 std::map<std::string, NativeClassBoundProperty> s_sigpack_properties;
 // clang-format on
 
-SigpackInterface::SigpackInterface() : m_apis(s_sigpack_apis), m_constants(s_sigpack_properties)
+SigpackInterface::SigpackInterface() : NativeClass(s_sigpack_apis, s_sigpack_properties)
 {
 }
 

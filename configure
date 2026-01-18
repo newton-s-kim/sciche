@@ -53,7 +53,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 function config_common_h() {
-  COMMON_H=sciche/byte-code/common.hpp
+  COMMON_H=byte-code/src/common.hpp
   COMMON_H_IN=${COMMON_H}.in
   cp $COMMON_H_IN $COMMON_H
   if [ "$DEBUG_PRINT_CODE" != "yes" ]; then

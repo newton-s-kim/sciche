@@ -7,10 +7,6 @@ private:
     SNDFILE* m_handle;
     SF_INFO m_info;
 
-protected:
-    std::map<std::string, NativeObjectBoundFn>& m_apis;
-    std::map<std::string, NativeObjectBoundProperty>& m_properties;
-
 public:
     SndWav(std::string path, int mode);
     ~SndWav();

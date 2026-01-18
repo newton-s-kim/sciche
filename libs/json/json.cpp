@@ -278,7 +278,7 @@ std::map<std::string, NativeClassBoundFn> s_json_apis = {
 std::map<std::string, NativeClassBoundProperty> s_json_constatns;
 // clang-format on
 
-JsonInterface::JsonInterface() : m_apis(s_json_apis), m_constants(s_json_constatns)
+JsonInterface::JsonInterface() : NativeClass(s_json_apis, s_json_constatns)
 {
 }
 

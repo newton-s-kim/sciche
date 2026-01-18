@@ -23,11 +23,11 @@ std::map<std::string, NativeObjectBoundFn> s_delay_apis = {
 std::map<std::string, NativeObjectBoundProperty> s_delay_properties;
 // clang-format on
 
-DelayFilter::DelayFilter() : m_apis(s_delay_apis), m_properties(s_delay_properties)
+DelayFilter::DelayFilter() : NativeObject(s_delay_apis, s_delay_properties)
 {
 }
 
-DelayFilter::DelayFilter(int nDelay) : m_delay(nDelay), m_apis(s_delay_apis), m_properties(s_delay_properties)
+DelayFilter::DelayFilter(int nDelay) : NativeObject(s_delay_apis, s_delay_properties), m_delay(nDelay)
 {
 }
 

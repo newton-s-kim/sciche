@@ -330,10 +330,14 @@ typedef Value (*NativeClassBoundFn)(ObjectFactory* factory, NativeClass* klass, 
 typedef Value (*NativeClassBoundProperty)(ObjectFactory* factory, NativeClass* klass);
 
 class NativeClass {
+protected:
+    std::map<std::string, NativeClassBoundFn>& m_apis;
+    std::map<std::string, NativeClassBoundProperty>& m_constants;
+
 public:
-    virtual ~NativeClass()
-    {
-    }
+    NativeClass(std::map<std::string, NativeClassBoundFn>& apis,
+                std::map<std::string, NativeClassBoundProperty>& constants);
+    virtual ~NativeClass();
     virtual Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv) = 0;
     virtual Value call(ObjectFactory* factory, int argc, Value* argv) = 0;
     virtual Value constant(ObjectFactory* factory, std::string name) = 0;
@@ -354,10 +358,14 @@ typedef Value (*NativeObjectBoundFn)(ObjectFactory* factory, NativeObject* klass
 typedef Value (*NativeObjectBoundProperty)(ObjectFactory* factory, NativeObject* klass);
 
 class NativeObject {
+protected:
+    std::map<std::string, NativeObjectBoundFn>& m_apis;
+    std::map<std::string, NativeObjectBoundProperty>& m_properties;
+
 public:
-    virtual ~NativeObject()
-    {
-    }
+    NativeObject(std::map<std::string, NativeObjectBoundFn>& apis,
+                 std::map<std::string, NativeObjectBoundProperty>& properties);
+    virtual ~NativeObject();
     virtual Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv) = 0;
     virtual Value property(ObjectFactory* factory, std::string name) = 0;
 };
@@ -417,6 +425,7 @@ public:
 
 class vecNative : public NativeClass {
 public:
+    vecNative();
     Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
     Value call(ObjectFactory* factory, int argc, Value* argv);
     Value constant(ObjectFactory* factory, std::string name);
@@ -424,6 +433,7 @@ public:
 
 class matNative : public NativeClass {
 public:
+    matNative();
     Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
     Value call(ObjectFactory* factory, int argc, Value* argv);
     Value constant(ObjectFactory* factory, std::string name);

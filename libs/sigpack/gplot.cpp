@@ -243,7 +243,7 @@ std::map<std::string, NativeObjectBoundFn> s_gplot_apis = {
 std::map<std::string, NativeObjectBoundProperty> s_gplot_properties;
 // clang-format on
 
-gPlot::gPlot() : m_apis(s_gplot_apis), m_properties(s_gplot_properties)
+gPlot::gPlot() : NativeObject(s_gplot_apis, s_gplot_properties)
 {
 }
 

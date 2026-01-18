@@ -59,7 +59,7 @@ std::map<std::string, NativeClassBoundProperty> s_sndfile_constatns = {
 };
 // clang-format on
 
-SndFile::SndFile() : m_apis(s_sndfile_apis), m_constants(s_sndfile_constatns)
+SndFile::SndFile() : NativeClass(s_sndfile_apis, s_sndfile_constatns)
 {
 }
 

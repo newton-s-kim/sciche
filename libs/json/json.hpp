@@ -7,10 +7,6 @@ class JsonInterface : public NativeClass {
 private:
     void write(rapidjson::Writer<rapidjson::StringBuffer>& writer, Value value);
 
-protected:
-    std::map<std::string, NativeClassBoundFn>& m_apis;
-    std::map<std::string, NativeClassBoundProperty>& m_constants;
-
 public:
     JsonInterface();
     ~JsonInterface();

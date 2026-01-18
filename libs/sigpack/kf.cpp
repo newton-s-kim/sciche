@@ -156,7 +156,7 @@ std::map<std::string, NativeObjectBoundFn> s_kf_apis = {
 std::map<std::string, NativeObjectBoundProperty> s_kf_properties;
 // clang-format on
 
-kalmanFilter::kalmanFilter(int n, int m, int l) : kalman(n, m, l), m_apis(s_kf_apis), m_properties(s_kf_properties)
+kalmanFilter::kalmanFilter(int n, int m, int l) : NativeObject(s_kf_apis, s_kf_properties), kalman(n, m, l)
 {
 }
 

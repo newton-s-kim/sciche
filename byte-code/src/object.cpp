@@ -499,6 +499,16 @@ void ObjCube::set(int row, int col, int depth, Value v)
     value(row, col, depth) = AS_NUMBER(v);
 }
 
+NativeClass::NativeClass(std::map<std::string, NativeClassBoundFn>& apis,
+                         std::map<std::string, NativeClassBoundProperty>& constants)
+    : m_apis(apis), m_constants(constants)
+{
+}
+
+NativeClass::~NativeClass()
+{
+}
+
 ObjNativeClass::ObjNativeClass() : Obj(OBJ_NATIVE_CLASS), klass(NULL)
 {
 }
@@ -515,6 +525,16 @@ std::string ObjNativeClass::stringify(void)
 }
 
 void ObjNativeClass::blaken(void)
+{
+}
+
+NativeObject::NativeObject(std::map<std::string, NativeObjectBoundFn>& apis,
+                           std::map<std::string, NativeObjectBoundProperty>& properties)
+    : m_apis(apis), m_properties(properties)
+{
+}
+
+NativeObject::~NativeObject()
 {
 }
 
@@ -562,8 +582,9 @@ void ObjThread::blaken(void)
 {
 }
 
-static Value vec_class_convolute(ObjectFactory* factory, int argc, Value* argv)
+static Value vec_class_convolute(ObjectFactory* factory, NativeClass* klass, int argc, Value* argv)
 {
+    (void)klass;
     if (2 != argc)
         throw std::runtime_error("invalid number of arguments.");
     if (!IS_COL(argv[0]))
@@ -575,8 +596,9 @@ static Value vec_class_convolute(ObjectFactory* factory, int argc, Value* argv)
     return OBJ_VAL(col);
 }
 
-static Value vec_class_correlate(ObjectFactory* factory, int argc, Value* argv)
+static Value vec_class_correlate(ObjectFactory* factory, NativeClass* klass, int argc, Value* argv)
 {
+    (void)klass;
     ObjCol* col = factory->newCol();
     arma::vec x;
     if (2 == argc) {
@@ -603,19 +625,74 @@ static Value vec_class_correlate(ObjectFactory* factory, int argc, Value* argv)
     return OBJ_VAL(col);
 }
 
+static Value vec_class_prop_default(ObjectFactory* factory, NativeClass* klass)
+{
+    (void)factory;
+    (void)klass;
+    return NUMBER_VAL(OBJ_FILL_DEFAULT);
+}
+
+static Value vec_class_prop_zeros(ObjectFactory* factory, NativeClass* klass)
+{
+    (void)factory;
+    (void)klass;
+    return NUMBER_VAL(OBJ_FILL_ZEROS);
+}
+
+static Value vec_class_prop_ones(ObjectFactory* factory, NativeClass* klass)
+{
+    (void)factory;
+    (void)klass;
+    return NUMBER_VAL(OBJ_FILL_ONES);
+}
+
+static Value vec_class_prop_eye(ObjectFactory* factory, NativeClass* klass)
+{
+    (void)factory;
+    (void)klass;
+    return NUMBER_VAL(OBJ_FILL_EYE);
+}
+
+static Value vec_class_prop_randu(ObjectFactory* factory, NativeClass* klass)
+{
+    (void)factory;
+    (void)klass;
+    return NUMBER_VAL(OBJ_FILL_RANDU);
+}
+
+static Value vec_class_prop_randn(ObjectFactory* factory, NativeClass* klass)
+{
+    (void)factory;
+    (void)klass;
+    return NUMBER_VAL(OBJ_FILL_RANDN);
+}
+
 // clang-format off
-std::map<std::string, NativeFn> s_vec_class_api = {
+std::map<std::string, NativeClassBoundFn> s_vec_class_apis = {
     {"conv", vec_class_convolute},
     {"corr", vec_class_correlate}
 };
+
+std::map<std::string, NativeClassBoundProperty> s_vec_class_constants = {
+    {"default", vec_class_prop_default},
+    {"zeros", vec_class_prop_zeros},
+    {"ones", vec_class_prop_ones},
+    {"eye", vec_class_prop_eye},
+    {"randu", vec_class_prop_randu},
+    {"randn", vec_class_prop_randn}
+};
 // clang-format on
+
+vecNative::vecNative() : NativeClass(s_vec_class_apis, s_vec_class_constants)
+{
+}
 
 Value vecNative::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
 {
     Value ret = 0;
-    std::map<std::string, NativeFn>::iterator it = s_vec_class_api.find(name);
-    if (it != s_vec_class_api.end())
-        ret = it->second(factory, argc, argv);
+    std::map<std::string, NativeClassBoundFn>::iterator it = m_apis.find(name);
+    if (it != m_apis.end())
+        ret = it->second(factory, this, argc, argv);
     else
         throw std::runtime_error("invalid method.");
     return ret;
@@ -653,36 +730,35 @@ Value vecNative::call(ObjectFactory* factory, int argc, Value* args)
 
 Value vecNative::constant(ObjectFactory* factory, std::string name)
 {
-    (void)factory;
-    Value ret = 0;
-    if ("default" == name) {
-        ret = NUMBER_VAL(OBJ_FILL_DEFAULT);
-    }
-    else if ("zeros" == name) {
-        ret = NUMBER_VAL(OBJ_FILL_ZEROS);
-    }
-    else if ("ones" == name) {
-        ret = NUMBER_VAL(OBJ_FILL_ONES);
-    }
-    else if ("eye" == name) {
-        ret = NUMBER_VAL(OBJ_FILL_EYE);
-    }
-    else if ("randu" == name) {
-        ret = NUMBER_VAL(OBJ_FILL_RANDU);
-    }
-    else if ("randn" == name) {
-        ret = NUMBER_VAL(OBJ_FILL_RANDN);
-    }
-    return ret;
+    std::map<std::string, NativeClassBoundProperty>::iterator it = m_constants.find(name);
+    if (it == m_constants.end())
+        throw std::runtime_error("invalid property");
+    return it->second(factory, this);
 }
+
+// clang-format off
+std::map<std::string, NativeClassBoundFn> s_mat_class_apis;
+
+std::map<std::string, NativeClassBoundProperty> s_mat_class_constants = {
+    {"default", vec_class_prop_default},
+    {"zeros", vec_class_prop_zeros},
+    {"ones", vec_class_prop_ones},
+    {"eye", vec_class_prop_eye},
+    {"randu", vec_class_prop_randu},
+    {"randn", vec_class_prop_randn}
+};
+// clang-format on
+
+matNative::matNative() : NativeClass(s_mat_class_apis, s_mat_class_constants)
+{
+}
+
 Value matNative::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
 {
-    (void)factory;
-    (void)name;
-    (void)argc;
-    (void)argv;
-    throw std::runtime_error("invalid method.");
-    return NIL_VAL;
+    std::map<std::string, NativeClassBoundFn>::iterator it = m_apis.find(name);
+    if (it == m_apis.end())
+        throw std::runtime_error("invalid method.");
+    return it->second(factory, this, argc, argv);
 }
 
 Value matNative::call(ObjectFactory* factory, int argc, Value* args)
@@ -723,25 +799,8 @@ Value matNative::call(ObjectFactory* factory, int argc, Value* args)
 
 Value matNative::constant(ObjectFactory* factory, std::string name)
 {
-    (void)factory;
-    Value ret = 0;
-    if ("default" == name) {
-        ret = NUMBER_VAL(OBJ_FILL_DEFAULT);
-    }
-    else if ("zeros" == name) {
-        ret = NUMBER_VAL(OBJ_FILL_ZEROS);
-    }
-    else if ("ones" == name) {
-        ret = NUMBER_VAL(OBJ_FILL_ONES);
-    }
-    else if ("eye" == name) {
-        ret = NUMBER_VAL(OBJ_FILL_EYE);
-    }
-    else if ("randu" == name) {
-        ret = NUMBER_VAL(OBJ_FILL_RANDU);
-    }
-    else if ("randn" == name) {
-        ret = NUMBER_VAL(OBJ_FILL_RANDN);
-    }
-    return ret;
+    std::map<std::string, NativeClassBoundProperty>::iterator it = m_constants.find(name);
+    if (it == m_constants.end())
+        throw std::runtime_error("invalid property");
+    return it->second(factory, this);
 }

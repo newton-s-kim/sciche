@@ -3,10 +3,6 @@
 #include "sndwav.hpp"
 
 class SndFile : public NativeClass {
-protected:
-    std::map<std::string, NativeClassBoundFn>& m_apis;
-    std::map<std::string, NativeClassBoundProperty>& m_constants;
-
 public:
     SndFile();
     ~SndFile();

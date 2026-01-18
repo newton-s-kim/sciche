@@ -39,7 +39,7 @@ std::map<std::string, NativeObjectBoundFn> s_iir_apis = {
 std::map<std::string, NativeObjectBoundProperty> s_iir_properties;
 // clang-format on
 
-IirFilter::IirFilter() : m_apis(s_iir_apis), m_properties(s_iir_properties)
+IirFilter::IirFilter() : NativeObject(s_iir_apis, s_iir_properties)
 {
 }
 

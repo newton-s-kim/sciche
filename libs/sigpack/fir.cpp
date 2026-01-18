@@ -134,7 +134,7 @@ std::map<std::string, NativeObjectBoundFn> s_fir_apis = {
 std::map<std::string, NativeObjectBoundProperty> s_fir_properties;
 // clang-format on
 
-FirFilter::FirFilter() : m_apis(s_fir_apis), m_properties(s_fir_properties)
+FirFilter::FirFilter() : NativeObject(s_fir_apis, s_fir_properties)
 {
 }
 

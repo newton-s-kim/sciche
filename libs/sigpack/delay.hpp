@@ -7,10 +7,6 @@ class DelayFilter : public NativeObject {
 public:
     sp::Delay<double> m_delay;
 
-protected:
-    std::map<std::string, NativeObjectBoundFn>& m_apis;
-    std::map<std::string, NativeObjectBoundProperty>& m_properties;
-
 public:
     DelayFilter();
     DelayFilter(int nDelay);
