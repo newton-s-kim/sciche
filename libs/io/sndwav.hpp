@@ -7,9 +7,15 @@ private:
     SNDFILE* m_handle;
     SF_INFO m_info;
 
+protected:
+    std::map<std::string, NativeObjectBoundFn>& m_apis;
+    std::map<std::string, NativeObjectBoundProperty>& m_properties;
+
 public:
     SndWav(std::string path, int mode);
     ~SndWav();
     Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
     Value property(ObjectFactory* factory, std::string name);
+    int read(arma::mat& mat);
+    void close(void);
 };
