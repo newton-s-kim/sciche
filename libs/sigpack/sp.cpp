@@ -11,24 +11,27 @@
 using namespace arma;
 using namespace sp;
 
-Value firFiltNative(ObjectFactory* factory, int argc, Value* args)
+Value firFiltNative(ObjectFactory* factory, NativeClass* klass, int argc, Value* args)
 {
     (void)argc;
     (void)args;
+    (void)klass;
     ObjNativeObject* obj = factory->newNativeObj(new FirFilter());
     return OBJ_VAL(obj);
 }
 
-Value iirFiltNative(ObjectFactory* factory, int argc, Value* args)
+Value iirFiltNative(ObjectFactory* factory, NativeClass* klass, int argc, Value* args)
 {
     (void)argc;
     (void)args;
+    (void)klass;
     ObjNativeObject* obj = factory->newNativeObj(new IirFilter());
     return OBJ_VAL(obj);
 }
 
-Value fir1Native(ObjectFactory* factory, int argc, Value* args)
+Value fir1Native(ObjectFactory* factory, NativeClass* klass, int argc, Value* args)
 {
+    (void)klass;
     ObjCol* vec = factory->newCol();
     if (2 != argc)
         throw std::runtime_error("invalid number of arguments.");
@@ -40,8 +43,9 @@ Value fir1Native(ObjectFactory* factory, int argc, Value* args)
     return OBJ_VAL(vec);
 }
 
-Value delayNative(ObjectFactory* factory, int argc, Value* args)
+Value delayNative(ObjectFactory* factory, NativeClass* klass, int argc, Value* args)
 {
+    (void)klass;
     if (1 != argc)
         throw std::runtime_error("invalid number of arguments.");
     if (!IS_NUMBER(args[0]))
@@ -50,17 +54,19 @@ Value delayNative(ObjectFactory* factory, int argc, Value* args)
     return OBJ_VAL(obj);
 }
 
-Value gplotNative(ObjectFactory* factory, int argc, Value* args)
+Value gplotNative(ObjectFactory* factory, NativeClass* klass, int argc, Value* args)
 {
     (void)argc;
     (void)args;
+    (void)klass;
     ObjNativeObject* obj = factory->newNativeObj(new gPlot());
     return OBJ_VAL(obj);
 }
 
 // TODO: move to VM
-Value linspaceNative(ObjectFactory* factory, int argc, Value* args)
+Value linspaceNative(ObjectFactory* factory, NativeClass* klass, int argc, Value* args)
 {
+    (void)klass;
     ObjCol* vec = factory->newCol();
     if (3 != argc)
         throw std::runtime_error("invalid number of arguments.");
@@ -74,8 +80,9 @@ Value linspaceNative(ObjectFactory* factory, int argc, Value* args)
     return OBJ_VAL(vec);
 }
 
-Value specgramNative(ObjectFactory* factory, int argc, Value* args)
+Value specgramNative(ObjectFactory* factory, NativeClass* klass, int argc, Value* args)
 {
+    (void)klass;
     ObjMat* m = factory->newMat();
     if (3 != argc)
         throw std::runtime_error("invalid number of arguments.");
@@ -89,8 +96,9 @@ Value specgramNative(ObjectFactory* factory, int argc, Value* args)
     return OBJ_VAL(m);
 }
 
-Value pwelchNative(ObjectFactory* factory, int argc, Value* args)
+Value pwelchNative(ObjectFactory* factory, NativeClass* klass, int argc, Value* args)
 {
+    (void)klass;
     ObjMat* mat = factory->newMat();
     if (3 != argc)
         throw std::runtime_error("invalid number of arguments.");
@@ -104,8 +112,9 @@ Value pwelchNative(ObjectFactory* factory, int argc, Value* args)
     return OBJ_VAL(mat);
 }
 
-Value freqzNative(ObjectFactory* factory, int argc, Value* args)
+Value freqzNative(ObjectFactory* factory, NativeClass* klass, int argc, Value* args)
 {
+    (void)klass;
     if (3 != argc)
         throw std::runtime_error("invalid number of arguments.");
     if (!IS_COL(args[0]))
@@ -119,8 +128,9 @@ Value freqzNative(ObjectFactory* factory, int argc, Value* args)
     return OBJ_VAL(c);
 }
 
-Value phasezNative(ObjectFactory* factory, int argc, Value* args)
+Value phasezNative(ObjectFactory* factory, NativeClass* klass, int argc, Value* args)
 {
+    (void)klass;
     if (3 != argc)
         throw std::runtime_error("invalid number of arguments.");
     if (!IS_COL(args[0]))
@@ -134,8 +144,9 @@ Value phasezNative(ObjectFactory* factory, int argc, Value* args)
     return OBJ_VAL(c);
 }
 
-Value kfNative(ObjectFactory* factory, int argc, Value* args)
+Value kfNative(ObjectFactory* factory, NativeClass* klass, int argc, Value* args)
 {
+    (void)klass;
     if (3 != argc)
         throw std::runtime_error("invalid number of arguments.");
     if (!IS_NUMBER(args[0]))
@@ -149,7 +160,25 @@ Value kfNative(ObjectFactory* factory, int argc, Value* args)
     return OBJ_VAL(obj);
 }
 
-SigpackInterface::SigpackInterface()
+// clang-format off
+std::map<std::string, NativeClassBoundFn> s_sigpack_apis = {
+    {"FIR_filt", firFiltNative},
+    {"IIR_filt", iirFiltNative},
+    {"fir1", fir1Native},
+    {"Delay", delayNative},
+    {"gplot", gplotNative},
+    {"linspace", linspaceNative},
+    {"specgram", specgramNative},
+    {"pwelch", pwelchNative},
+    {"freqz", freqzNative},
+    {"phasez", phasezNative},
+    {"KF", kfNative}
+};
+
+std::map<std::string, NativeClassBoundProperty> s_sigpack_properties;
+// clang-format on
+
+SigpackInterface::SigpackInterface() : m_apis(s_sigpack_apis), m_constants(s_sigpack_properties)
 {
 }
 
@@ -157,24 +186,12 @@ SigpackInterface::~SigpackInterface()
 {
 }
 
-std::map<std::string, NativeFn> s_sigpack_api = {{"FIR_filt", firFiltNative},
-                                                 {"IIR_filt", iirFiltNative},
-                                                 {"fir1", fir1Native},
-                                                 {"Delay", delayNative},
-                                                 {"gplot", gplotNative},
-                                                 {"linspace", linspaceNative},
-                                                 {"specgram", specgramNative},
-                                                 {"pwelch", pwelchNative},
-                                                 {"freqz", freqzNative},
-                                                 {"phasez", phasezNative},
-                                                 {"KF", kfNative}};
-
 Value SigpackInterface::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
 {
-    std::map<std::string, NativeFn>::iterator it = s_sigpack_api.find(name);
-    if (s_sigpack_api.end() == it)
+    std::map<std::string, NativeClassBoundFn>::iterator it = m_apis.find(name);
+    if (m_apis.end() == it)
         throw std::runtime_error("undefined method");
-    return it->second(factory, argc, argv);
+    return it->second(factory, this, argc, argv);
 }
 
 Value SigpackInterface::call(ObjectFactory* factory, int argc, Value* argv)
@@ -188,7 +205,8 @@ Value SigpackInterface::call(ObjectFactory* factory, int argc, Value* argv)
 
 Value SigpackInterface::constant(ObjectFactory* factory, std::string name)
 {
-    (void)factory;
-    (void)name;
-    throw std::runtime_error("invalid property");
+    std::map<std::string, NativeClassBoundProperty>::iterator it = m_constants.find(name);
+    if (it == m_constants.end())
+        throw std::runtime_error("invalid property");
+    return it->second(factory, this);
 }
