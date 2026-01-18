@@ -246,7 +246,39 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
     }
 };
 
-JsonInterface::JsonInterface()
+static Value json_load(ObjectFactory* factory, NativeClass* klass, int argc, Value* argv)
+{
+    if (1 != argc)
+        throw std::runtime_error("invalid number of arguments");
+    if (!IS_STRING(argv[0]))
+        throw std::runtime_error("string is expected.");
+    JsonInterface* ji = (JsonInterface*)klass;
+    return ji->load(AS_STRING(argv[0])->chars, factory);
+}
+
+static Value json_dump(ObjectFactory* factory, NativeClass* klass, int argc, Value* argv)
+{
+    if (1 != argc)
+        throw std::runtime_error("invalid number of arguments");
+    if (!IS_MAP(argv[0]) && !IS_LIST(argv[0]))
+        throw std::runtime_error("either map or list is expected.");
+    rapidjson::StringBuffer s;
+    JsonInterface* ji = (JsonInterface*)klass;
+    ji->dump(s, argv[0]);
+    ObjString* str = factory->newString(s.GetString());
+    return OBJ_VAL(str);
+}
+
+// clang-format off
+std::map<std::string, NativeClassBoundFn> s_json_apis = {
+    {"load", json_load},
+    {"dump", json_dump}
+};
+
+std::map<std::string, NativeClassBoundProperty> s_json_constatns;
+// clang-format on
+
+JsonInterface::JsonInterface() : m_apis(s_json_apis), m_constants(s_json_constatns)
 {
 }
 
@@ -286,38 +318,10 @@ void JsonInterface::write(rapidjson::Writer<rapidjson::StringBuffer>& writer, Va
 
 Value JsonInterface::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
 {
-    Value value = 0;
-    (void)factory;
-    (void)name;
-    (void)argc;
-    (void)argv;
-    if ("load" == name) {
-        if (1 != argc)
-            throw std::runtime_error("invalid number of arguments");
-        if (!IS_STRING(argv[0]))
-            throw std::runtime_error("string is expected.");
-        MyHandler handler;
-        handler.factory = factory;
-        rapidjson::Reader reader;
-        rapidjson::StringStream ss(AS_STRING(argv[0])->chars.c_str());
-        reader.Parse(ss, handler);
-        return OBJ_VAL(handler.final_obj);
-    }
-    else if ("dump" == name) {
-        if (1 != argc)
-            throw std::runtime_error("invalid number of arguments");
-        if (!IS_MAP(argv[0]) && !IS_LIST(argv[0]))
-            throw std::runtime_error("either map or list is expected.");
-        rapidjson::StringBuffer s;
-        rapidjson::Writer<rapidjson::StringBuffer> writer(s);
-        write(writer, argv[0]);
-        ObjString* str = factory->newString(s.GetString());
-        value = OBJ_VAL(str);
-    }
-    else {
-        throw std::runtime_error("invalid mothod");
-    }
-    return value;
+    std::map<std::string, NativeClassBoundFn>::iterator it = m_apis.find(name);
+    if (it == m_apis.end())
+        throw std::runtime_error("invalid method");
+    return it->second(factory, this, argc, argv);
 }
 
 Value JsonInterface::call(ObjectFactory* factory, int argc, Value* argv)
@@ -330,7 +334,24 @@ Value JsonInterface::call(ObjectFactory* factory, int argc, Value* argv)
 
 Value JsonInterface::constant(ObjectFactory* factory, std::string name)
 {
-    (void)factory;
-    (void)name;
-    throw std::runtime_error("invalid property");
+    std::map<std::string, NativeClassBoundProperty>::iterator it = m_constants.find(name);
+    if (it == m_constants.end())
+        throw std::runtime_error("invalid property");
+    return it->second(factory, this);
+}
+
+Value JsonInterface::load(std::string str, ObjectFactory* factory)
+{
+    MyHandler handler;
+    handler.factory = factory;
+    rapidjson::Reader reader;
+    rapidjson::StringStream ss(str.c_str());
+    reader.Parse(ss, handler);
+    return OBJ_VAL(handler.final_obj);
+}
+
+void JsonInterface::dump(rapidjson::StringBuffer& s, Value value)
+{
+    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+    write(writer, value);
 }
