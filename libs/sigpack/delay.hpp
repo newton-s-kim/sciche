@@ -4,7 +4,7 @@
 #include "sigpack-1.2.7/sigpack/sigpack.h"
 
 class DelayFilter : public NativeObject {
-private:
+public:
     sp::Delay<double> m_delay;
 
 protected:
@@ -17,5 +17,4 @@ public:
     ~DelayFilter();
     Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
     Value property(ObjectFactory* factory, std::string name);
-    arma::vec delay(arma::vec input);
 };

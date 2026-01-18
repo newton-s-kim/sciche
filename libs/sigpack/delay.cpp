@@ -11,7 +11,7 @@ static Value delay_delay(ObjectFactory* factory, NativeObject* obj, int argc, Va
         throw std::runtime_error("column vector is expected.");
     DelayFilter* df = (DelayFilter*)obj;
     ObjCol* col = factory->newCol();
-    col->value = df->delay(AS_COL(argv[0])->value);
+    col->value = df->m_delay.delay(AS_COL(argv[0])->value);
     return OBJ_VAL(col);
 }
 
@@ -49,9 +49,4 @@ Value DelayFilter::property(ObjectFactory* factory, std::string name)
     if (it == m_properties.end())
         throw std::runtime_error("invalid property");
     return it->second(factory, this);
-}
-
-arma::vec DelayFilter::delay(arma::vec input)
-{
-    return m_delay.delay(input);
 }

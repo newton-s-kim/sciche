@@ -4,8 +4,12 @@
 #include "sigpack-1.2.7/sigpack/sigpack.h"
 
 class kalmanFilter : public NativeObject {
-private:
+public:
     sp::KF kalman;
+
+protected:
+    std::map<std::string, NativeObjectBoundFn>& m_apis;
+    std::map<std::string, NativeObjectBoundProperty>& m_properties;
 
 public:
     kalmanFilter(int n, int m, int l);

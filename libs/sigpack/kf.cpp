@@ -3,7 +3,160 @@
 #include <stdexcept>
 #include <string>
 
-kalmanFilter::kalmanFilter(int n, int m, int l) : kalman(n, m, l)
+static Value kf_set_trans_mat(ObjectFactory* factory, NativeObject* obj, int argc, Value* argv)
+{
+    (void)factory;
+    if (1 != argc)
+        throw std::runtime_error("invalid number of arguments");
+    if (!IS_MAT(argv[0]))
+        throw std::runtime_error("mat is expected.");
+    kalmanFilter* kf = (kalmanFilter*)obj;
+    kf->kalman.set_trans_mat(AS_MAT(argv[0])->value);
+    return NIL_VAL;
+}
+
+static Value kf_set_meas_mat(ObjectFactory* factory, NativeObject* obj, int argc, Value* argv)
+{
+    (void)factory;
+    if (1 != argc)
+        throw std::runtime_error("invalid number of arguments");
+    if (!IS_MAT(argv[0]))
+        throw std::runtime_error("mat is expected.");
+    kalmanFilter* kf = (kalmanFilter*)obj;
+    kf->kalman.set_meas_mat(AS_MAT(argv[0])->value);
+    return NIL_VAL;
+}
+
+static Value kf_set_err_cov(ObjectFactory* factory, NativeObject* obj, int argc, Value* argv)
+{
+    (void)factory;
+    if (1 != argc)
+        throw std::runtime_error("invalid number of arguments");
+    if (!IS_MAT(argv[0]))
+        throw std::runtime_error("mat is expected.");
+    kalmanFilter* kf = (kalmanFilter*)obj;
+    kf->kalman.set_err_cov(AS_MAT(argv[0])->value);
+    return NIL_VAL;
+}
+
+static Value kf_set_proc_noise(ObjectFactory* factory, NativeObject* obj, int argc, Value* argv)
+{
+    (void)factory;
+    if (1 != argc)
+        throw std::runtime_error("invalid number of arguments");
+    if (!IS_MAT(argv[0]))
+        throw std::runtime_error("mat is expected.");
+    kalmanFilter* kf = (kalmanFilter*)obj;
+    kf->kalman.set_proc_noise(AS_MAT(argv[0])->value);
+    return NIL_VAL;
+}
+
+static Value kf_set_meas_noise(ObjectFactory* factory, NativeObject* obj, int argc, Value* argv)
+{
+    (void)factory;
+    if (1 != argc)
+        throw std::runtime_error("invalid number of arguments");
+    if (!IS_MAT(argv[0]))
+        throw std::runtime_error("mat is expected.");
+    kalmanFilter* kf = (kalmanFilter*)obj;
+    kf->kalman.set_meas_noise(AS_MAT(argv[0])->value);
+    return NIL_VAL;
+}
+
+static Value kf_predict(ObjectFactory* factory, NativeObject* obj, int argc, Value* argv)
+{
+    (void)factory;
+    (void)argv;
+    if (0 != argc)
+        throw std::runtime_error("invalid number of arguments");
+    kalmanFilter* kf = (kalmanFilter*)obj;
+    kf->kalman.predict();
+    return NIL_VAL;
+}
+
+static Value kf_update(ObjectFactory* factory, NativeObject* obj, int argc, Value* argv)
+{
+    (void)factory;
+    if (1 != argc)
+        throw std::runtime_error("invalid number of arguments");
+    if (!IS_COL(argv[0]))
+        throw std::runtime_error("vec is expected.");
+    kalmanFilter* kf = (kalmanFilter*)obj;
+    kf->kalman.update(AS_COL(argv[0])->value);
+    return NIL_VAL;
+}
+
+static Value kf_get_state_vec(ObjectFactory* factory, NativeObject* obj, int argc, Value* argv)
+{
+    (void)argv;
+    if (0 != argc)
+        throw std::runtime_error("invalid number of arguments");
+    kalmanFilter* kf = (kalmanFilter*)obj;
+    ObjCol* col = factory->newCol();
+    col->value = kf->kalman.get_state_vec();
+    return OBJ_VAL(col);
+}
+
+static Value kf_get_err(ObjectFactory* factory, NativeObject* obj, int argc, Value* argv)
+{
+    (void)argv;
+    if (0 != argc)
+        throw std::runtime_error("invalid number of arguments");
+    kalmanFilter* kf = (kalmanFilter*)obj;
+    ObjCol* col = factory->newCol();
+    col->value = kf->kalman.get_err();
+    return OBJ_VAL(col);
+}
+
+static Value kf_get_err_cov(ObjectFactory* factory, NativeObject* obj, int argc, Value* argv)
+{
+    (void)argv;
+    if (0 != argc)
+        throw std::runtime_error("invalid number of arguments");
+    kalmanFilter* kf = (kalmanFilter*)obj;
+    ObjMat* mat = factory->newMat();
+    mat->value = kf->kalman.get_err_cov();
+    return OBJ_VAL(mat);
+}
+
+static Value kf_rts_smooth(ObjectFactory* factory, NativeObject* obj, int argc, Value* argv)
+{
+    (void)factory;
+    if (4 != argc)
+        throw std::runtime_error("invalid number of arguments");
+    if (!IS_MAT(argv[0]))
+        throw std::runtime_error("mat is expected.");
+    if (!IS_CUBE(argv[1]))
+        throw std::runtime_error("cube is expected.");
+    if (!IS_MAT(argv[2]))
+        throw std::runtime_error("mat is expected.");
+    if (!IS_CUBE(argv[3]))
+        throw std::runtime_error("cube is expected.");
+    kalmanFilter* kf = (kalmanFilter*)obj;
+    kf->kalman.rts_smooth(AS_MAT(argv[0])->value, AS_CUBE(argv[1])->value, AS_MAT(argv[2])->value,
+                          AS_CUBE(argv[3])->value);
+    return NIL_VAL;
+}
+
+// clang-format off
+std::map<std::string, NativeObjectBoundFn> s_kf_apis = {
+    {"set_trans_mat", kf_set_trans_mat},
+    {"set_meas_mat", kf_set_meas_mat},
+    {"set_err_cov", kf_set_err_cov},
+    {"set_proc_noise", kf_set_proc_noise},
+    {"set_meas_noise", kf_set_meas_noise},
+    {"predict", kf_predict},
+    {"update", kf_update},
+    {"get_state_vec", kf_get_state_vec},
+    {"get_err", kf_get_err},
+    {"get_err_cov", kf_get_err_cov},
+    {"rts_smooth", kf_rts_smooth}
+};
+
+std::map<std::string, NativeObjectBoundProperty> s_kf_properties;
+// clang-format on
+
+kalmanFilter::kalmanFilter(int n, int m, int l) : kalman(n, m, l), m_apis(s_kf_apis), m_properties(s_kf_properties)
 {
 }
 
@@ -13,95 +166,16 @@ kalmanFilter::~kalmanFilter()
 
 Value kalmanFilter::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
 {
-    Value ret = 0;
-    if ("set_trans_mat" == name) {
-        if (1 != argc)
-            throw std::runtime_error("invalid number of arguments");
-        if (!IS_MAT(argv[0]))
-            throw std::runtime_error("mat is expected.");
-        kalman.set_trans_mat(AS_MAT(argv[0])->value);
-    }
-    else if ("set_meas_mat" == name) {
-        if (1 != argc)
-            throw std::runtime_error("invalid number of arguments");
-        if (!IS_MAT(argv[0]))
-            throw std::runtime_error("mat is expected.");
-        kalman.set_meas_mat(AS_MAT(argv[0])->value);
-    }
-    else if ("set_err_cov" == name) {
-        if (1 != argc)
-            throw std::runtime_error("invalid number of arguments");
-        if (!IS_MAT(argv[0]))
-            throw std::runtime_error("mat is expected.");
-        kalman.set_err_cov(AS_MAT(argv[0])->value);
-    }
-    else if ("set_proc_noise" == name) {
-        if (1 != argc)
-            throw std::runtime_error("invalid number of arguments");
-        if (!IS_MAT(argv[0]))
-            throw std::runtime_error("mat is expected.");
-        kalman.set_proc_noise(AS_MAT(argv[0])->value);
-    }
-    else if ("set_meas_noise" == name) {
-        if (1 != argc)
-            throw std::runtime_error("invalid number of arguments");
-        if (!IS_MAT(argv[0]))
-            throw std::runtime_error("mat is expected.");
-        kalman.set_meas_noise(AS_MAT(argv[0])->value);
-    }
-    else if ("predict" == name) {
-        if (0 != argc)
-            throw std::runtime_error("invalid number of arguments");
-        kalman.predict();
-    }
-    else if ("update" == name) {
-        if (1 != argc)
-            throw std::runtime_error("invalid number of arguments");
-        if (!IS_COL(argv[0]))
-            throw std::runtime_error("vec is expected.");
-        kalman.update(AS_COL(argv[0])->value);
-    }
-    else if ("get_state_vec" == name) {
-        if (0 != argc)
-            throw std::runtime_error("invalid number of arguments");
-        ObjCol* col = factory->newCol();
-        col->value = kalman.get_state_vec();
-        ret = OBJ_VAL(col);
-    }
-    else if ("get_err" == name) {
-        if (0 != argc)
-            throw std::runtime_error("invalid number of arguments");
-        ObjCol* col = factory->newCol();
-        col->value = kalman.get_err();
-        ret = OBJ_VAL(col);
-    }
-    else if ("get_err_cov" == name) {
-        if (0 != argc)
-            throw std::runtime_error("invalid number of arguments");
-        ObjMat* mat = factory->newMat();
-        mat->value = kalman.get_err_cov();
-        ret = OBJ_VAL(mat);
-    }
-    else if ("rts_smooth" == name) {
-        if (4 != argc)
-            throw std::runtime_error("invalid number of arguments");
-        if (!IS_MAT(argv[0]))
-            throw std::runtime_error("mat is expected.");
-        if (!IS_CUBE(argv[1]))
-            throw std::runtime_error("cube is expected.");
-        if (!IS_MAT(argv[2]))
-            throw std::runtime_error("mat is expected.");
-        if (!IS_CUBE(argv[3]))
-            throw std::runtime_error("cube is expected.");
-        kalman.rts_smooth(AS_MAT(argv[0])->value, AS_CUBE(argv[1])->value, AS_MAT(argv[2])->value,
-                          AS_CUBE(argv[3])->value);
-    }
-    return ret;
+    std::map<std::string, NativeObjectBoundFn>::iterator it = m_apis.find(name);
+    if (it == m_apis.end())
+        throw std::runtime_error("invalid method");
+    return it->second(factory, this, argc, argv);
 }
 
 Value kalmanFilter::property(ObjectFactory* factory, std::string name)
 {
-    (void)factory;
-    (void)name;
-    throw std::runtime_error("invalid property");
+    std::map<std::string, NativeObjectBoundProperty>::iterator it = m_properties.find(name);
+    if (it == m_properties.end())
+        throw std::runtime_error("invalid property");
+    return it->second(factory, this);
 }

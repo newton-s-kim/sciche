@@ -4,8 +4,12 @@
 #include "sigpack-1.2.7/sigpack/sigpack.h"
 
 class IirFilter : public NativeObject {
-private:
+public:
     sp::IIR_filt<double, double, double> iir_filt;
+
+protected:
+    std::map<std::string, NativeObjectBoundFn>& m_apis;
+    std::map<std::string, NativeObjectBoundProperty>& m_properties;
 
 public:
     IirFilter();
