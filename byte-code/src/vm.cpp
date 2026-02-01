@@ -325,6 +325,44 @@ static Value clockNative(ObjectFactory* factory, int argCount, Value* args)
     (void)args;
     return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
 }
+static Value rangeNative(ObjectFactory* factory, int argCount, Value* args)
+{
+    double start = 0;
+    double end = 0;
+    double step = 1;
+    if (3 == argCount) {
+        if (!IS_NUMBER(args[0]))
+            throw std::runtime_error("number is expected.");
+        if (!IS_NUMBER(args[1]))
+            throw std::runtime_error("number is expected.");
+        if (!IS_NUMBER(args[2]))
+            throw std::runtime_error("number is expected.");
+        start = AS_NUMBER(args[0]);
+        end = AS_NUMBER(args[1]);
+        step = AS_NUMBER(args[2]);
+    }
+    else if (2 == argCount) {
+        if (!IS_NUMBER(args[0]))
+            throw std::runtime_error("number is expected.");
+        if (!IS_NUMBER(args[1]))
+            throw std::runtime_error("number is expected.");
+        start = AS_NUMBER(args[0]);
+        end = AS_NUMBER(args[1]);
+    }
+    else if (1 == argCount) {
+        if (!IS_NUMBER(args[0]))
+            throw std::runtime_error("number is expected.");
+        end = AS_NUMBER(args[0]);
+    }
+    else {
+        throw std::runtime_error("invalid number of arguments.");
+    }
+    ObjList* list = factory->newList();
+    for (double v = start; v <= end; v += step) {
+        list->container.push_back(NUMBER_VAL(v));
+    }
+    return OBJ_VAL(list);
+}
 static Value listNative(ObjectFactory* factory, int argCount, Value* args)
 {
     ObjList* list = factory->newList();
@@ -524,6 +562,7 @@ VM::VM() : thread(NULL), openUpvalues(NULL), objects(NULL)
     //> Calls and Functions define-native-clock
 
     defineNative("clock", clockNative);
+    defineNative("range", rangeNative);
     defineNative("List", listNative);
     defineNative("Map", mapNative);
     defineSymbol("vec", new vecNative);
