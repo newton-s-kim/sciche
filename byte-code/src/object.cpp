@@ -623,6 +623,45 @@ void ObjThread::blaken(void)
 {
 }
 
+static Value list_class_filled(ObjectFactory* factory, NativeClass* klass, int argc, Value* argv)
+{
+    (void)klass;
+    ObjList* list = factory->newList();
+    if (2 != argc)
+        throw std::runtime_error("invalid number of arguments.");
+    if (!IS_NUMBER(argv[0]))
+        throw std::runtime_error("Size must be a number.");
+    double sz = AS_NUMBER(argv[0]);
+    if (sz < 0)
+        throw std::runtime_error("Size cannot be negative.");
+    if (sz - (int)sz)
+        throw std::runtime_error("Size must be an integer.");
+    for (int idx = 0; idx < sz; idx++)
+        list->container.push_back(argv[1]);
+    return OBJ_VAL(list);
+}
+
+// clang-format off
+std::map<std::string, NativeClassBoundFn> s_list_class_apis = {
+    {"filled", list_class_filled},
+};
+
+std::map<std::string, NativeClassBoundProperty> s_list_class_constants = {
+};
+// clang-format on
+
+listNative::listNative() : NativeClass(s_list_class_apis, s_list_class_constants)
+{
+}
+
+Value listNative::call(ObjectFactory* factory, int argc, Value* args)
+{
+    ObjList* list = factory->newList();
+    for (int idx = 0; idx < argc; idx++)
+        list->container.push_back(args[idx]);
+    return OBJ_VAL(list);
+}
+
 static Value vec_class_convolute(ObjectFactory* factory, NativeClass* klass, int argc, Value* argv)
 {
     (void)klass;

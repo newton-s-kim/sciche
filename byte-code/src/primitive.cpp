@@ -41,11 +41,86 @@ static Value list_each(ObjectFactory* factory, Value value, int argc, Value* arg
     }
     return NIL_VAL;
 }
+static Value list_clear(ObjectFactory* factory, Value value, int argc, Value* argv)
+{
+    (void)factory;
+    (void)argv;
+    if (!IS_LIST(value))
+        throw std::runtime_error("list is expected.");
+    ObjList* list = AS_LIST(value);
+    if (0 != argc)
+        throw std::runtime_error("invalid number of arguments.");
+    list->container.clear();
+    return NIL_VAL;
+}
+static Value list_indexof(ObjectFactory* factory, Value value, int argc, Value* argv)
+{
+    ValueUtil util;
+    int ret = -1;
+    (void)factory;
+    if (!IS_LIST(value))
+        throw std::runtime_error("list is expected.");
+    ObjList* list = AS_LIST(value);
+    if (1 != argc)
+        throw std::runtime_error("invalid number of arguments.");
+    for (size_t idx = 0; idx < list->container.size(); idx++) {
+        if (util.equal(list->container[idx], argv[0])) {
+            ret = idx;
+            break;
+        }
+    }
+    return NUMBER_VAL(ret);
+}
+static Value list_contains(ObjectFactory* factory, Value value, int argc, Value* argv)
+{
+    int idx = AS_NUMBER(list_indexof(factory, value, argc, argv));
+    bool ret = (idx < 0) ? false : true;
+    return BOOL_VAL(ret);
+}
+static Value list_insert(ObjectFactory* factory, Value value, int argc, Value* argv)
+{
+    (void)factory;
+    if (!IS_LIST(value))
+        throw std::runtime_error("list is expected.");
+    ObjList* list = AS_LIST(value);
+    if (2 != argc)
+        throw std::runtime_error("invalid number of arguments.");
+    if (!IS_NUMBER(argv[0]))
+        throw std::runtime_error("Index must be a number.");
+    double idx = AS_NUMBER(argv[0]);
+    if (idx < 0)
+        idx += list->container.size() - 1;
+    if (idx < 0)
+        throw std::runtime_error("Index out of bounds.");
+    if (0 != idx - (int)idx)
+        throw std::runtime_error("Index must be an integer.");
+    if (idx > 0 && idx >= (int)list->container.size())
+        throw std::runtime_error("Index out of bounds.");
+    if (0 == idx) {
+        if (0 == list->container.size()) {
+            list->container.push_back(argv[1]);
+        }
+        else {
+            list->container.insert(list->container.begin(), argv[1]);
+        }
+    }
+    else if (idx + 1 == list->container.size()) {
+        list->container.push_back(argv[1]);
+    }
+    else {
+        list->container.insert(list->container.begin(), idx, argv[1]);
+    }
+    return argv[1];
+}
 
 // clang-format off
 std::map<std::string, PrimitiveBoundFn> s_list_apis = {
     {"add", list_add},
     {"each", list_each},
+    {"clear", list_clear},
+    {"indexOf", list_indexof},
+    {"contains", list_contains},
+    {"insert", list_insert},
 };
 
 std::map<std::string, PrimitiveBoundProperty> s_list_props = {

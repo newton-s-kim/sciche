@@ -363,6 +363,7 @@ static Value rangeNative(ObjectFactory* factory, int argCount, Value* args)
     }
     return OBJ_VAL(list);
 }
+/*
 static Value listNative(ObjectFactory* factory, int argCount, Value* args)
 {
     ObjList* list = factory->newList();
@@ -370,6 +371,7 @@ static Value listNative(ObjectFactory* factory, int argCount, Value* args)
         list->container.push_back(args[argc]);
     return OBJ_VAL(list);
 }
+*/
 static Value mapNative(ObjectFactory* factory, int argCount, Value* args)
 {
     (void)argCount;
@@ -563,7 +565,7 @@ VM::VM() : thread(NULL), openUpvalues(NULL), objects(NULL)
 
     defineNative("clock", clockNative);
     defineNative("range", rangeNative);
-    defineNative("List", listNative);
+    defineSymbol("List", new listNative);
     defineNative("Map", mapNative);
     defineSymbol("vec", new vecNative);
     defineNative("rowvec", rowVecNative);

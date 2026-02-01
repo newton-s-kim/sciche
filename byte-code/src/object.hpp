@@ -423,6 +423,12 @@ public:
     void blaken(void);
 };
 
+class listNative : public NativeClass {
+public:
+    listNative();
+    Value call(ObjectFactory* factory, int argc, Value* argv);
+};
+
 class vecNative : public NativeClass {
 public:
     vecNative();

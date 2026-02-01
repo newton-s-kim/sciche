@@ -3,6 +3,7 @@
 //> Strings value-include-string
 #include <string.h>
 //< Strings value-include-string
+#include <iomanip>
 
 //> Strings value-include-object
 #include "object.hpp"
@@ -21,7 +22,7 @@ void ValueUtil::print(Value value)
         printf("nil");
     }
     else if (IS_NUMBER(value)) {
-        printf("%g", AS_NUMBER(value));
+        printf("%.14g", AS_NUMBER(value));
     }
     else if (IS_OBJ(value)) {
         // util.printObject(value);
