@@ -11,6 +11,8 @@ run:
 	$(BUILD_DIR)/$(PROGRAMME)
 tc:
 	./tool/run-test.py
+bm:
+	./tool/benchmark.py
 
 distclean:
 	rm Makefile
