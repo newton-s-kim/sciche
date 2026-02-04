@@ -9,5 +9,5 @@ set_target_properties(scio PROPERTIES
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS OFF)
 target_compile_options(scio PRIVATE -Werror -Wall -Wextra)
-target_compile_definitions(scio PRIVATE $<$<CONFIG:Debug>:LAX_GC_DEBUG=1;LAX_DEBUG=1>)
+#target_compile_definitions(scio PRIVATE $<$<CONFIG:Debug>:LAX_GC_DEBUG=1;LAX_DEBUG=1>)
 target_link_libraries(scio armadillo sndfile)

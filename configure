@@ -12,6 +12,7 @@ OLD_BUILD_TYPE=""
 CLEAN_FORCED=no
 DEBUG_TRACE=no
 DEBUG_PRINT_CODE=no
+PROFILING=no
 
 function print_help(){
    echo $1 written by Newton Kim
@@ -26,30 +27,29 @@ function print_help(){
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    -r|--profiling)
+      PROFILING=yes
+      ;;
     -p|--print-code)
       DEBUG_PRINT_CODE=yes
-      shift
       ;;
     -t|--trace)
       DEBUG_TRACE=yes
-      shift
       ;;
     -d|--debug)
       BUILD_TYPE="Debug"
-      shift
       ;;
     -c|--clean)
       CLEAN_FORCED=yes
-      shift
       ;;
     -h|--help)
       print_help $0
       exit 0
       ;;
     *) # unknown option - skip
-      shift
       ;;
   esac
+  shift
 done
 
 function config_common_h() {
@@ -83,8 +83,12 @@ if [ $CLEAN_FORCED == "yes" ] || buildtype_mismatch ; then
   rm -rf "$BUILD"
 fi
 
+if [ $PROFILING == "yes" ]; then
+  PROF=ON
+fi
+
 # generate Makefiles
-mkdir -p "$BUILD" && pushd "$BUILD" && cmake  -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Unix Makefiles" .. && popd > /dev/null
+mkdir -p "$BUILD" && pushd "$BUILD" && cmake -DENABLE_GPROF=$PROF -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Unix Makefiles" .. && popd > /dev/null
 
 # store current build type
 printf "$BUILD_TYPE" > "$BUILD_TYPE_FILE_PATH"
