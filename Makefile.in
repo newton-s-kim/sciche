@@ -9,8 +9,10 @@ clean:
 
 run:
 	$(BUILD_DIR)/$(PROGRAMME)
+
 tc:
 	./tool/run-test.py
+
 bm:
 	./tool/benchmark.py
 
@@ -18,3 +20,5 @@ distclean:
 	rm Makefile
 	rm byte-code/src/common.hpp
 	rm -rf $(BUILD_DIR)
+	find . -name "*.gmon" -exec rm {} \;
+	find . -name "*.png" -exec rm {} \;

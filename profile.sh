@@ -5,7 +5,7 @@ GPROF=gprof
 GPROF2DOT=gprof2dot
 
 SCRIPT=$1
-GMONOUT=${SCRIPT}.txt
+GMONOUT=${SCRIPT}.gmon
 DOTOUT=${SCRIPT}.png
 
 . ~/mypy/bin/activate
