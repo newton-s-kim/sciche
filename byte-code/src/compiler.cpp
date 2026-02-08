@@ -475,7 +475,7 @@ uint16_t CompilerInterfaceConcrete::makeConstant(Value value)
     //> Garbage Collection add-constant-pop
     factory->pop();
     //< Garbage Collection add-constant-pop
-    if (constant > UINT8_MAX) {
+    if (constant > UINT16_MAX) {
         parser.error("Too many constants in one chunk.");
         return 0;
     }
