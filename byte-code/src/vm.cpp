@@ -1099,7 +1099,7 @@ ObjString* VM::newString(const char* pchars, int length)
 {
     std::string chars;
     chars.reserve(length + 1);
-    const char *e = pchars + length;
+    const char* e = pchars + length;
     for (const char* p = pchars; p < e; p++) {
         // LAX_LOG("p: %c", *p);
         if ('\\' == *p) {
@@ -1154,7 +1154,8 @@ ObjString* VM::newString(const char* pchars, int length)
     LAX_LOG("%s is not found", chars.c_str());
 
     //< take-string-intern
-    return allocateString(chars);}
+    return allocateString(chars);
+}
 ObjComplex* VM::newComplex(const std::complex<double> v)
 {
     collect(0, sizeof(ObjComplex));
@@ -1271,7 +1272,7 @@ InterpretResult VM::run(void)
 */
 #define READ_BYTE() (*frame->ip++)
 /* A Virtual Machine read-constant < Calls and Functions run
-#define READ_CONSTANT() (chunk->constants.values[READ_BYTE()])
+#define READ_CONSTANT() (chunk->constants.values[READ_SHORT()])
 */
 
 /* Jumping Back and Forth read-short < Calls and Functions run
@@ -1282,10 +1283,10 @@ InterpretResult VM::run(void)
 
 /* Calls and Functions run < Closures read-constant
 #define READ_CONSTANT() \
-    (frame->function->chunk.constants.values[READ_BYTE()])
+    (frame->function->chunk.constants.values[READ_SHORT()])
 */
 //> Closures read-constant
-#define READ_CONSTANT() (frame->closure->function->chunk.constants[READ_BYTE()])
+#define READ_CONSTANT() (frame->closure->function->chunk.constants[READ_SHORT()])
 //< Closures read-constant
 
 //< Calls and Functions run
@@ -1375,7 +1376,7 @@ InterpretResult VM::run(void)
             //< Global Variables interpret-pop
             //> Local Variables interpret-get-local
         case OP_GET_LOCAL: {
-            uint8_t slot = READ_BYTE();
+            uint16_t slot = READ_SHORT();
             /* Local Variables interpret-get-local < Calls and Functions push-local
                     push(stack[slot]); // [slot]
             */
@@ -1387,7 +1388,7 @@ InterpretResult VM::run(void)
             //< Local Variables interpret-get-local
             //> Local Variables interpret-set-local
         case OP_SET_LOCAL: {
-            uint8_t slot = READ_BYTE();
+            uint16_t slot = READ_SHORT();
             /* Local Variables interpret-set-local < Calls and Functions set-local
                     stack[slot] = peek(0);
             */
@@ -1430,14 +1431,14 @@ InterpretResult VM::run(void)
             //< Global Variables interpret-set-global
             //> Closures interpret-get-upvalue
         case OP_GET_UPVALUE: {
-            uint8_t slot = READ_BYTE();
+            uint8_t slot = READ_SHORT();
             push(*frame->closure->upvalues[slot]->location);
             break;
         }
             //< Closures interpret-get-upvalue
             //> Closures interpret-set-upvalue
         case OP_SET_UPVALUE: {
-            uint8_t slot = READ_BYTE();
+            uint8_t slot = READ_SHORT();
             *frame->closure->upvalues[slot]->location = peek(0);
             break;
         }
@@ -1814,7 +1815,7 @@ InterpretResult VM::run(void)
                     ObjComplex* b = AS_COMPLEX(peek(0));
                     pop();
                     pop();
-		    std::string s = a->chars + b->stringify();
+                    std::string s = a->chars + b->stringify();
                     ObjString* c = newString(s.c_str());
                     push(OBJ_VAL(c));
                 }

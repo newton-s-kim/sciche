@@ -455,7 +455,7 @@ public:
     virtual ObjFunction* newFunction() = 0;
     //< Calls and Functions new-function-h
     //> take-string-h
-    //virtual ObjString* newString(std::string& chars) = 0;
+    // virtual ObjString* newString(std::string& chars) = 0;
     virtual ObjString* newString(const char* chars) = 0;
     virtual ObjString* newString(const char* chars, int length) = 0;
     virtual ObjComplex* newComplex(const std::complex<double> v) = 0;

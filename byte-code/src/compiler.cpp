@@ -283,8 +283,8 @@ private:
     uint8_t MapArgList();
     void parsePrecedence(Precedence precedence);
     ParseRule* getRule(TokenType type);
-    void defineVariable(uint8_t global);
-    uint8_t parseVariable(const char* errorMessage);
+    void defineVariable(uint16_t global);
+    uint16_t parseVariable(const char* errorMessage);
     void declareVariable();
     void addLocal(Token name);
     int resolveUpvalue(Compiler* compiler, Token* name);
@@ -299,8 +299,9 @@ private:
     void emitLoop(int loopStart);
     void emitByte(uint8_t byte);
     void emitBytes(uint8_t byte1, uint8_t byte2);
-    uint8_t makeConstant(Value value);
-    uint8_t identifierConstant(Token* name);
+    void emitShort(uint8_t byte1, uint16_t addr);
+    uint16_t makeConstant(Value value);
+    uint16_t identifierConstant(Token* name);
     std::string findPath(std::string file);
 
 public:
@@ -417,6 +418,12 @@ void CompilerInterfaceConcrete::emitBytes(uint8_t byte1, uint8_t byte2)
     emitByte(byte1);
     emitByte(byte2);
 }
+void CompilerInterfaceConcrete::emitShort(uint8_t byte1, uint16_t addr)
+{
+    emitByte(byte1);
+    emitByte(addr >> 8);
+    emitByte(addr & 0xff);
+}
 //< Compiling Expressions emit-bytes
 //> Jumping Back and Forth emit-loop
 void CompilerInterfaceConcrete::emitLoop(int loopStart)
@@ -448,7 +455,7 @@ void CompilerInterfaceConcrete::emitReturn()
     */
     //> Methods and Initializers return-this
     if (current->type == TYPE_INITIALIZER) {
-        emitBytes(OP_GET_LOCAL, 0);
+        emitShort(OP_GET_LOCAL, 0);
     }
     else {
         emitByte(OP_NIL);
@@ -459,7 +466,7 @@ void CompilerInterfaceConcrete::emitReturn()
 }
 //< Compiling Expressions emit-return
 //> Compiling Expressions make-constant
-uint8_t CompilerInterfaceConcrete::makeConstant(Value value)
+uint16_t CompilerInterfaceConcrete::makeConstant(Value value)
 {
     //> Garbage Collection add-constant-push
     factory->push(value);
@@ -473,13 +480,13 @@ uint8_t CompilerInterfaceConcrete::makeConstant(Value value)
         return 0;
     }
 
-    return (uint8_t)constant;
+    return (uint16_t)constant;
 }
 //< Compiling Expressions make-constant
 //> Compiling Expressions emit-constant
 void CompilerInterfaceConcrete::emitConstant(Value value)
 {
-    emitBytes(OP_CONSTANT, makeConstant(value));
+    emitShort(OP_CONSTANT, makeConstant(value));
 }
 //< Compiling Expressions emit-constant
 //> Jumping Back and Forth patch-jump
@@ -616,7 +623,7 @@ void CompilerInterfaceConcrete::endScope()
 
 //< Compiling Expressions forward-declarations
 //> Global Variables identifier-constant
-uint8_t CompilerInterfaceConcrete::identifierConstant(Token* name)
+uint16_t CompilerInterfaceConcrete::identifierConstant(Token* name)
 {
     return makeConstant(OBJ_VAL(factory->newString(name->start, name->length)));
 }
@@ -744,7 +751,7 @@ void CompilerInterfaceConcrete::declareVariable()
 }
 //< Local Variables declare-variable
 //> Global Variables parse-variable
-uint8_t CompilerInterfaceConcrete::parseVariable(const char* errorMessage)
+uint16_t CompilerInterfaceConcrete::parseVariable(const char* errorMessage)
 {
     parser.consume(TOKEN_IDENTIFIER, errorMessage);
     //> Local Variables parse-local
@@ -768,7 +775,7 @@ void Compiler::markInitialized()
 }
 //< Local Variables mark-initialized
 //> Global Variables define-variable
-void CompilerInterfaceConcrete::defineVariable(uint8_t global)
+void CompilerInterfaceConcrete::defineVariable(uint16_t global)
 {
     //> Local Variables define-variable
     if (current->scopeDepth > 0) {
@@ -779,7 +786,7 @@ void CompilerInterfaceConcrete::defineVariable(uint8_t global)
     }
 
     //< Local Variables define-variable
-    emitBytes(OP_DEFINE_GLOBAL, global);
+    emitShort(OP_DEFINE_GLOBAL, global);
 }
 //< Global Variables define-variable
 //> Calls and Functions argument-list
@@ -951,21 +958,21 @@ void map(bool canAssign, CompilerInterfaceConcrete* ci)
 void dot(bool canAssign, CompilerInterfaceConcrete* ci)
 {
     ci->parser.consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
-    uint8_t name = ci->identifierConstant(&ci->parser.previous);
+    uint16_t name = ci->identifierConstant(&ci->parser.previous);
 
     if (canAssign && ci->parser.match(TOKEN_EQUAL)) {
         ci->expression();
-        ci->emitBytes(OP_SET_PROPERTY, name);
+        ci->emitShort(OP_SET_PROPERTY, name);
         //> Methods and Initializers parse-call
     }
     else if (ci->parser.match(TOKEN_LEFT_PAREN)) {
         uint8_t argCount = ci->argumentList();
-        ci->emitBytes(OP_INVOKE, name);
+        ci->emitShort(OP_INVOKE, name);
         ci->emitByte(argCount);
         //< Methods and Initializers parse-call
     }
     else {
-        ci->emitBytes(OP_GET_PROPERTY, name);
+        ci->emitShort(OP_GET_PROPERTY, name);
     }
 }
 //< Classes and Instances compile-dot
@@ -1113,7 +1120,7 @@ void CompilerInterfaceConcrete::namedVariable(Token name, bool canAssign)
             emitBytes(OP_SET_GLOBAL, arg);
         */
         //> Local Variables emit-set
-        emitBytes(setOp, (uint8_t)arg);
+        emitShort(setOp, (uint16_t)arg);
         //< Local Variables emit-set
     }
     else {
@@ -1121,7 +1128,7 @@ void CompilerInterfaceConcrete::namedVariable(Token name, bool canAssign)
             emitBytes(OP_GET_GLOBAL, arg);
         */
         //> Local Variables emit-get
-        emitBytes(getOp, (uint8_t)arg);
+        emitShort(getOp, (uint16_t)arg);
         //< Local Variables emit-get
     }
     //< named-variable
@@ -1162,7 +1169,7 @@ void super_(bool canAssign, CompilerInterfaceConcrete* ci)
     //< super-errors
     ci->parser.consume(TOKEN_DOT, "Expect '.' after 'super'.");
     ci->parser.consume(TOKEN_IDENTIFIER, "Expect superclass method name.");
-    uint8_t name = ci->identifierConstant(&ci->parser.previous);
+    uint16_t name = ci->identifierConstant(&ci->parser.previous);
     //> super-get
 
     ci->namedVariable(ci->current->syntheticToken("this"), false);
@@ -1175,12 +1182,12 @@ void super_(bool canAssign, CompilerInterfaceConcrete* ci)
     if (ci->parser.match(TOKEN_LEFT_PAREN)) {
         uint8_t argCount = ci->argumentList();
         ci->namedVariable(ci->current->syntheticToken("super"), false);
-        ci->emitBytes(OP_SUPER_INVOKE, name);
+        ci->emitShort(OP_SUPER_INVOKE, name);
         ci->emitByte(argCount);
     }
     else {
         ci->namedVariable(ci->current->syntheticToken("super"), false);
-        ci->emitBytes(OP_GET_SUPER, name);
+        ci->emitShort(OP_GET_SUPER, name);
     }
     //< super-invoke
 }
@@ -1443,7 +1450,7 @@ void CompilerInterfaceConcrete::function(FunctionType type)
             if (current->function->arity > 255) {
                 parser.errorAtCurrent("Can't have more than 255 parameters.");
             }
-            uint8_t constant = parseVariable("Expect parameter name.");
+            uint16_t constant = parseVariable("Expect parameter name.");
             defineVariable(constant);
         } while (parser.match(TOKEN_COMMA));
     }
@@ -1457,7 +1464,7 @@ void CompilerInterfaceConcrete::function(FunctionType type)
       emitBytes(OP_CONSTANT, makeConstant(OBJ_VAL(function)));
     */
     //> Closures emit-closure
-    emitBytes(OP_CLOSURE, makeConstant(OBJ_VAL(function)));
+    emitShort(OP_CLOSURE, makeConstant(OBJ_VAL(function)));
     //< Closures emit-closure
     //> Closures capture-upvalues
 
@@ -1472,7 +1479,7 @@ void CompilerInterfaceConcrete::function(FunctionType type)
 void CompilerInterfaceConcrete::method()
 {
     parser.consume(TOKEN_IDENTIFIER, "Expect method name.");
-    uint8_t constant = identifierConstant(&parser.previous);
+    uint16_t constant = identifierConstant(&parser.previous);
     //> method-body
 
     //< method-body
@@ -1491,7 +1498,7 @@ void CompilerInterfaceConcrete::method()
     //> method-body
     function(type);
     //< method-body
-    emitBytes(OP_METHOD, constant);
+    emitShort(OP_METHOD, constant);
 }
 //< Methods and Initializers method
 //> Classes and Instances class-declaration
@@ -1501,10 +1508,10 @@ void CompilerInterfaceConcrete::classDeclaration()
     //> Methods and Initializers class-name
     Token className = parser.previous;
     //< Methods and Initializers class-name
-    uint8_t nameConstant = identifierConstant(&parser.previous);
+    uint16_t nameConstant = identifierConstant(&parser.previous);
     declareVariable();
 
-    emitBytes(OP_CLASS, nameConstant);
+    emitShort(OP_CLASS, nameConstant);
     defineVariable(nameConstant);
 
     //> Methods and Initializers create-class-compiler
@@ -1569,7 +1576,7 @@ void CompilerInterfaceConcrete::classDeclaration()
 //> Calls and Functions fun-declaration
 void CompilerInterfaceConcrete::funDeclaration()
 {
-    uint8_t global = parseVariable("Expect function name.");
+    uint16_t global = parseVariable("Expect function name.");
     current->markInitialized();
     function(TYPE_FUNCTION);
     defineVariable(global);
@@ -1578,7 +1585,7 @@ void CompilerInterfaceConcrete::funDeclaration()
 //> Global Variables var-declaration
 void CompilerInterfaceConcrete::varDeclaration()
 {
-    uint8_t global = parseVariable("Expect variable name.");
+    uint16_t global = parseVariable("Expect variable name.");
 
     if (parser.match(TOKEN_EQUAL)) {
         expression();
