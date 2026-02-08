@@ -128,6 +128,20 @@ std::map<std::string, PrimitiveBoundProperty> s_list_props = {
 };
 // clang-format on
 
+static Value map_remove(ObjectFactory* factory, Value value, int argc, Value* argv)
+{
+    (void)factory;
+    if (!IS_MAP(value))
+        throw std::runtime_error("map is expected.");
+    ObjMap* map = AS_MAP(value);
+    if (1 != argc)
+        throw std::runtime_error("invalid number of arguments.");
+    if (!IS_STRING(argv[0]))
+        throw std::runtime_error("Key must be a string.");
+    map->container.erase(AS_STRING(argv[0])->chars);
+    return NIL_VAL;
+}
+
 static Value map_size(ObjectFactory* factory, Value value)
 {
     (void)factory;
@@ -139,6 +153,7 @@ static Value map_size(ObjectFactory* factory, Value value)
 
 // clang-format off
 std::map<std::string, PrimitiveBoundFn> s_map_apis = {
+    {"remove", map_remove}
 };
 
 std::map<std::string, PrimitiveBoundProperty> s_map_props = {
