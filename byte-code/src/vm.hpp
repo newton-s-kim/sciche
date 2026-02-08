@@ -138,7 +138,8 @@ public:
     Value pop();
     //< push-pop
     ObjFunction* newFunction();
-    ObjString* newString(std::string chars);
+    //ObjString* newString(std::string& chars);
+    ObjString* newString(const char* chars);
     ObjString* newString(const char* chars, int length);
     ObjComplex* newComplex(const std::complex<double> cv);
     ObjList* newList(void);

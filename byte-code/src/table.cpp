@@ -5,7 +5,7 @@
 #include "table.hpp"
 #include "value.hpp"
 
-bool Table::get(std::string key, Value* value)
+bool Table::get(std::string& key, Value* value)
 {
     std::map<std::string, Value>::iterator it = entries.find(key);
     if (it == entries.end())
@@ -16,7 +16,7 @@ bool Table::get(std::string key, Value* value)
 }
 //< table-get
 //> table-set
-bool Table::set(std::string key, Value value)
+bool Table::set(std::string& key, Value value)
 {
     std::map<std::string, Value>::iterator it = entries.find(key);
     bool isNewKey = (it != entries.end()) ? false : true;
@@ -25,7 +25,7 @@ bool Table::set(std::string key, Value value)
 }
 //< table-set
 //> table-delete
-bool Table::remove(std::string key)
+bool Table::remove(std::string& key)
 {
     std::map<std::string, Value>::iterator it = entries.find(key);
     if (it == entries.end())

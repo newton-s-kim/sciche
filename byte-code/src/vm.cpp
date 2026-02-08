@@ -1084,10 +1084,23 @@ ObjString* VM::allocateString(std::string chars)
 }
 //< allocate-string
 //> take-string
-ObjString* VM::newString(std::string pchars)
+/*
+ObjString* VM::newString(std::string& pchars)
+{
+    return newString(pchars.c_str(), pchars.size());
+}
+*/
+//< take-string
+ObjString* VM::newString(const char* chars)
+{
+    return newString(chars, strlen(chars));
+}
+ObjString* VM::newString(const char* pchars, int length)
 {
     std::string chars;
-    for (const char* p = pchars.c_str(); *p; p++) {
+    chars.reserve(length + 1);
+    const char *e = pchars + length;
+    for (const char* p = pchars; p < e; p++) {
         // LAX_LOG("p: %c", *p);
         if ('\\' == *p) {
             p++;
@@ -1141,14 +1154,7 @@ ObjString* VM::newString(std::string pchars)
     LAX_LOG("%s is not found", chars.c_str());
 
     //< take-string-intern
-    return allocateString(chars);
-}
-//< take-string
-ObjString* VM::newString(const char* chars, int length)
-{
-    std::string str(chars, length);
-    return newString(str);
-}
+    return allocateString(chars);}
 ObjComplex* VM::newComplex(const std::complex<double> v)
 {
     collect(0, sizeof(ObjComplex));
@@ -1246,7 +1252,7 @@ void VM::concatenate()
     std::string chars = a->chars;
     chars += b->chars;
 
-    ObjString* result = newString(chars);
+    ObjString* result = newString(chars.c_str());
     //> Garbage Collection concatenate-pop
     pop();
     pop();
@@ -1800,7 +1806,7 @@ InterpretResult VM::run(void)
                     pop();
                     std::stringstream ss;
                     ss << a->chars << b;
-                    ObjString* c = newString(ss.str());
+                    ObjString* c = newString(ss.str().c_str());
                     push(OBJ_VAL(c));
                 }
                 else if (IS_COMPLEX(peek(0))) {
@@ -1808,7 +1814,8 @@ InterpretResult VM::run(void)
                     ObjComplex* b = AS_COMPLEX(peek(0));
                     pop();
                     pop();
-                    ObjString* c = newString(a->chars + b->stringify());
+		    std::string s = a->chars + b->stringify();
+                    ObjString* c = newString(s.c_str());
                     push(OBJ_VAL(c));
                 }
                 else {

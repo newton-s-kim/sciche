@@ -550,7 +550,7 @@ std::map<std::string, PrimitiveBoundProperty> s_bool_props = {
 };
 // clang-format on
 
-Value Primitive::call(ObjectFactory* factory, Value value, std::string name, int argc, Value* argv)
+Value Primitive::call(ObjectFactory* factory, Value value, std::string& name, int argc, Value* argv)
 {
     Value ret = 0;
     std::map<std::string, PrimitiveBoundFn>::iterator it;
@@ -616,7 +616,7 @@ Value Primitive::call(ObjectFactory* factory, Value value, std::string name, int
     return ret;
 }
 
-Value Primitive::property(ObjectFactory* factory, Value value, std::string name)
+Value Primitive::property(ObjectFactory* factory, Value value, std::string& name)
 {
     (void)factory;
     Value ret = 0;
