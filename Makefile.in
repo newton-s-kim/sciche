@@ -21,4 +21,3 @@ distclean:
 	rm byte-code/src/common.hpp
 	rm -rf $(BUILD_DIR)
 	find . -name "*.gmon" -exec rm {} \;
-	find . -name "*.png" -exec rm {} \;
