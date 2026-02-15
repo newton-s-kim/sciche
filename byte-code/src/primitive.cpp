@@ -541,7 +541,7 @@ static Value num_truncate(ObjectFactory* factory, Value value)
     if (!IS_NUMBER(value))
         throw std::runtime_error("Number is expected.");
     long v = trunc(AS_NUMBER(value));
-    LAX_LOG("truncate(%f) is %d", AS_NUMBER(value), v);
+    LAX_LOG("truncate(%f) is %ld", AS_NUMBER(value), v);
     return NUMBER_VAL(v);
 }
 
