@@ -9,6 +9,9 @@
 #include "value.hpp"
 //< debug-include-value
 
+#define READ_ADDRESS() \
+	(offset += 2, (uint16_t)((chunk->code[offset - 2] << 8) | chunk->code[offset - 1]))
+
 void Debug::disassembleChunk(Chunk* chunk, std::string name)
 {
     printf("== %s ==\n", name.c_str());
@@ -20,7 +23,7 @@ void Debug::disassembleChunk(Chunk* chunk, std::string name)
 //> constant-instruction
 int Debug::constantInstruction(const char* name, Chunk* chunk, int offset)
 {
-    uint8_t constant = chunk->code[offset + 1];
+    uint16_t constant = READ_ADDRESS();
     printf("%-16s %4d '", name, constant);
     ValueUtil util;
     util.print(chunk->constants[constant]);
@@ -33,7 +36,7 @@ int Debug::constantInstruction(const char* name, Chunk* chunk, int offset)
 //> Methods and Initializers invoke-instruction
 int Debug::invokeInstruction(const char* name, Chunk* chunk, int offset)
 {
-    uint8_t constant = chunk->code[offset + 1];
+    uint16_t constant = READ_ADDRESS();
     uint8_t argCount = chunk->code[offset + 2];
     printf("%-16s (%d args) %4d '", name, argCount, constant);
     ValueUtil util;
@@ -192,7 +195,7 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
         //> Closures disassemble-closure
     case OP_CLOSURE: {
         offset++;
-        uint8_t constant = chunk->code[offset++];
+        uint16_t constant = READ_ADDRESS();
         printf("%-16s %4d ", "OP_CLOSURE", constant);
         ValueUtil util;
         util.print(chunk->constants[constant]);
@@ -200,6 +203,7 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
         //> disassemble-upvalues
 
         ObjFunction* function = AS_FUNCTION(chunk->constants[constant]);
+	LAX_LOG("function->upvalueCount: %d", function->upvalueCount);
         for (int j = 0; j < function->upvalueCount; j++) {
             int isLocal = chunk->code[offset++];
             int index = chunk->code[offset++];
@@ -232,6 +236,8 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
     case OP_METHOD:
         return constantInstruction("OP_METHOD", chunk, offset);
         //< Methods and Initializers disassemble-method
+    case OP_MEMBER:
+        return constantInstruction("OP_MEMBER", chunk, offset);
     default:
         printf("Unknown opcode %d\n", instruction);
         return offset + 1;
