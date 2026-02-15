@@ -9,8 +9,7 @@
 #include "value.hpp"
 //< debug-include-value
 
-#define READ_ADDRESS() \
-	(offset += 2, (uint16_t)((chunk->code[offset - 2] << 8) | chunk->code[offset - 1]))
+#define READ_ADDRESS() ((uint16_t)((chunk->code[offset + 1] << 8) | chunk->code[offset + 2]))
 
 void Debug::disassembleChunk(Chunk* chunk, std::string name)
 {
@@ -29,7 +28,7 @@ int Debug::constantInstruction(const char* name, Chunk* chunk, int offset)
     util.print(chunk->constants[constant]);
     printf("'\n");
     //> return-after-operand
-    return offset + 2;
+    return offset + 3;
     //< return-after-operand
 }
 //< constant-instruction
@@ -37,12 +36,12 @@ int Debug::constantInstruction(const char* name, Chunk* chunk, int offset)
 int Debug::invokeInstruction(const char* name, Chunk* chunk, int offset)
 {
     uint16_t constant = READ_ADDRESS();
-    uint8_t argCount = chunk->code[offset + 2];
+    uint8_t argCount = chunk->code[offset + 3];
     printf("%-16s (%d args) %4d '", name, argCount, constant);
     ValueUtil util;
     util.print(chunk->constants[constant]);
     printf("'\n");
-    return offset + 3;
+    return offset + 4;
 }
 //< Methods and Initializers invoke-instruction
 //> simple-instruction
@@ -63,8 +62,7 @@ int Debug::byteInstruction(const char* name, Chunk* chunk, int offset)
 //> Jumping Back and Forth jump-instruction
 int Debug::jumpInstruction(const char* name, int sign, Chunk* chunk, int offset)
 {
-    uint16_t jump = (uint16_t)(chunk->code[offset + 1] << 8);
-    jump |= chunk->code[offset + 2];
+    uint16_t jump = READ_ADDRESS();
     printf("%-16s %4d -> %d\n", name, offset, offset + 3 + sign * jump);
     return offset + 3;
 }
@@ -194,8 +192,8 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
         //< Superclasses disassemble-super-invoke
         //> Closures disassemble-closure
     case OP_CLOSURE: {
-        offset++;
         uint16_t constant = READ_ADDRESS();
+        offset += 3;
         printf("%-16s %4d ", "OP_CLOSURE", constant);
         ValueUtil util;
         util.print(chunk->constants[constant]);
@@ -203,7 +201,7 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
         //> disassemble-upvalues
 
         ObjFunction* function = AS_FUNCTION(chunk->constants[constant]);
-	LAX_LOG("function->upvalueCount: %d", function->upvalueCount);
+        LAX_LOG("function->upvalueCount: %d", function->upvalueCount);
         for (int j = 0; j < function->upvalueCount; j++) {
             int isLocal = chunk->code[offset++];
             int index = chunk->code[offset++];
@@ -236,8 +234,6 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
     case OP_METHOD:
         return constantInstruction("OP_METHOD", chunk, offset);
         //< Methods and Initializers disassemble-method
-    case OP_MEMBER:
-        return constantInstruction("OP_MEMBER", chunk, offset);
     default:
         printf("Unknown opcode %d\n", instruction);
         return offset + 1;
