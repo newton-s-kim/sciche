@@ -132,7 +132,7 @@ public:
 //> Closures upvalue-struct
 class Upvalue {
 public:
-    uint8_t index;
+    uint16_t index;
     bool isLocal;
 };
 //< Closures upvalue-struct
@@ -289,7 +289,7 @@ private:
     void addLocal(Token name);
     int resolveUpvalue(Compiler* compiler, Token* name);
     int resolveLocal(Compiler* compiler, Token* name);
-    int addUpvalue(Compiler* compiler, uint8_t index, bool isLocal);
+    int addUpvalue(Compiler* compiler, int index, bool isLocal);
     void beginScope();
     void endScope();
     void patchJump(int offset);
@@ -655,7 +655,7 @@ int CompilerInterfaceConcrete::resolveLocal(Compiler* compiler, Token* name)
 }
 //< Local Variables resolve-local
 //> Closures add-upvalue
-int CompilerInterfaceConcrete::addUpvalue(Compiler* compiler, uint8_t index, bool isLocal)
+int CompilerInterfaceConcrete::addUpvalue(Compiler* compiler, int index, bool isLocal)
 {
     int upvalueCount = compiler->function->upvalueCount;
     //> existing-upvalue
@@ -669,7 +669,7 @@ int CompilerInterfaceConcrete::addUpvalue(Compiler* compiler, uint8_t index, boo
 
     //< existing-upvalue
     //> too-many-upvalues
-    if (upvalueCount == UINT8_COUNT) {
+    if (upvalueCount >= UINT8_COUNT) {
         parser.error("Too many closure variables in function.");
         return 0;
     }
@@ -691,13 +691,13 @@ int CompilerInterfaceConcrete::resolveUpvalue(Compiler* compiler, Token* name)
         //> mark-local-captured
         compiler->enclosing->locals[local].isCaptured = true;
         //< mark-local-captured
-        return addUpvalue(compiler, (uint8_t)local, true);
+        return addUpvalue(compiler, local, true);
     }
 
     //> resolve-upvalue-recurse
     int upvalue = resolveUpvalue(compiler->enclosing, name);
     if (upvalue != -1) {
-        return addUpvalue(compiler, (uint8_t)upvalue, false);
+        return addUpvalue(compiler, upvalue, false);
     }
 
     //< resolve-upvalue-recurse
@@ -1447,7 +1447,7 @@ void CompilerInterfaceConcrete::function(FunctionType type)
     if (!parser.check(TOKEN_RIGHT_PAREN)) {
         do {
             current->function->arity++;
-            if (current->function->arity > 255) {
+            if (current->function->arity > UINT8_COUNT) {
                 parser.errorAtCurrent("Can't have more than 255 parameters.");
             }
             uint16_t constant = parseVariable("Expect parameter name.");
