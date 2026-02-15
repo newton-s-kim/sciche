@@ -2322,7 +2322,7 @@ InterpretResult VM::run(void)
                 uint8_t isLocal = READ_BYTE();
                 uint8_t index = READ_BYTE();
                 if (isLocal) {
-                    closure->upvalues[i] = captureUpvalue(frame->slots + index);
+                    closure->upvalues.push_back(captureUpvalue(frame->slots + index));
                 }
                 else {
                     closure->upvalues[i] = frame->closure->upvalues[index];
