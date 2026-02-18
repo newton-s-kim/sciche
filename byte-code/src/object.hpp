@@ -130,6 +130,8 @@ typedef enum {
     OBJ_FILL_EYE
 } ObjFillType;
 
+class ObjectFactory;
+
 class Obj {
 public:
     ObjType type;
@@ -144,6 +146,12 @@ public:
     virtual std::string stringify(void) = 0;
     virtual void blaken(void) = 0;
     void print(void);
+    virtual Value add(Value v, ObjectFactory* factory);
+    virtual Value sub(Value v, ObjectFactory* factory);
+    virtual Value mul(Value v, ObjectFactory* factory);
+    virtual Value div(Value v, ObjectFactory* factory);
+    virtual Value mod(Value v, ObjectFactory* factory);
+    virtual Value pow(Value v, ObjectFactory* factory);
 };
 //> Calls and Functions obj-function
 
@@ -182,6 +190,7 @@ public:
     ObjString(std::string pChars);
     std::string stringify(void);
     void blaken(void);
+    Value add(Value v, ObjectFactory* factory);
 };
 //< obj-string
 //> Closures obj-upvalue
@@ -256,6 +265,10 @@ public:
     ~ObjComplex();
     std::string stringify(void);
     void blaken(void);
+    Value add(Value v, ObjectFactory* factory);
+    Value sub(Value v, ObjectFactory* factory);
+    Value mul(Value v, ObjectFactory* factory);
+    Value div(Value v, ObjectFactory* factory);
 };
 
 class ObjList : public Obj {
@@ -289,6 +302,12 @@ public:
     void blaken(void);
     Value get(int index);
     void set(int index, Value v);
+    Value add(Value v, ObjectFactory* factory);
+    Value sub(Value v, ObjectFactory* factory);
+    Value mul(Value v, ObjectFactory* factory);
+    Value div(Value v, ObjectFactory* factory);
+    Value mod(Value v, ObjectFactory* factory);
+    Value pow(Value v, ObjectFactory* factory);
 };
 
 class ObjRow : public Obj {
@@ -300,6 +319,10 @@ public:
     void blaken(void);
     Value get(int index);
     void set(int index, Value v);
+    Value add(Value v, ObjectFactory* factory);
+    Value sub(Value v, ObjectFactory* factory);
+    Value mul(Value v, ObjectFactory* factory);
+    Value div(Value v, ObjectFactory* factory);
 };
 
 class ObjMat : public Obj {
@@ -311,6 +334,9 @@ public:
     void blaken(void);
     Value get(int row, int col);
     void set(int row, int col, Value v);
+    Value add(Value v, ObjectFactory* factory);
+    Value sub(Value v, ObjectFactory* factory);
+    Value mul(Value v, ObjectFactory* factory);
 };
 
 class ObjCube : public Obj {

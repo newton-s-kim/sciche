@@ -1238,29 +1238,6 @@ bool VM::isFalsey(Value value)
     return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
 }
 //< Types of Values is-falsey
-//> Strings concatenate
-void VM::concatenate()
-{
-    /* Strings concatenate < Garbage Collection concatenate-peek
-      ObjString* b = AS_STRING(pop());
-      ObjString* a = AS_STRING(pop());
-    */
-    //> Garbage Collection concatenate-peek
-    ObjString* b = AS_STRING(peek(0));
-    ObjString* a = AS_STRING(peek(1));
-    //< Garbage Collection concatenate-peek
-
-    std::string chars = a->chars;
-    chars += b->chars;
-
-    ObjString* result = newString(chars.c_str());
-    //> Garbage Collection concatenate-pop
-    pop();
-    pop();
-    //< Garbage Collection concatenate-pop
-    push(OBJ_VAL(result));
-}
-//< Strings concatenate
 //> run
 InterpretResult VM::run(void)
 {
@@ -1796,34 +1773,7 @@ InterpretResult VM::run(void)
             //> Strings add-strings
         case OP_ADD: {
             bool calculated = true;
-            if (IS_STRING(peek(1))) {
-                if (IS_STRING(peek(0))) {
-                    concatenate();
-                }
-                else if (IS_NUMBER(peek(0))) {
-                    ObjString* a = AS_STRING(peek(1));
-                    double b = AS_NUMBER(peek(0));
-                    pop();
-                    pop();
-                    std::stringstream ss;
-                    ss << a->chars << b;
-                    ObjString* c = newString(ss.str().c_str());
-                    push(OBJ_VAL(c));
-                }
-                else if (IS_COMPLEX(peek(0))) {
-                    ObjString* a = AS_STRING(peek(1));
-                    ObjComplex* b = AS_COMPLEX(peek(0));
-                    pop();
-                    pop();
-                    std::string s = a->chars + b->stringify();
-                    ObjString* c = newString(s.c_str());
-                    push(OBJ_VAL(c));
-                }
-                else {
-                    calculated = false;
-                }
-            }
-            else if (IS_NUMBER(peek(1))) {
+            if (IS_NUMBER(peek(1))) {
                 if (IS_NUMBER(peek(0))) {
                     double b = AS_NUMBER(pop());
                     double a = AS_NUMBER(pop());
@@ -1850,75 +1800,14 @@ InterpretResult VM::run(void)
                     calculated = false;
                 }
             }
-            else if (IS_COMPLEX(peek(1))) {
-                if (IS_NUMBER(peek(0))) {
-                    ObjComplex* a = AS_COMPLEX(peek(1));
-                    double b = AS_NUMBER(peek(0));
+            else if (IS_OBJ(peek(1))) {
+                try {
+                    Value r = AS_OBJ(peek(1))->add(peek(0), this);
                     pop();
                     pop();
-                    ObjComplex* c = newComplex(std::complex<double>(b + a->value.real(), a->value.imag()));
-                    push(OBJ_VAL(c));
+                    push(r);
                 }
-                else if (IS_COMPLEX(peek(0))) {
-                    ObjComplex* a = AS_COMPLEX(peek(1));
-                    ObjComplex* b = AS_COMPLEX(peek(0));
-                    pop();
-                    pop();
-                    ObjComplex* c = newComplex(std::complex<double>(a->value + b->value));
-                    push(OBJ_VAL(c));
-                }
-                else {
-                    calculated = false;
-                }
-            }
-            else if (IS_COL(peek(1))) {
-                if (IS_COL(peek(0))) {
-                    ObjCol* a = AS_COL(peek(1));
-                    ObjCol* b = AS_COL(peek(0));
-                    pop();
-                    pop();
-                    ObjCol* c = newCol();
-                    c->value = a->value + b->value;
-                    push(OBJ_VAL(c));
-                }
-                else {
-                    calculated = false;
-                }
-            }
-            else if (IS_ROW(peek(1))) {
-                if (IS_ROW(peek(0))) {
-                    ObjRow* a = AS_ROW(peek(1));
-                    ObjRow* b = AS_ROW(peek(0));
-                    pop();
-                    pop();
-                    ObjRow* r = newRow();
-                    r->value = a->value + b->value;
-                    push(OBJ_VAL(r));
-                }
-                else if (IS_MAT(peek(0))) {
-                    ObjRow* a = AS_ROW(peek(1));
-                    ObjMat* b = AS_MAT(peek(0));
-                    pop();
-                    pop();
-                    ObjRow* r = newRow();
-                    r->value = a->value + b->value;
-                    push(OBJ_VAL(r));
-                }
-                else {
-                    calculated = false;
-                }
-            }
-            else if (IS_MAT(peek(1))) {
-                if (IS_MAT(peek(0))) {
-                    ObjMat* a = AS_MAT(peek(1));
-                    ObjMat* b = AS_MAT(peek(0));
-                    pop();
-                    pop();
-                    ObjMat* m = newMat();
-                    m->value = a->value + b->value;
-                    push(OBJ_VAL(m));
-                }
-                else {
+                catch (std::exception& e) {
                     calculated = false;
                 }
             }
@@ -1953,50 +1842,6 @@ InterpretResult VM::run(void)
                     calculated = false;
                 }
             }
-            else if (IS_COMPLEX(peek(1))) {
-                if (IS_NUMBER(peek(0))) {
-                    ObjComplex* a = AS_COMPLEX(peek(1));
-                    double b = AS_NUMBER(peek(0));
-                    pop();
-                    pop();
-                    ObjComplex* c = newComplex(std::complex<double>(a->value.real() - b, a->value.imag()));
-                    push(OBJ_VAL(c));
-                }
-                else if (IS_COMPLEX(peek(0))) {
-                    ObjComplex* a = AS_COMPLEX(peek(1));
-                    ObjComplex* b = AS_COMPLEX(peek(0));
-                    pop();
-                    pop();
-                    ObjComplex* c = newComplex(std::complex<double>(a->value - b->value));
-                    push(OBJ_VAL(c));
-                }
-                else {
-                    calculated = false;
-                }
-            }
-            else if (IS_ROW(peek(1))) {
-                if (IS_ROW(peek(0))) {
-                    ObjRow* a = AS_ROW(peek(1));
-                    ObjRow* b = AS_ROW(peek(0));
-                    pop();
-                    pop();
-                    ObjRow* r = newRow();
-                    r->value = a->value - b->value;
-                    push(OBJ_VAL(r));
-                }
-                else if (IS_MAT(peek(0))) {
-                    ObjRow* a = AS_ROW(peek(1));
-                    ObjMat* b = AS_MAT(peek(0));
-                    pop();
-                    pop();
-                    ObjRow* r = newRow();
-                    r->value = a->value - b->value;
-                    push(OBJ_VAL(r));
-                }
-                else {
-                    calculated = false;
-                }
-            }
             else if (IS_MAT(peek(1))) {
                 if (IS_MAT(peek(0))) {
                     ObjMat* a = AS_MAT(peek(1));
@@ -2008,6 +1853,17 @@ InterpretResult VM::run(void)
                     push(OBJ_VAL(m));
                 }
                 else {
+                    calculated = false;
+                }
+            }
+            else if (IS_OBJ(peek(1))) {
+                try {
+                    Value r = AS_OBJ(peek(1))->sub(peek(0), this);
+                    pop();
+                    pop();
+                    push(r);
+                }
+                catch (std::exception& e) {
                     calculated = false;
                 }
             }
@@ -2058,41 +1914,6 @@ InterpretResult VM::run(void)
                     calculated = false;
                 }
             }
-            else if (IS_COL(peek(1))) {
-                if (IS_NUMBER(peek(0))) {
-                    ObjCol* a = AS_COL(peek(1));
-                    double b = AS_NUMBER(peek(0));
-                    pop();
-                    pop();
-                    ObjCol* c = newCol();
-                    c->value = a->value * b;
-                    push(OBJ_VAL(c));
-                }
-                else {
-                    calculated = false;
-                }
-            }
-            else if (IS_COMPLEX(peek(1))) {
-                if (IS_NUMBER(peek(0))) {
-                    ObjComplex* a = AS_COMPLEX(peek(1));
-                    double b = AS_NUMBER(peek(0));
-                    pop();
-                    pop();
-                    ObjComplex* c = newComplex(std::complex<double>(a->value.real() * b, a->value.imag() * b));
-                    push(OBJ_VAL(c));
-                }
-                else if (IS_COMPLEX(peek(0))) {
-                    ObjComplex* a = AS_COMPLEX(peek(1));
-                    ObjComplex* b = AS_COMPLEX(peek(0));
-                    pop();
-                    pop();
-                    ObjComplex* c = newComplex(std::complex<double>(a->value * b->value));
-                    push(OBJ_VAL(c));
-                }
-                else {
-                    calculated = false;
-                }
-            }
             else if (IS_MAT(peek(1))) {
                 if (IS_MAT(peek(0))) {
                     ObjMat* a = AS_MAT(peek(1));
@@ -2104,6 +1925,17 @@ InterpretResult VM::run(void)
                     push(OBJ_VAL(m));
                 }
                 else {
+                    calculated = false;
+                }
+            }
+            else if (IS_OBJ(peek(1))) {
+                try {
+                    Value r = AS_OBJ(peek(1))->mul(peek(0), this);
+                    pop();
+                    pop();
+                    push(r);
+                }
+                catch (std::exception& e) {
                     calculated = false;
                 }
             }
@@ -2137,39 +1969,14 @@ InterpretResult VM::run(void)
                     calculated = false;
                 }
             }
-            else if (IS_COL(peek(1))) {
-                if (IS_NUMBER(peek(0))) {
-                    ObjCol* a = AS_COL(peek(1));
-                    double b = AS_NUMBER(peek(0));
+            else if (IS_OBJ(peek(1))) {
+                try {
+                    Value r = AS_OBJ(peek(1))->div(peek(0), this);
                     pop();
                     pop();
-                    ObjCol* c = newCol();
-                    c->value = a->value / b;
-                    push(OBJ_VAL(c));
+                    push(r);
                 }
-                else {
-                    calculated = false;
-                }
-            }
-            else if (IS_COMPLEX(peek(1))) {
-                if (IS_NUMBER(peek(0))) {
-                    ObjComplex* a = AS_COMPLEX(peek(1));
-                    double b = AS_NUMBER(peek(0));
-                    pop();
-                    pop();
-                    std::complex<double> t(b, 0);
-                    ObjComplex* c = newComplex(std::complex<double>(a->value / t));
-                    push(OBJ_VAL(c));
-                }
-                else if (IS_COMPLEX(peek(0))) {
-                    ObjComplex* a = AS_COMPLEX(peek(1));
-                    ObjComplex* b = AS_COMPLEX(peek(0));
-                    pop();
-                    pop();
-                    ObjComplex* c = newComplex(std::complex<double>(a->value / b->value));
-                    push(OBJ_VAL(c));
-                }
-                else {
+                catch (std::exception& e) {
                     calculated = false;
                 }
             }
@@ -2195,17 +2002,14 @@ InterpretResult VM::run(void)
                     calculated = false;
                 }
             }
-            else if (IS_COL(peek(1))) {
-                if (IS_COL(peek(0))) {
-                    ObjCol* a = AS_COL(peek(1));
-                    ObjCol* b = AS_COL(peek(0));
+            else if (IS_OBJ(peek(1))) {
+                try {
+                    Value r = AS_OBJ(peek(1))->mod(peek(0), this);
                     pop();
                     pop();
-                    ObjCol* c = newCol();
-                    c->value = a->value % b->value;
-                    push(OBJ_VAL(c));
+                    push(r);
                 }
-                else {
+                catch (std::exception& e) {
                     calculated = false;
                 }
             }
@@ -2231,24 +2035,14 @@ InterpretResult VM::run(void)
                     calculated = false;
                 }
             }
-            else if (IS_COL(peek(1))) {
-                if (IS_NUMBER(peek(0))) {
-                    ObjCol* a = AS_COL(peek(1));
-                    double b = AS_NUMBER(peek(0));
-                    ObjCol* c = newCol();
-                    c->value = arma::pow(a->value, b);
-                    push(OBJ_VAL(c));
-                }
-                else if (IS_COL(peek(0))) {
-                    ObjCol* a = AS_COL(peek(1));
-                    ObjCol* b = AS_COL(peek(0));
+            else if (IS_OBJ(peek(1))) {
+                try {
+                    Value r = AS_OBJ(peek(1))->pow(peek(0), this);
                     pop();
                     pop();
-                    ObjCol* c = newCol();
-                    c->value = a->value % b->value;
-                    push(OBJ_VAL(c));
+                    push(r);
                 }
-                else {
+                catch (std::exception& e) {
                     calculated = false;
                 }
             }

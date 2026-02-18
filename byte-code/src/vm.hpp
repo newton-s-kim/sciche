@@ -91,7 +91,6 @@ public:
 private:
     bool callValue(Value callee, int argCount);
     bool bindMethod(ObjClass* klass, ObjString* name);
-    void concatenate();
     InterpretResult run(void);
     bool invoke(ObjString* name, int argCount);
     void defineMethod(ObjString* name);

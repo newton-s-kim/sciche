@@ -41,6 +41,48 @@ void Obj::print(void)
     printf("%s", stringify().c_str());
 }
 
+Value Obj::add(Value v, ObjectFactory* factory)
+{
+    (void)v;
+    (void)factory;
+    throw std::runtime_error("unsupported operation +");
+}
+
+Value Obj::sub(Value v, ObjectFactory* factory)
+{
+    (void)v;
+    (void)factory;
+    throw std::runtime_error("unsupported operation -");
+}
+
+Value Obj::mul(Value v, ObjectFactory* factory)
+{
+    (void)v;
+    (void)factory;
+    throw std::runtime_error("unsupported operation *");
+}
+
+Value Obj::div(Value v, ObjectFactory* factory)
+{
+    (void)v;
+    (void)factory;
+    throw std::runtime_error("unsupported operation /");
+}
+
+Value Obj::mod(Value v, ObjectFactory* factory)
+{
+    (void)v;
+    (void)factory;
+    throw std::runtime_error("unsupported operation %");
+}
+
+Value Obj::pow(Value v, ObjectFactory* factory)
+{
+    (void)v;
+    (void)factory;
+    throw std::runtime_error("unsupported operation ^");
+}
+
 ObjFunction::ObjFunction() : Obj(OBJ_FUNCTION)
 {
     arity = 0;
@@ -102,6 +144,35 @@ std::string ObjString::stringify(void)
 
 void ObjString::blaken(void)
 {
+}
+
+Value ObjString::add(Value v, ObjectFactory* factory)
+{
+    Value r = NIL_VAL;
+    if (IS_STRING(v)) {
+        ObjString* b = AS_STRING(v);
+        std::string rchars = chars;
+        rchars += b->chars;
+        ObjString* result = factory->newString(rchars.c_str());
+        r = OBJ_VAL(result);
+    }
+    else if (IS_NUMBER(v)) {
+        double b = AS_NUMBER(v);
+        std::stringstream ss;
+        ss << chars << b;
+        ObjString* c = factory->newString(ss.str().c_str());
+        r = OBJ_VAL(c);
+    }
+    else if (IS_COMPLEX(v)) {
+        ObjComplex* b = AS_COMPLEX(v);
+        std::string s = chars + b->stringify();
+        ObjString* c = factory->newString(s.c_str());
+        r = OBJ_VAL(c);
+    }
+    else {
+        throw std::runtime_error("unsupported operator +");
+    }
+    return r;
 }
 
 ObjUpvalue::ObjUpvalue(Value* slot) : Obj(OBJ_UPVALUE)
@@ -232,6 +303,83 @@ std::string ObjComplex::stringify(void)
 
 void ObjComplex::blaken(void)
 {
+}
+
+Value ObjComplex::add(Value v, ObjectFactory* factory)
+{
+    Value r = NIL_VAL;
+    if (IS_NUMBER(v)) {
+        double b = AS_NUMBER(v);
+        ObjComplex* c = factory->newComplex(std::complex<double>(value.real() + b, value.imag()));
+        r = OBJ_VAL(c);
+    }
+    else if (IS_COMPLEX(v)) {
+        ObjComplex* b = AS_COMPLEX(v);
+        ObjComplex* c = factory->newComplex(std::complex<double>(value + b->value));
+        r = OBJ_VAL(c);
+    }
+    else {
+        throw std::runtime_error("unsupported operation +");
+    }
+    return r;
+}
+
+Value ObjComplex::sub(Value v, ObjectFactory* factory)
+{
+    Value r = NIL_VAL;
+    if (IS_NUMBER(v)) {
+        double b = AS_NUMBER(v);
+        ObjComplex* c = factory->newComplex(std::complex<double>(value.real() - b, value.imag()));
+        r = OBJ_VAL(c);
+    }
+    else if (IS_COMPLEX(v)) {
+        ObjComplex* b = AS_COMPLEX(v);
+        ObjComplex* c = factory->newComplex(std::complex<double>(value - b->value));
+        r = OBJ_VAL(c);
+    }
+    else {
+        throw std::runtime_error("unsupported operation -");
+    }
+    return r;
+}
+
+Value ObjComplex::mul(Value v, ObjectFactory* factory)
+{
+    Value r = NIL_VAL;
+    if (IS_NUMBER(v)) {
+        double b = AS_NUMBER(v);
+        ObjComplex* c = factory->newComplex(std::complex<double>(value.real() * b, value.imag() * b));
+        r = OBJ_VAL(c);
+    }
+    else if (IS_COMPLEX(v)) {
+        ObjComplex* b = AS_COMPLEX(v);
+        ObjComplex* c = factory->newComplex(std::complex<double>(value * b->value));
+        r = OBJ_VAL(c);
+    }
+    else {
+        throw std::runtime_error("unsupported operation *");
+    }
+    return r;
+}
+
+Value ObjComplex::div(Value v, ObjectFactory* factory)
+{
+    Value r = NIL_VAL;
+    if (IS_NUMBER(v)) {
+        double b = AS_NUMBER(v);
+        std::complex<double> t(b, 0);
+        ObjComplex* c = factory->newComplex(std::complex<double>(value / t));
+        r = OBJ_VAL(c);
+    }
+    else if (IS_COMPLEX(v)) {
+        ObjComplex* b = AS_COMPLEX(v);
+        ObjComplex* c = factory->newComplex(std::complex<double>(value / b->value));
+        r = OBJ_VAL(c);
+    }
+    else {
+        throw std::runtime_error("unsupported operation /");
+    }
+    return r;
 }
 
 ObjList::ObjList() : Obj(OBJ_LIST)
@@ -399,6 +547,102 @@ void ObjCol::set(int index, Value v)
     value[index] = AS_NUMBER(v);
 }
 
+Value ObjCol::add(Value v, ObjectFactory* factory)
+{
+    Value r = NIL_VAL;
+    if (IS_COL(v)) {
+        ObjCol* b = AS_COL(v);
+        ObjCol* c = factory->newCol();
+        c->value = value + b->value;
+        r = OBJ_VAL(c);
+    }
+    else {
+        throw std::runtime_error("unsupported operation +");
+    }
+    return r;
+}
+
+Value ObjCol::sub(Value v, ObjectFactory* factory)
+{
+    Value r = NIL_VAL;
+    if (IS_COL(v)) {
+        ObjCol* b = AS_COL(v);
+        ObjCol* c = factory->newCol();
+        c->value = value - b->value;
+        r = OBJ_VAL(c);
+    }
+    else {
+        throw std::runtime_error("unsupported operation -");
+    }
+    return r;
+}
+
+Value ObjCol::mul(Value v, ObjectFactory* factory)
+{
+    Value r = NIL_VAL;
+    if (IS_NUMBER(v)) {
+        double b = AS_NUMBER(v);
+        ObjCol* c = factory->newCol();
+        c->value = value * b;
+        r = OBJ_VAL(c);
+    }
+    else {
+        throw std::runtime_error("unsupported operation *");
+    }
+    return r;
+}
+
+Value ObjCol::div(Value v, ObjectFactory* factory)
+{
+    Value r = NIL_VAL;
+    if (IS_NUMBER(v)) {
+        double b = AS_NUMBER(v);
+        ObjCol* c = factory->newCol();
+        c->value = value / b;
+        r = OBJ_VAL(c);
+    }
+    else {
+        throw std::runtime_error("unsupported operation /");
+    }
+    return r;
+}
+
+Value ObjCol::mod(Value v, ObjectFactory* factory)
+{
+    Value r = NIL_VAL;
+    if (IS_COL(v)) {
+        ObjCol* b = AS_COL(v);
+        ObjCol* c = factory->newCol();
+        c->value = value % b->value;
+        r = OBJ_VAL(c);
+    }
+    else {
+        throw std::runtime_error("unsupported operation /");
+    }
+    return r;
+}
+
+Value ObjCol::pow(Value v, ObjectFactory* factory)
+{
+    Value r = NIL_VAL;
+    if (IS_NUMBER(v)) {
+        double b = AS_NUMBER(v);
+        ObjCol* c = factory->newCol();
+        c->value = arma::pow(value, b);
+        r = OBJ_VAL(c);
+    }
+    else if (IS_COL(v)) {
+        ObjCol* b = AS_COL(v);
+        ObjCol* c = factory->newCol();
+        c->value = value % b->value;
+        r = OBJ_VAL(c);
+    }
+    else {
+        throw std::runtime_error("unsupported operation /");
+    }
+    return r;
+}
+
 ObjRow::ObjRow() : Obj(OBJ_ROW)
 {
 }
@@ -429,6 +673,90 @@ void ObjRow::set(int index, Value v)
 {
     index = rectify_index(index, (int)value.n_elem);
     value[index] = AS_NUMBER(v);
+}
+
+Value ObjRow::add(Value v, ObjectFactory* factory)
+{
+    Value ret = NIL_VAL;
+    if (IS_ROW(v)) {
+        ObjRow* b = AS_ROW(v);
+        ObjRow* r = factory->newRow();
+        r->value = value + b->value;
+        ret = OBJ_VAL(r);
+    }
+    else if (IS_MAT(v)) {
+        ObjMat* b = AS_MAT(v);
+        ObjRow* r = factory->newRow();
+        r->value = value + b->value;
+        ret = OBJ_VAL(r);
+    }
+    else {
+        throw std::runtime_error("unsupported operator +");
+    }
+    return ret;
+}
+
+Value ObjRow::sub(Value v, ObjectFactory* factory)
+{
+    Value ret = NIL_VAL;
+    if (IS_ROW(v)) {
+        ObjRow* b = AS_ROW(v);
+        ObjRow* r = factory->newRow();
+        r->value = value - b->value;
+        ret = OBJ_VAL(r);
+    }
+    else if (IS_MAT(v)) {
+        ObjMat* b = AS_MAT(v);
+        ObjRow* r = factory->newRow();
+        r->value = value - b->value;
+        ret = OBJ_VAL(r);
+    }
+    else {
+        throw std::runtime_error("unsupported operator -");
+    }
+    return ret;
+}
+
+Value ObjRow::mul(Value v, ObjectFactory* factory)
+{
+    Value ret = NIL_VAL;
+    if (IS_ROW(v)) {
+        ObjRow* b = AS_ROW(v);
+        ObjRow* r = factory->newRow();
+        r->value = value * b->value;
+        ret = OBJ_VAL(r);
+    }
+    else if (IS_MAT(v)) {
+        ObjMat* b = AS_MAT(v);
+        ObjRow* r = factory->newRow();
+        r->value = value * b->value;
+        ret = OBJ_VAL(r);
+    }
+    else {
+        throw std::runtime_error("unsupported operator *");
+    }
+    return ret;
+}
+
+Value ObjRow::div(Value v, ObjectFactory* factory)
+{
+    Value ret = NIL_VAL;
+    if (IS_ROW(v)) {
+        ObjRow* b = AS_ROW(v);
+        ObjRow* r = factory->newRow();
+        r->value = value / b->value;
+        ret = OBJ_VAL(r);
+    }
+    else if (IS_MAT(v)) {
+        ObjMat* b = AS_MAT(v);
+        ObjRow* r = factory->newRow();
+        r->value = value / b->value;
+        ret = OBJ_VAL(r);
+    }
+    else {
+        throw std::runtime_error("unsupported operator /");
+    }
+    return ret;
 }
 
 ObjMat::ObjMat() : Obj(OBJ_MAT)
@@ -462,6 +790,51 @@ void ObjMat::set(int row, int col, Value v)
     row = rectify_index(row, (int)value.n_rows);
     col = rectify_index(col, (int)value.n_cols);
     value(row, col) = AS_NUMBER(v);
+}
+
+Value ObjMat::add(Value v, ObjectFactory* factory)
+{
+    Value r = NIL_VAL;
+    if (IS_MAT(v)) {
+        ObjMat* b = AS_MAT(v);
+        ObjMat* m = factory->newMat();
+        m->value = value + b->value;
+        r = OBJ_VAL(m);
+    }
+    else {
+        throw std::runtime_error("unsupported operation +");
+    }
+    return r;
+}
+
+Value ObjMat::sub(Value v, ObjectFactory* factory)
+{
+    Value r = NIL_VAL;
+    if (IS_MAT(v)) {
+        ObjMat* b = AS_MAT(v);
+        ObjMat* m = factory->newMat();
+        m->value = value - b->value;
+        r = OBJ_VAL(m);
+    }
+    else {
+        throw std::runtime_error("unsupported operation -");
+    }
+    return r;
+}
+
+Value ObjMat::mul(Value v, ObjectFactory* factory)
+{
+    Value r = NIL_VAL;
+    if (IS_MAT(v)) {
+        ObjMat* b = AS_MAT(v);
+        ObjMat* m = factory->newMat();
+        m->value = value * b->value;
+        r = OBJ_VAL(m);
+    }
+    else {
+        throw std::runtime_error("unsupported operation *");
+    }
+    return r;
 }
 
 ObjCube::ObjCube() : Obj(OBJ_CUBE)
