@@ -34,11 +34,7 @@ println("stretch tree of depth ", stretchDepth, " check: ",
 
 var longLivedTree = Tree(0, maxDepth);
 
-// iterations = 2 ** maxDepth;
-var iterations = 1;
-for (var d = 0; d < maxDepth; d = d + 1) {
-  iterations = iterations * 2;
-}
+var iterations = 2 ^ maxDepth;
 
 var depth = minDepth;
 while (depth <= stretchDepth) {
