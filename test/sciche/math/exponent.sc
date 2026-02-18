@@ -1,0 +1,54 @@
+for(var i = -3; i <= 3; i = i + 1) {
+  for(var j = -3; j <= 3; j = j + 1) {
+    println(i, "^", j, "=", i ^ j);
+  }
+}
+// expect: -3^-3=-0.037037037037037
+// expect: -3^-2=0.11111111111111
+// expect: -3^-1=-0.33333333333333
+// expect: -3^0=1
+// expect: -3^1=-3
+// expect: -3^2=9
+// expect: -3^3=-27
+// expect: -2^-3=-0.125
+// expect: -2^-2=0.25
+// expect: -2^-1=-0.5
+// expect: -2^0=1
+// expect: -2^1=-2
+// expect: -2^2=4
+// expect: -2^3=-8
+// expect: -1^-3=-1
+// expect: -1^-2=1
+// expect: -1^-1=-1
+// expect: -1^0=1
+// expect: -1^1=-1
+// expect: -1^2=1
+// expect: -1^3=-1
+// expect: 0^-3=inf
+// expect: 0^-2=inf
+// expect: 0^-1=inf
+// expect: 0^0=1
+// expect: 0^1=0
+// expect: 0^2=0
+// expect: 0^3=0
+// expect: 1^-3=1
+// expect: 1^-2=1
+// expect: 1^-1=1
+// expect: 1^0=1
+// expect: 1^1=1
+// expect: 1^2=1
+// expect: 1^3=1
+// expect: 2^-3=0.125
+// expect: 2^-2=0.25
+// expect: 2^-1=0.5
+// expect: 2^0=1
+// expect: 2^1=2
+// expect: 2^2=4
+// expect: 2^3=8
+// expect: 3^-3=0.037037037037037
+// expect: 3^-2=0.11111111111111
+// expect: 3^-1=0.33333333333333
+// expect: 3^0=1
+// expect: 3^1=3
+// expect: 3^2=9
+// expect: 3^3=27

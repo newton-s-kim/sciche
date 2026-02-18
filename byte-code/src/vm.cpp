@@ -2217,6 +2217,49 @@ InterpretResult VM::run(void)
                 return INTERPRET_RUNTIME_ERROR;
             }
             break;
+        }
+        case OP_EXPONENT: {
+            bool calculated = true;
+            if (IS_NUMBER(peek(1))) {
+                if (IS_NUMBER(peek(0))) {
+                    double b = AS_NUMBER(pop());
+                    double a = AS_NUMBER(pop());
+                    LAX_LOG("pow(%f, %f) is %f", a, b, pow(a, b));
+                    push(NUMBER_VAL(pow(a, b)));
+                }
+                else {
+                    calculated = false;
+                }
+            }
+            else if (IS_COL(peek(1))) {
+                if (IS_NUMBER(peek(0))) {
+                    ObjCol* a = AS_COL(peek(1));
+                    double b = AS_NUMBER(peek(0));
+                    ObjCol* c = newCol();
+                    c->value = arma::pow(a->value, b);
+                    push(OBJ_VAL(c));
+                }
+                else if (IS_COL(peek(0))) {
+                    ObjCol* a = AS_COL(peek(1));
+                    ObjCol* b = AS_COL(peek(0));
+                    pop();
+                    pop();
+                    ObjCol* c = newCol();
+                    c->value = a->value % b->value;
+                    push(OBJ_VAL(c));
+                }
+                else {
+                    calculated = false;
+                }
+            }
+            else {
+                calculated = false;
+            }
+            if (!calculated) {
+                runtimeError("Operands must be numbers.");
+                return INTERPRET_RUNTIME_ERROR;
+            }
+            break;
         } //< Types of Values op-arithmetic
           //> Types of Values op-not
         case OP_NOT:
