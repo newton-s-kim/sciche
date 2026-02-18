@@ -130,6 +130,23 @@ typedef enum {
     OBJ_FILL_EYE
 } ObjFillType;
 
+template <typename T>
+static inline T rectify_index(T index, T imax)
+{
+    if (index >= 0) {
+        if (index >= imax) {
+            throw std::runtime_error("Index is invalid.");
+        }
+    }
+    else {
+        if (-index > imax) {
+            throw std::runtime_error("Index is invalid.");
+        }
+        index = imax + index;
+    }
+    return index;
+}
+
 class ObjectFactory;
 
 class Obj {

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-file(GLOB SCICHE_SOURCES src/*.cpp)
+file(GLOB SCICHE_SOURCES src/*.cpp src/objects/*.cpp)
 find_package(Armadillo REQUIRED)
 add_library(scvm SHARED ${SCICHE_SOURCES})
 target_include_directories(scvm PRIVATE src)
