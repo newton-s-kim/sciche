@@ -1842,20 +1842,6 @@ InterpretResult VM::run(void)
                     calculated = false;
                 }
             }
-            else if (IS_MAT(peek(1))) {
-                if (IS_MAT(peek(0))) {
-                    ObjMat* a = AS_MAT(peek(1));
-                    ObjMat* b = AS_MAT(peek(0));
-                    pop();
-                    pop();
-                    ObjMat* m = newMat();
-                    m->value = a->value - b->value;
-                    push(OBJ_VAL(m));
-                }
-                else {
-                    calculated = false;
-                }
-            }
             else if (IS_OBJ(peek(1))) {
                 try {
                     Value r = AS_OBJ(peek(1))->sub(peek(0), this);
@@ -1909,20 +1895,6 @@ InterpretResult VM::run(void)
                     ObjMat* c = newMat();
                     c->value = a * b->value;
                     push(OBJ_VAL(c));
-                }
-                else {
-                    calculated = false;
-                }
-            }
-            else if (IS_MAT(peek(1))) {
-                if (IS_MAT(peek(0))) {
-                    ObjMat* a = AS_MAT(peek(1));
-                    ObjMat* b = AS_MAT(peek(0));
-                    pop();
-                    pop();
-                    ObjMat* m = newMat();
-                    m->value = a->value * b->value;
-                    push(OBJ_VAL(m));
                 }
                 else {
                     calculated = false;
