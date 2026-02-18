@@ -2368,7 +2368,7 @@ InterpretResult VM::run(void)
                     closure->upvalues.push_back(captureUpvalue(frame->slots + index));
                 }
                 else {
-                    closure->upvalues[i] = frame->closure->upvalues[index];
+                    closure->upvalues.push_back(frame->closure->upvalues[index]);
                 }
             }
             //< interpret-capture-upvalues

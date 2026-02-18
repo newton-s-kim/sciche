@@ -798,7 +798,7 @@ uint8_t CompilerInterfaceConcrete::argumentList()
         do {
             expression();
             //> arg-limit
-            if (argCount == 255) {
+            if (argCount == UINT8_MAX) {
                 parser.error("Can't have more than 255 arguments.");
             }
             //< arg-limit
@@ -816,7 +816,7 @@ uint8_t CompilerInterfaceConcrete::ListArgList()
         do {
             expression();
             //> arg-limit
-            if (argCount == 255) {
+            if (argCount == UINT8_MAX) {
                 parser.error("Can't have more than 255 arguments.");
             }
             //< arg-limit
@@ -835,7 +835,7 @@ uint8_t CompilerInterfaceConcrete::MapArgList()
             parser.consume(TOKEN_COLON, "Expect ',' after arguments");
             expression();
             //> arg-limit
-            if (argCount == 255) {
+            if (argCount == UINT8_MAX) {
                 parser.error("Can't have more than 255 arguments.");
             }
             //< arg-limit
@@ -1452,7 +1452,7 @@ void CompilerInterfaceConcrete::function(FunctionType type)
     if (!parser.check(TOKEN_RIGHT_PAREN)) {
         do {
             current->function->arity++;
-            if (current->function->arity > UINT8_COUNT) {
+            if (current->function->arity >= UINT8_COUNT) {
                 parser.errorAtCurrent("Can't have more than 255 parameters.");
             }
             uint16_t constant = parseVariable("Expect parameter name.");
