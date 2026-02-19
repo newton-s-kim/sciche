@@ -34,8 +34,9 @@ void ObjCol::set(int index, Value v)
     value[index] = AS_NUMBER(v);
 }
 
-Value ObjCol::add(Value v, ObjectFactory* factory)
+Value ObjCol::add(Value v, ObjectFactory* factory, bool opposite)
 {
+    (void)opposite;
     Value r = NIL_VAL;
     if (IS_COL(v)) {
         ObjCol* b = AS_COL(v);
@@ -49,13 +50,13 @@ Value ObjCol::add(Value v, ObjectFactory* factory)
     return r;
 }
 
-Value ObjCol::sub(Value v, ObjectFactory* factory)
+Value ObjCol::sub(Value v, ObjectFactory* factory, bool opposite)
 {
     Value r = NIL_VAL;
     if (IS_COL(v)) {
         ObjCol* b = AS_COL(v);
         ObjCol* c = factory->newCol();
-        c->value = value - b->value;
+        c->value = (opposite) ? b->value - value : value - b->value;
         r = OBJ_VAL(c);
     }
     else {
@@ -64,7 +65,7 @@ Value ObjCol::sub(Value v, ObjectFactory* factory)
     return r;
 }
 
-Value ObjCol::mul(Value v, ObjectFactory* factory)
+Value ObjCol::mul(Value v, ObjectFactory* factory, bool opposite)
 {
     Value r = NIL_VAL;
     if (IS_NUMBER(v)) {
@@ -73,34 +74,33 @@ Value ObjCol::mul(Value v, ObjectFactory* factory)
         c->value = value * b;
         r = OBJ_VAL(c);
     }
+    else if (IS_COL(v)) {
+        ObjCol* b = AS_COL(v);
+        ObjCol* c = factory->newCol();
+        c->value = (opposite) ? b->value * value : value * b->value;
+        r = OBJ_VAL(c);
+    }
     else {
         throw std::runtime_error("unsupported operation *");
     }
     return r;
 }
 
-Value ObjCol::div(Value v, ObjectFactory* factory)
+Value ObjCol::div(Value v, ObjectFactory* factory, bool opposite)
 {
     Value r = NIL_VAL;
     if (IS_NUMBER(v)) {
+        if (opposite)
+            throw std::runtime_error("unsupported operation /");
         double b = AS_NUMBER(v);
         ObjCol* c = factory->newCol();
         c->value = value / b;
         r = OBJ_VAL(c);
     }
-    else {
-        throw std::runtime_error("unsupported operation /");
-    }
-    return r;
-}
-
-Value ObjCol::mod(Value v, ObjectFactory* factory)
-{
-    Value r = NIL_VAL;
-    if (IS_COL(v)) {
+    else if (IS_COL(v)) {
         ObjCol* b = AS_COL(v);
         ObjCol* c = factory->newCol();
-        c->value = value % b->value;
+        c->value = (opposite) ? b->value / value : value / b->value;
         r = OBJ_VAL(c);
     }
     else {
@@ -109,10 +109,27 @@ Value ObjCol::mod(Value v, ObjectFactory* factory)
     return r;
 }
 
-Value ObjCol::pow(Value v, ObjectFactory* factory)
+Value ObjCol::mod(Value v, ObjectFactory* factory, bool opposite)
+{
+    Value r = NIL_VAL;
+    if (IS_COL(v)) {
+        ObjCol* b = AS_COL(v);
+        ObjCol* c = factory->newCol();
+        c->value = (opposite) ? b->value % value : value % b->value;
+        r = OBJ_VAL(c);
+    }
+    else {
+        throw std::runtime_error("unsupported operation /");
+    }
+    return r;
+}
+
+Value ObjCol::pow(Value v, ObjectFactory* factory, bool opposite)
 {
     Value r = NIL_VAL;
     if (IS_NUMBER(v)) {
+        if (opposite)
+            throw std::runtime_error("unsupported operation ^");
         double b = AS_NUMBER(v);
         ObjCol* c = factory->newCol();
         c->value = arma::pow(value, b);
@@ -121,7 +138,7 @@ Value ObjCol::pow(Value v, ObjectFactory* factory)
     else if (IS_COL(v)) {
         ObjCol* b = AS_COL(v);
         ObjCol* c = factory->newCol();
-        c->value = value % b->value;
+        c->value = (opposite) ? arma::pow(b->value, value) : arma::pow(value, b->value);
         r = OBJ_VAL(c);
     }
     else {

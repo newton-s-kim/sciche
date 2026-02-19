@@ -32,8 +32,9 @@ void ObjRow::set(int index, Value v)
     value[index] = AS_NUMBER(v);
 }
 
-Value ObjRow::add(Value v, ObjectFactory* factory)
+Value ObjRow::add(Value v, ObjectFactory* factory, bool opposite)
 {
+    (void)opposite;
     Value ret = NIL_VAL;
     if (IS_ROW(v)) {
         ObjRow* b = AS_ROW(v);
@@ -53,16 +54,18 @@ Value ObjRow::add(Value v, ObjectFactory* factory)
     return ret;
 }
 
-Value ObjRow::sub(Value v, ObjectFactory* factory)
+Value ObjRow::sub(Value v, ObjectFactory* factory, bool opposite)
 {
     Value ret = NIL_VAL;
     if (IS_ROW(v)) {
         ObjRow* b = AS_ROW(v);
         ObjRow* r = factory->newRow();
-        r->value = value - b->value;
+        r->value = (opposite) ? b->value - value : value - b->value;
         ret = OBJ_VAL(r);
     }
     else if (IS_MAT(v)) {
+        if (opposite)
+            throw std::runtime_error("unsupported operator -");
         ObjMat* b = AS_MAT(v);
         ObjRow* r = factory->newRow();
         r->value = value - b->value;
@@ -74,7 +77,7 @@ Value ObjRow::sub(Value v, ObjectFactory* factory)
     return ret;
 }
 
-Value ObjRow::mul(Value v, ObjectFactory* factory)
+Value ObjRow::mul(Value v, ObjectFactory* factory, bool opposite)
 {
     Value ret = NIL_VAL;
     if (IS_ROW(v)) {
@@ -84,6 +87,8 @@ Value ObjRow::mul(Value v, ObjectFactory* factory)
         ret = OBJ_VAL(r);
     }
     else if (IS_MAT(v)) {
+        if (opposite)
+            throw std::runtime_error("unsupported operator *");
         ObjMat* b = AS_MAT(v);
         ObjRow* r = factory->newRow();
         r->value = value * b->value;
@@ -95,16 +100,18 @@ Value ObjRow::mul(Value v, ObjectFactory* factory)
     return ret;
 }
 
-Value ObjRow::div(Value v, ObjectFactory* factory)
+Value ObjRow::div(Value v, ObjectFactory* factory, bool opposite)
 {
     Value ret = NIL_VAL;
     if (IS_ROW(v)) {
         ObjRow* b = AS_ROW(v);
         ObjRow* r = factory->newRow();
-        r->value = value / b->value;
+        r->value = (opposite) ? b->value / value : value / b->value;
         ret = OBJ_VAL(r);
     }
     else if (IS_MAT(v)) {
+        if (opposite)
+            throw std::runtime_error("unsupported operator /");
         ObjMat* b = AS_MAT(v);
         ObjRow* r = factory->newRow();
         r->value = value / b->value;

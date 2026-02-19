@@ -1779,22 +1779,16 @@ InterpretResult VM::run(void)
                     double a = AS_NUMBER(pop());
                     push(NUMBER_VAL(a + b));
                 }
-                else if (IS_COL(peek(0))) {
-                    double a = AS_NUMBER(peek(1));
-                    ObjCol* b = AS_COL(peek(0));
-                    pop();
-                    pop();
-                    ObjCol* c = newCol();
-                    c->value = a + b->value;
-                    push(OBJ_VAL(c));
-                }
-                else if (IS_COMPLEX(peek(0))) {
-                    double a = AS_NUMBER(peek(1));
-                    ObjComplex* b = AS_COMPLEX(peek(0));
-                    pop();
-                    pop();
-                    ObjComplex* c = newComplex(std::complex<double>(a + b->value.real(), b->value.imag()));
-                    push(OBJ_VAL(c));
+                else if (IS_OBJ(peek(0))) {
+                    try {
+                        Value r = AS_OBJ(peek(0))->add(peek(1), this, true);
+                        pop();
+                        pop();
+                        push(r);
+                    }
+                    catch (std::exception& e) {
+                        calculated = false;
+                    }
                 }
                 else {
                     calculated = false;
@@ -1830,13 +1824,16 @@ InterpretResult VM::run(void)
                     double a = AS_NUMBER(pop());
                     push(NUMBER_VAL(a - b));
                 }
-                else if (IS_COMPLEX(peek(0))) {
-                    double a = AS_NUMBER(peek(1));
-                    ObjComplex* b = AS_COMPLEX(peek(0));
-                    pop();
-                    pop();
-                    ObjComplex* c = newComplex(std::complex<double>(a - b->value.real(), -b->value.imag()));
-                    push(OBJ_VAL(c));
+                else if (IS_OBJ(peek(0))) {
+                    try {
+                        Value r = AS_OBJ(peek(0))->sub(peek(1), this, true);
+                        pop();
+                        pop();
+                        push(r);
+                    }
+                    catch (std::exception& e) {
+                        calculated = false;
+                    }
                 }
                 else {
                     calculated = false;
@@ -1870,31 +1867,16 @@ InterpretResult VM::run(void)
                     double a = AS_NUMBER(pop());
                     push(NUMBER_VAL(a * b));
                 }
-                else if (IS_COMPLEX(peek(0))) {
-                    double a = AS_NUMBER(peek(1));
-                    ObjComplex* b = AS_COMPLEX(peek(0));
-                    pop();
-                    pop();
-                    ObjComplex* c = newComplex(std::complex<double>(a * b->value.real(), a * b->value.imag()));
-                    push(OBJ_VAL(c));
-                }
-                else if (IS_COL(peek(0))) {
-                    double a = AS_NUMBER(peek(1));
-                    ObjCol* b = AS_COL(peek(0));
-                    pop();
-                    pop();
-                    ObjCol* c = newCol();
-                    c->value = a * b->value;
-                    push(OBJ_VAL(c));
-                }
-                else if (IS_MAT(peek(0))) {
-                    double a = AS_NUMBER(peek(1));
-                    ObjMat* b = AS_MAT(peek(0));
-                    pop();
-                    pop();
-                    ObjMat* c = newMat();
-                    c->value = a * b->value;
-                    push(OBJ_VAL(c));
+                else if (IS_OBJ(peek(0))) {
+                    try {
+                        Value r = AS_OBJ(peek(0))->mul(peek(1), this, true);
+                        pop();
+                        pop();
+                        push(r);
+                    }
+                    catch (std::exception& e) {
+                        calculated = false;
+                    }
                 }
                 else {
                     calculated = false;
@@ -1928,14 +1910,16 @@ InterpretResult VM::run(void)
                     double a = AS_NUMBER(pop());
                     push(NUMBER_VAL(a / b));
                 }
-                else if (IS_COMPLEX(peek(0))) {
-                    double a = AS_NUMBER(peek(1));
-                    ObjComplex* b = AS_COMPLEX(peek(0));
-                    pop();
-                    pop();
-                    std::complex<double> t(a, 0);
-                    ObjComplex* c = newComplex(std::complex<double>(t / b->value));
-                    push(OBJ_VAL(c));
+                else if (IS_OBJ(peek(0))) {
+                    try {
+                        Value r = AS_OBJ(peek(0))->div(peek(1), this, false);
+                        pop();
+                        pop();
+                        push(r);
+                    }
+                    catch (std::exception& e) {
+                        calculated = false;
+                    }
                 }
                 else {
                     calculated = false;
@@ -1970,6 +1954,17 @@ InterpretResult VM::run(void)
                     LAX_LOG("fmod(%f, %f) is %f", a, b, fmod(a, b));
                     push(NUMBER_VAL(fmod(a, b)));
                 }
+                else if (IS_OBJ(peek(0))) {
+                    try {
+                        Value r = AS_OBJ(peek(0))->mod(peek(1), this, true);
+                        pop();
+                        pop();
+                        push(r);
+                    }
+                    catch (std::exception& e) {
+                        calculated = false;
+                    }
+                }
                 else {
                     calculated = false;
                 }
@@ -2002,6 +1997,17 @@ InterpretResult VM::run(void)
                     double a = AS_NUMBER(pop());
                     LAX_LOG("pow(%f, %f) is %f", a, b, pow(a, b));
                     push(NUMBER_VAL(pow(a, b)));
+                }
+                else if (IS_OBJ(peek(0))) {
+                    try {
+                        Value r = AS_OBJ(peek(0))->pow(peek(1), this, true);
+                        pop();
+                        pop();
+                        push(r);
+                    }
+                    catch (std::exception& e) {
+                        calculated = false;
+                    }
                 }
                 else {
                     calculated = false;

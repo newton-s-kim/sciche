@@ -33,8 +33,9 @@ void ObjMat::set(int row, int col, Value v)
     value(row, col) = AS_NUMBER(v);
 }
 
-Value ObjMat::add(Value v, ObjectFactory* factory)
+Value ObjMat::add(Value v, ObjectFactory* factory, bool opposite)
 {
+    (void)opposite;
     Value r = NIL_VAL;
     if (IS_MAT(v)) {
         ObjMat* b = AS_MAT(v);
@@ -48,13 +49,13 @@ Value ObjMat::add(Value v, ObjectFactory* factory)
     return r;
 }
 
-Value ObjMat::sub(Value v, ObjectFactory* factory)
+Value ObjMat::sub(Value v, ObjectFactory* factory, bool opposite)
 {
     Value r = NIL_VAL;
     if (IS_MAT(v)) {
         ObjMat* b = AS_MAT(v);
         ObjMat* m = factory->newMat();
-        m->value = value - b->value;
+        m->value = (opposite) ? b->value - value : value - b->value;
         r = OBJ_VAL(m);
     }
     else {
@@ -63,13 +64,13 @@ Value ObjMat::sub(Value v, ObjectFactory* factory)
     return r;
 }
 
-Value ObjMat::mul(Value v, ObjectFactory* factory)
+Value ObjMat::mul(Value v, ObjectFactory* factory, bool opposite)
 {
     Value r = NIL_VAL;
     if (IS_MAT(v)) {
         ObjMat* b = AS_MAT(v);
         ObjMat* m = factory->newMat();
-        m->value = value * b->value;
+        m->value = (opposite) ? b->value * value : value * b->value;
         r = OBJ_VAL(m);
     }
     else {

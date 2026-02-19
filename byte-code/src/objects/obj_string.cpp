@@ -16,26 +16,36 @@ void ObjString::blaken(void)
 {
 }
 
-Value ObjString::add(Value v, ObjectFactory* factory)
+Value ObjString::add(Value v, ObjectFactory* factory, bool opposite)
 {
     Value r = NIL_VAL;
     if (IS_STRING(v)) {
         ObjString* b = AS_STRING(v);
-        std::string rchars = chars;
-        rchars += b->chars;
+        std::string rchars;
+        if (opposite) {
+            rchars = b->chars;
+            rchars += chars;
+        }
+        else {
+            rchars = chars;
+            rchars += b->chars;
+        }
         ObjString* result = factory->newString(rchars.c_str());
         r = OBJ_VAL(result);
     }
     else if (IS_NUMBER(v)) {
         double b = AS_NUMBER(v);
         std::stringstream ss;
-        ss << chars << b;
+        if (opposite)
+            ss << b << chars;
+        else
+            ss << chars << b;
         ObjString* c = factory->newString(ss.str().c_str());
         r = OBJ_VAL(c);
     }
     else if (IS_COMPLEX(v)) {
         ObjComplex* b = AS_COMPLEX(v);
-        std::string s = chars + b->stringify();
+        std::string s = (opposite) ? b->stringify() + chars : chars + b->stringify();
         ObjString* c = factory->newString(s.c_str());
         r = OBJ_VAL(c);
     }

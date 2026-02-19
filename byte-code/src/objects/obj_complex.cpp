@@ -32,8 +32,9 @@ void ObjComplex::blaken(void)
 {
 }
 
-Value ObjComplex::add(Value v, ObjectFactory* factory)
+Value ObjComplex::add(Value v, ObjectFactory* factory, bool opposite)
 {
+    (void)opposite;
     Value r = NIL_VAL;
     if (IS_NUMBER(v)) {
         double b = AS_NUMBER(v);
@@ -51,17 +52,25 @@ Value ObjComplex::add(Value v, ObjectFactory* factory)
     return r;
 }
 
-Value ObjComplex::sub(Value v, ObjectFactory* factory)
+Value ObjComplex::sub(Value v, ObjectFactory* factory, bool opposite)
 {
     Value r = NIL_VAL;
     if (IS_NUMBER(v)) {
         double b = AS_NUMBER(v);
-        ObjComplex* c = factory->newComplex(std::complex<double>(value.real() - b, value.imag()));
+        ObjComplex* c = NULL;
+        if (opposite)
+            c = factory->newComplex(std::complex<double>(b - value.real(), value.imag()));
+        else
+            c = factory->newComplex(std::complex<double>(value.real() - b, value.imag()));
         r = OBJ_VAL(c);
     }
     else if (IS_COMPLEX(v)) {
         ObjComplex* b = AS_COMPLEX(v);
-        ObjComplex* c = factory->newComplex(std::complex<double>(value - b->value));
+        ObjComplex* c = NULL;
+        if (opposite)
+            c = factory->newComplex(std::complex<double>(b->value - value));
+        else
+            c = factory->newComplex(std::complex<double>(value - b->value));
         r = OBJ_VAL(c);
     }
     else {
@@ -70,7 +79,7 @@ Value ObjComplex::sub(Value v, ObjectFactory* factory)
     return r;
 }
 
-Value ObjComplex::mul(Value v, ObjectFactory* factory)
+Value ObjComplex::mul(Value v, ObjectFactory* factory, bool opposite)
 {
     Value r = NIL_VAL;
     if (IS_NUMBER(v)) {
@@ -80,7 +89,11 @@ Value ObjComplex::mul(Value v, ObjectFactory* factory)
     }
     else if (IS_COMPLEX(v)) {
         ObjComplex* b = AS_COMPLEX(v);
-        ObjComplex* c = factory->newComplex(std::complex<double>(value * b->value));
+        ObjComplex* c = NULL;
+        if (opposite)
+            c = factory->newComplex(std::complex<double>(b->value * value));
+        else
+            c = factory->newComplex(std::complex<double>(value * b->value));
         r = OBJ_VAL(c);
     }
     else {
@@ -89,18 +102,26 @@ Value ObjComplex::mul(Value v, ObjectFactory* factory)
     return r;
 }
 
-Value ObjComplex::div(Value v, ObjectFactory* factory)
+Value ObjComplex::div(Value v, ObjectFactory* factory, bool opposite)
 {
     Value r = NIL_VAL;
     if (IS_NUMBER(v)) {
         double b = AS_NUMBER(v);
         std::complex<double> t(b, 0);
-        ObjComplex* c = factory->newComplex(std::complex<double>(value / t));
+        ObjComplex* c = NULL;
+        if (opposite)
+            c = factory->newComplex(std::complex<double>(t / value));
+        else
+            c = factory->newComplex(std::complex<double>(value / t));
         r = OBJ_VAL(c);
     }
     else if (IS_COMPLEX(v)) {
         ObjComplex* b = AS_COMPLEX(v);
-        ObjComplex* c = factory->newComplex(std::complex<double>(value / b->value));
+        ObjComplex* c = NULL;
+        if (opposite)
+            c = factory->newComplex(std::complex<double>(b->value / value));
+        else
+            c = factory->newComplex(std::complex<double>(value / b->value));
         r = OBJ_VAL(c);
     }
     else {
