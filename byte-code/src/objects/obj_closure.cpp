@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 ObjClosure::ObjClosure(ObjFunction* pFunction) : Obj(OBJ_CLOSURE), function(pFunction)
 {
     upvalues.reserve(function->upvalueCount);
@@ -8,3 +9,4 @@ ObjClosure::ObjClosure(ObjFunction* pFunction) : Obj(OBJ_CLOSURE), function(pFun
     printf("%p allocate %zu for %d\n", (void*)this, sizeof(ObjClosure), type);
 #endif
 }
+} // namespace sce

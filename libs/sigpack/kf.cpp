@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <string>
 
+namespace sce {
 static Value kf_set_trans_mat(ObjectFactory* factory, NativeObject* obj, int argc, Value* argv)
 {
     (void)factory;
@@ -163,3 +164,4 @@ kalmanFilter::kalmanFilter(int n, int m, int l) : NativeObject(s_kf_apis, s_kf_p
 kalmanFilter::~kalmanFilter()
 {
 }
+} // namespace sce

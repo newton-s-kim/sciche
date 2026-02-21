@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 NativeObject::NativeObject(std::map<std::string, NativeObjectBoundFn>& apis,
                            std::map<std::string, NativeObjectBoundProperty>& properties)
     : m_apis(apis), m_properties(properties)
@@ -44,3 +45,4 @@ std::string ObjNativeObject::stringify(void)
 void ObjNativeObject::blaken(void)
 {
 }
+} // namespace sce

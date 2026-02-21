@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 ObjFunction::ObjFunction() : Obj(OBJ_FUNCTION)
 {
     arity = 0;
@@ -30,3 +31,4 @@ std::string ObjFunction::stringify(void)
 void ObjFunction::blaken(void)
 {
 }
+} // namespace sce

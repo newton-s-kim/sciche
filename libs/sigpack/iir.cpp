@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <string>
 
+namespace sce {
 static Value iir_set_coeffs(ObjectFactory* factory, NativeObject* obj, int argc, Value* argv)
 {
     (void)factory;
@@ -46,3 +47,4 @@ IirFilter::IirFilter() : NativeObject(s_iir_apis, s_iir_properties)
 IirFilter::~IirFilter()
 {
 }
+} // namespace sce

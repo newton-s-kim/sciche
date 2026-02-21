@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 ObjNative::ObjNative(NativeFn pFunction) : Obj(OBJ_NATIVE), function(pFunction)
 {
 #ifdef DEBUG_LOG_GC
@@ -15,3 +16,4 @@ std::string ObjNative::stringify(void)
 void ObjNative::blaken(void)
 {
 }
+} // namespace sce

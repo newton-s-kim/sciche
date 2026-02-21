@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 ObjList::ObjList() : Obj(OBJ_LIST)
 {
 }
@@ -112,3 +113,4 @@ Value listNative::call(ObjectFactory* factory, int argc, Value* args)
         list->container.push_back(args[idx]);
     return OBJ_VAL(list);
 }
+} // namespace sce

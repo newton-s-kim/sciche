@@ -4,6 +4,7 @@
 
 #include <string>
 
+namespace sce {
 typedef void (*libfn)(std::vector<std::string>&, std::vector<NativeFn>&);
 typedef void (*libsym)(std::vector<std::string>&, std::vector<NativeClass*>&);
 typedef void (*libconst)(std::vector<std::string>&, std::vector<double>&);
@@ -26,3 +27,4 @@ public:
     void symbols(std::vector<std::string>& names, std::vector<NativeClass*>& klasses);
     void constants(std::vector<std::string>& names, std::vector<double>& consts);
 };
+} // namespace sce

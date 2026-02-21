@@ -3,6 +3,7 @@
 #define clox_scanner_h
 //> token-type
 
+namespace sce {
 typedef enum {
     // Single-character tokens.
     TOKEN_LEFT_PAREN,
@@ -97,5 +98,6 @@ public:
 
 //> scan-token-h
 //< scan-token-h
+} // namespace sce
 
 #endif

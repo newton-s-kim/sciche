@@ -1,5 +1,7 @@
 #include "object.hpp"
 
+namespace sce {
+
 Obj::Obj(ObjType objType) : type(objType), isMarked(false)
 {
 }
@@ -60,3 +62,4 @@ Value Obj::pow(Value v, ObjectFactory* factory, bool opposite)
     (void)opposite;
     throw std::runtime_error("unsupported operation ^");
 }
+} // namespace sce

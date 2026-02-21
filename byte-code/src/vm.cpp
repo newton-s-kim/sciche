@@ -32,6 +32,7 @@
 #define GC_HEAP_GROW_FACTOR 2
 //< Garbage Collection heap-grow-factor
 
+namespace sce {
 void VM::collect(size_t oldSize, size_t newSize)
 {
     //> Garbage Collection updated-bytes-allocated
@@ -2406,4 +2407,5 @@ bool VM::callFunction(Value value, int argc, Value* argv, bool startNew)
         pop();
     return ret;
 }
+} // namespace sce
 //< interpret

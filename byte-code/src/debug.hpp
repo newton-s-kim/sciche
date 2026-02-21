@@ -6,6 +6,7 @@
 
 #include <string>
 
+namespace sce {
 class Debug {
 private:
     int constantInstruction(const char* name, Chunk* chunk, int offset);
@@ -18,5 +19,6 @@ public:
     void disassembleChunk(Chunk* chunk, std::string name);
     int disassembleInstruction(Chunk* chunk, int offset);
 };
+} // namespace sce
 
 #endif

@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <string>
 
+namespace sce {
 static Value gplot_window(ObjectFactory* factory, NativeObject* obj, int argc, Value* argv)
 {
     (void)factory;
@@ -250,3 +251,4 @@ gPlot::gPlot() : NativeObject(s_gplot_apis, s_gplot_properties)
 gPlot::~gPlot()
 {
 }
+} // namespace sce

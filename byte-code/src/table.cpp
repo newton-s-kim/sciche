@@ -5,6 +5,7 @@
 #include "table.hpp"
 #include "value.hpp"
 
+namespace sce {
 bool Table::get(std::string& key, Value* value)
 {
     std::map<std::string, Value>::iterator it = entries.find(key);
@@ -48,4 +49,5 @@ void Table::mark(std::function<void(Value)> callback)
         callback(it->second);
     }
 }
+} // namespace sce
 //< Garbage Collection mark-table

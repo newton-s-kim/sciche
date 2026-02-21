@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 NativeClass::NativeClass(std::map<std::string, NativeClassBoundFn>& apis,
                          std::map<std::string, NativeClassBoundProperty>& constants)
     : m_apis(apis), m_constants(constants)
@@ -53,3 +54,4 @@ std::string ObjNativeClass::stringify(void)
 void ObjNativeClass::blaken(void)
 {
 }
+} // namespace sce

@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <string>
 
+namespace sce {
 static Value delay_delay(ObjectFactory* factory, NativeObject* obj, int argc, Value* argv)
 {
     if (1 != argc)
@@ -34,3 +35,4 @@ DelayFilter::DelayFilter(int nDelay) : NativeObject(s_delay_apis, s_delay_proper
 DelayFilter::~DelayFilter()
 {
 }
+} // namespace sce

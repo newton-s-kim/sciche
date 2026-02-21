@@ -6,6 +6,7 @@
 #include <stack>
 #include <stdexcept>
 
+namespace sce {
 struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHandler> {
     ObjectFactory* factory;
     std::string key;
@@ -331,3 +332,4 @@ void JsonInterface::dump(rapidjson::StringBuffer& s, Value value)
     rapidjson::Writer<rapidjson::StringBuffer> writer(s);
     write(writer, value);
 }
+} // namespace sce

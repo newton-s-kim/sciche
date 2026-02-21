@@ -2,6 +2,7 @@
 
 #include "json.hpp"
 
+namespace sce {
 extern "C" void json_functions(std::vector<std::string>& names, std::vector<NativeFn>& functions)
 {
     names.assign({});
@@ -17,3 +18,4 @@ extern "C" void json_constants(std::vector<std::string>& names, std::vector<doub
     names.assign({});
     consts.assign({});
 }
+} // namespace sce

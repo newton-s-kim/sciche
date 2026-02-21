@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 ObjThread::ObjThread() : Obj(OBJ_THREAD), frameCount(0), stackTop(stack), caller(NULL)
 {
 }
@@ -24,3 +25,4 @@ std::string ObjThread::stringify(void)
 void ObjThread::blaken(void)
 {
 }
+} // namespace sce

@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 
+namespace sce {
 typedef Value (*PrimitiveBoundFn)(ObjectFactory* factory, Value value, int argc, Value* argv);
 typedef Value (*PrimitiveBoundProperty)(ObjectFactory* factory, Value value);
 
@@ -697,3 +698,4 @@ Value Primitive::property(ObjectFactory* factory, Value value, std::string& name
     }
     return ret;
 }
+} // namespace sce

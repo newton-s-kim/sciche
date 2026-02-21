@@ -11,6 +11,7 @@
 
 #define READ_ADDRESS() ((uint16_t)((chunk->code[offset + 1] << 8) | chunk->code[offset + 2]))
 
+namespace sce {
 void Debug::disassembleChunk(Chunk* chunk, std::string name)
 {
     printf("== %s ==\n", name.c_str());
@@ -242,3 +243,4 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
     }
 }
 //< disassemble-instruction
+} // namespace sce

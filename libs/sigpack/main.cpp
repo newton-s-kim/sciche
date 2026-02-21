@@ -1,5 +1,6 @@
 #include "sp.hpp"
 
+namespace sce {
 extern "C" void sigpack_functions(std::vector<std::string>& names, std::vector<NativeFn>& functions)
 {
     names.assign({});
@@ -15,3 +16,4 @@ extern "C" void sigpack_constants(std::vector<std::string>& names, std::vector<d
     names.assign({});
     consts.assign({});
 }
+} // namespace sce

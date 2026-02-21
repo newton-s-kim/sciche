@@ -1,5 +1,6 @@
 #include "sndwav.hpp"
 
+namespace sce {
 static Value sndwav_read(ObjectFactory* factory, NativeObject* obj, int argc, Value* argv)
 {
     (void)argc;
@@ -58,3 +59,4 @@ void SndWav::close(void)
         m_handle = NULL;
     }
 }
+} // namespace sce

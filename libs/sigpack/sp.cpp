@@ -8,6 +8,7 @@
 
 #include "sigpack-1.2.7/sigpack/sigpack.h"
 
+namespace sce {
 using namespace arma;
 using namespace sp;
 
@@ -185,3 +186,4 @@ SigpackInterface::SigpackInterface() : NativeClass(s_sigpack_apis, s_sigpack_pro
 SigpackInterface::~SigpackInterface()
 {
 }
+} // namespace sce

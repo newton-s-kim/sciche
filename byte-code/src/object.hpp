@@ -85,6 +85,7 @@
 #define AS_CUBE(value) ((ObjCube*)AS_OBJ(value))
 #define AS_THREAD(value) ((ObjThread*)AS_OBJ(value))
 
+namespace sce {
 typedef enum {
     //> Methods and Initializers obj-type-bound-method
     OBJ_BOUND_METHOD,
@@ -519,6 +520,7 @@ public:
     virtual bool loadLibrary(std::string path, std::string name) = 0;
     virtual bool callFunction(Value value, int argc, Value* argv, bool startNew) = 0;
 };
+} // namespace sce
 
 //< is-obj-type
 #endif

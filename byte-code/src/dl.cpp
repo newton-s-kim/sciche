@@ -2,6 +2,7 @@
 
 #include <dlfcn.h>
 
+namespace sce {
 dl::dl(std::string path, std::string name) : m_handle(NULL), m_fn(NULL), m_sym(NULL), m_const(NULL), m_name(name)
 {
     m_handle = dlopen(path.c_str(), RTLD_LAZY);
@@ -47,3 +48,4 @@ void dl::constants(std::vector<std::string>& names, std::vector<double>& consts)
     }
     m_const(names, consts);
 }
+} // namespace sce

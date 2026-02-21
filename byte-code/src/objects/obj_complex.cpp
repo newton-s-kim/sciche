@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 ObjComplex::ObjComplex(const std::complex<double> v) : Obj(OBJ_COMPLEX), value(v)
 {
 }
@@ -129,3 +130,4 @@ Value ObjComplex::div(Value v, ObjectFactory* factory, bool opposite)
     }
     return r;
 }
+} // namespace sce

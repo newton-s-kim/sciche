@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 ObjClass::ObjClass(std::string pName) : Obj(OBJ_CLASS), name(pName)
 {
 #ifdef DEBUG_LOG_GC
@@ -28,3 +29,4 @@ std::string ObjClass::stringify(void)
 void ObjClass::blaken(void)
 {
 }
+} // namespace sce

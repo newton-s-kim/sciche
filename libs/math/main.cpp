@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 static Value asinNative(ObjectFactory* factory, int argc, Value* args)
 {
     Value value = 0;
@@ -295,3 +296,4 @@ extern "C" void math_constants(std::vector<std::string>& names, std::vector<doub
     names.assign({"pi"});
     consts.assign({M_PI});
 }
+} // namespace sce

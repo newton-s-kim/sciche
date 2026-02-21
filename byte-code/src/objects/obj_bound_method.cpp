@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 ObjBoundMethod::ObjBoundMethod(Value pReceiver, ObjClosure* pMethod)
     : Obj(OBJ_BOUND_METHOD), receiver(pReceiver), method(pMethod)
 {
@@ -16,3 +17,4 @@ std::string ObjBoundMethod::stringify(void)
 void ObjBoundMethod::blaken(void)
 {
 }
+} // namespace sce

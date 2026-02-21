@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 ObjMat::ObjMat() : Obj(OBJ_MAT)
 {
 }
@@ -174,3 +175,4 @@ Value matNative::call(ObjectFactory* factory, int argc, Value* args)
     }
     return OBJ_VAL(factory->newMat(rows, cols, fill_type));
 }
+} // namespace sce

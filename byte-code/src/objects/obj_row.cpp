@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 ObjRow::ObjRow() : Obj(OBJ_ROW)
 {
 }
@@ -122,3 +123,4 @@ Value ObjRow::div(Value v, ObjectFactory* factory, bool opposite)
     }
     return ret;
 }
+} // namespace sce

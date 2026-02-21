@@ -8,6 +8,7 @@
 #include <map>
 #include <string>
 
+namespace sce {
 class Table {
 private:
     std::map<std::string, Value> entries;
@@ -29,5 +30,5 @@ public:
     void addAll(Table& from);
     //< table-add-all-h
 };
-
+} // namespace sce
 #endif

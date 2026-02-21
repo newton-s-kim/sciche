@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 ObjMap::ObjMap() : Obj(OBJ_MAP)
 {
 }
@@ -56,3 +57,4 @@ void ObjMap::set(std::string index, Value value)
 {
     container[index] = value;
 }
+} // namespace sce

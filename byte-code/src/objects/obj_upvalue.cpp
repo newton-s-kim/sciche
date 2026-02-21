@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 ObjUpvalue::ObjUpvalue(Value* slot) : Obj(OBJ_UPVALUE)
 {
     //> init-closed
@@ -22,3 +23,4 @@ std::string ObjUpvalue::stringify(void)
 void ObjUpvalue::blaken(void)
 {
 }
+} // namespace sce

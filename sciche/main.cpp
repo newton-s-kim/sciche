@@ -18,10 +18,11 @@ void help(std::string programme)
     std::cout << "  -m, --use-virtual-machine  use Byte code machine" << std::endl;
 }
 
-static Value printLnNative(ObjectFactory* factory, int argc, Value* args)
+namespace sce {
+static sce::Value printLnNative(sce::ObjectFactory* factory, int argc, sce::Value* args)
 {
     (void)factory;
-    ValueUtil util;
+    sce::ValueUtil util;
     for (int idx = 0; idx < argc; idx++) {
         util.print(args[idx]);
     }
@@ -29,14 +30,16 @@ static Value printLnNative(ObjectFactory* factory, int argc, Value* args)
     return 0;
 }
 
-static Value exitNative(ObjectFactory* factory, int argc, Value* args)
+static sce::Value exitNative(sce::ObjectFactory* factory, int argc, sce::Value* args)
 {
     (void)factory;
     int n = 0;
     if (1 == argc && IS_NUMBER(args[0]))
         n = args[0];
     exit(AS_NUMBER(n));
+    return NIL_VAL;
 }
+} // namespace sce
 
 int main(int argc, char const* argv[])
 {
@@ -73,9 +76,9 @@ int main(int argc, char const* argv[])
     if (optind == argc - 1)
         filepath = argv[optind];
 
-    VM vm;
-    vm.defineNative("println", printLnNative);
-    vm.defineNative("exit", exitNative);
+    sce::VM vm;
+    vm.defineNative("println", sce::printLnNative);
+    vm.defineNative("exit", sce::exitNative);
     std::string prompt;
     prompt = ">> ";
     // std::unique_ptr<ByteCodeMachine> runner = std::make_unique<ByteCodeMachine>();

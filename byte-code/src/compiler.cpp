@@ -92,6 +92,7 @@ DIGIT          → "0" ... "9" ;
 */
 // extern Scanner scanner;
 
+namespace sce {
 class Parser {
 public:
     Scanner scanner;
@@ -2025,3 +2026,4 @@ CompilerFactory* CompilerFactory::instance(void)
     static CompilerFactoryConcrete s_compiler_factory;
     return &s_compiler_factory;
 }
+} // namespace sce

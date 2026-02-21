@@ -14,6 +14,7 @@ void compile(const char* source);
 bool compile(const char* source, Chunk* chunk);
 */
 
+namespace sce {
 class CompilerInterface {
 public:
     //> Calls and Functions compile-h
@@ -29,5 +30,5 @@ public:
     virtual CompilerInterface* create(ObjectFactory* factory) = 0;
     static CompilerFactory* instance(void);
 };
-
+} // namespace sce
 #endif

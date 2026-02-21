@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 ObjString::ObjString(std::string pChars) : Obj(OBJ_STRING), chars(pChars)
 {
 #ifdef DEBUG_LOG_GC
@@ -54,3 +55,4 @@ Value ObjString::add(Value v, ObjectFactory* factory, bool opposite)
     }
     return r;
 }
+} // namespace sce

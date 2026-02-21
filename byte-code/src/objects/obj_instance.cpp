@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 ObjInstance::ObjInstance(ObjClass* pKlass) : Obj(OBJ_INSTANCE), klass(pKlass)
 {
 #ifdef DEBUG_LOG_GC
@@ -19,3 +20,4 @@ std::string ObjInstance::stringify(void)
 void ObjInstance::blaken(void)
 {
 }
+} // namespace sce

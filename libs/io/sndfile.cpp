@@ -1,5 +1,6 @@
 #include "sndfile.hpp"
 
+namespace sce {
 static Value sndfile_open(ObjectFactory* factory, NativeClass* klass, int argc, Value* argv)
 {
     std::string path;
@@ -71,3 +72,4 @@ SndWav* SndFile::open(std::string path, int mode)
 {
     return new SndWav(path, mode);
 }
+} // namespace sce

@@ -5,6 +5,7 @@
 #include "common.hpp"
 #include "scanner.hpp"
 
+namespace sce {
 // Scanner scanner;
 //> init-scanner
 void Scanner::init(const char* source)
@@ -330,3 +331,4 @@ Token Scanner::scanToken()
     return errorToken("Unexpected character.");
 }
 //< scan-token
+} // namespace sce

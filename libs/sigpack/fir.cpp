@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <string>
 
+namespace sce {
 static Value fir_set_coeffs(ObjectFactory* factory, NativeObject* obj, int argc, Value* argv)
 {
     (void)factory;
@@ -141,3 +142,4 @@ FirFilter::FirFilter() : NativeObject(s_fir_apis, s_fir_properties)
 FirFilter::~FirFilter()
 {
 }
+} // namespace sce

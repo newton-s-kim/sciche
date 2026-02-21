@@ -10,6 +10,7 @@
 
 #include <vector>
 
+namespace sce {
 //> Strings forward-declare-obj
 class Obj;
 //< Strings forward-declare-obj
@@ -162,5 +163,5 @@ public:
     //< print-value-h
 };
 //< value-array
-
+} // namespace sce
 #endif

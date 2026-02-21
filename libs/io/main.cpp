@@ -2,6 +2,7 @@
 
 #include "sndfile.hpp"
 
+namespace sce {
 extern "C" void io_functions(std::vector<std::string>& names, std::vector<NativeFn>& functions)
 {
     names.assign({});
@@ -17,3 +18,4 @@ extern "C" void io_constants(std::vector<std::string>& names, std::vector<double
     names.assign({});
     consts.assign({});
 }
+} // namespace sce

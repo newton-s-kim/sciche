@@ -10,6 +10,7 @@
 //< Strings value-include-object
 #include "value.hpp"
 
+namespace sce {
 void ValueUtil::print(Value value)
 {
     // ObjectUtil util;
@@ -102,5 +103,5 @@ bool ValueUtil::equal(Value a, Value b)
 #endif
     //< Optimization end-values-equal
 }
-
+} // namespace sce
 //< Types of Values values-equal

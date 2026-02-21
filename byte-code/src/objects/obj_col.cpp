@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 ObjCol::ObjCol() : Obj(OBJ_COL)
 {
 }
@@ -281,3 +282,4 @@ Value vecNative::call(ObjectFactory* factory, int argc, Value* args)
     }
     return OBJ_VAL(factory->newCol(sz, fill_type));
 }
+} // namespace sce

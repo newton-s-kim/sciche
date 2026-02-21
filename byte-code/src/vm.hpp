@@ -29,6 +29,8 @@
 #define THREAD_MAX 4
 // clang-format off
 //> interpret-result
+
+namespace sce {
 typedef enum {
   INTERPRET_OK,
   INTERPRET_COMPILE_ERROR = 65,
@@ -157,5 +159,5 @@ public:
 
 //< interpret-result
 //> Strings extern-vm
-
+} // namespace sce
 #endif

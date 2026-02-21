@@ -1,5 +1,6 @@
 #include "object.hpp"
 
+namespace sce {
 ObjCube::ObjCube() : Obj(OBJ_CUBE)
 {
 }
@@ -34,3 +35,4 @@ void ObjCube::set(int row, int col, int depth, Value v)
     depth = rectify_index(depth, (int)value.n_slices);
     value(row, col, depth) = AS_NUMBER(v);
 }
+} // namespace sce

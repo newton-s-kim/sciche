@@ -9,6 +9,7 @@
 #include "log.hpp"
 //> op-enum
 
+namespace sce {
 typedef enum {
     //> op-constant
     OP_CONSTANT,
@@ -152,4 +153,5 @@ int Chunk::getLine(int pos)
     LAX_LOG("%d / %d", pos, capacity);
     return lines[pos];
 }
+} // namespace sce
 #endif
