@@ -90,27 +90,12 @@ static Value list_insert(ObjectFactory* factory, Value value, int argc, Value* a
         throw std::runtime_error("Index must be a number.");
     double idx = AS_NUMBER(argv[0]);
     if (idx < 0)
-        idx += list->container.size() - 1;
-    if (idx < 0)
+        idx += list->container.size() + 1;
+    if (idx < 0 || idx > (int)list->container.size())
         throw std::runtime_error("Index out of bounds.");
     if (0 != idx - (int)idx)
         throw std::runtime_error("Index must be an integer.");
-    if (idx > 0 && idx >= (int)list->container.size())
-        throw std::runtime_error("Index out of bounds.");
-    if (0 == idx) {
-        if (0 == list->container.size()) {
-            list->container.push_back(argv[1]);
-        }
-        else {
-            list->container.insert(list->container.begin(), argv[1]);
-        }
-    }
-    else if (idx + 1 == list->container.size()) {
-        list->container.push_back(argv[1]);
-    }
-    else {
-        list->container.insert(list->container.begin(), idx, argv[1]);
-    }
+    list->container.insert(idx, argv[1]);
     return argv[1];
 }
 

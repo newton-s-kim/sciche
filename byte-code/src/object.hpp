@@ -10,11 +10,12 @@
 #include "table.hpp"
 //< Classes and Instances object-include-table
 #include "value.hpp"
+#include "vector.hpp"
 //> obj-type-macro
 
 #include <armadillo>
 #include <complex>
-#include <vector>
+// #include <vector>
 
 #define OBJ_TYPE(value) (AS_OBJ(value)->type)
 //< obj-type-macro
@@ -231,7 +232,7 @@ class ObjClosure : public Obj {
 public:
     ObjFunction* function;
     //> upvalue-fields
-    std::vector<ObjUpvalue*> upvalues;
+    vector<ObjUpvalue*> upvalues;
     int upvalueCount;
     //< upvalue-fields
     ObjClosure(ObjFunction* pFunction);
@@ -291,7 +292,7 @@ public:
 
 class ObjList : public Obj {
 public:
-    std::vector<Value> container;
+    vector<Value> container;
     ObjList();
     ~ObjList();
     std::string stringify(void);

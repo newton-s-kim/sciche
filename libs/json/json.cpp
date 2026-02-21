@@ -301,8 +301,8 @@ void JsonInterface::write(rapidjson::Writer<rapidjson::StringBuffer>& writer, Va
     else if (IS_LIST(value)) {
         ObjList* list = AS_LIST(value);
         writer.StartArray();
-        for (std::vector<Value>::iterator it = list->container.begin(); it != list->container.end(); it++) {
-            write(writer, *it);
+        for (size_t idx = 0; idx < list->container.size(); idx++) {
+            write(writer, list->container[idx]);
         }
         writer.EndArray();
     }

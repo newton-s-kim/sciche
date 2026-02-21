@@ -13,10 +13,10 @@ std::string ObjList::stringify(void)
 {
     std::stringstream ss;
     ss << "[";
-    for (std::vector<Value>::iterator it = container.begin(); it != container.end(); it++) {
-        if (it != container.begin())
+    for (size_t idx = 0; idx < container.size(); idx++) {
+        if (0 != idx)
             ss << ",";
-        Value v = *it;
+        Value& v = container[idx];
         if (IS_NIL(v)) {
             ss << "nil";
         }
