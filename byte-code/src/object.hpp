@@ -232,7 +232,7 @@ class ObjClosure : public Obj {
 public:
     ObjFunction* function;
     //> upvalue-fields
-    vector<ObjUpvalue*> upvalues;
+    nsl::vector<ObjUpvalue*> upvalues;
     int upvalueCount;
     //< upvalue-fields
     ObjClosure(ObjFunction* pFunction);
@@ -292,7 +292,7 @@ public:
 
 class ObjList : public Obj {
 public:
-    vector<Value> container;
+    nsl::vector<Value> container;
     ObjList();
     ~ObjList();
     std::string stringify(void);

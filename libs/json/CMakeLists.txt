@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.12)
 file(GLOB MATH_SOURCES *.cpp)
 find_package(Armadillo REQUIRED)
 add_library(scjson SHARED ${MATH_SOURCES})
-target_include_directories(scjson PRIVATE . ../../byte-code/src)
+target_include_directories(scjson PRIVATE . ../../byte-code/src ../../nsl)
 set_target_properties(scjson PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES

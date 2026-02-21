@@ -1,6 +1,6 @@
 #pragma once
 
-namespace sce {
+namespace nsl {
 #include <stdlib.h>
 
 #define VECTOR_STRIDE 256
