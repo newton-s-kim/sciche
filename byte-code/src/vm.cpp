@@ -519,7 +519,8 @@ void VM::defineNative(const char* name, NativeFn function)
 {
     push(OBJ_VAL(newString(name)));
     push(OBJ_VAL(newNative(function)));
-    globals.set(AS_STRING(thread->stack[0])->chars, thread->stack[1]);
+    //TODO:should pass nsl::string
+    globals.set(AS_STRING(thread->stack[0])->chars.c_str(), thread->stack[1]);
     pop();
     pop();
 }
@@ -527,7 +528,8 @@ void VM::defineSymbol(const char* name, NativeClass* klass)
 {
     push(OBJ_VAL(newString(name)));
     push(OBJ_VAL(newNativeClass(klass)));
-    globals.set(AS_STRING(thread->stack[0])->chars, thread->stack[1]);
+    //TODO:should pass nsl::string
+    globals.set(AS_STRING(thread->stack[0])->chars.c_str(), thread->stack[1]);
     pop();
     pop();
 }
@@ -536,7 +538,8 @@ void VM::defineNumber(const char* name, double v)
 {
     push(OBJ_VAL(newString(name)));
     push(NUMBER_VAL(v));
-    globals.set(AS_STRING(thread->stack[0])->chars, thread->stack[1]);
+    //TODO:should pass nsl::string
+    globals.set(AS_STRING(thread->stack[0])->chars.c_str(), thread->stack[1]);
     pop();
     pop();
 }
@@ -673,7 +676,8 @@ bool VM::callValue(Value callee, int argCount)
             thread->stackTop[-argCount - 1] = OBJ_VAL(newInstance(klass));
             //> Methods and Initializers call-init
             Value initializer;
-            if (klass->methods.get(initString->chars, &initializer)) {
+	    //TODO: should pass nsl::string
+            if (klass->methods.get(initString->chars.c_str(), &initializer)) {
                 return call(AS_CLOSURE(initializer), argCount);
                 //> no-init-arity-error
             }
@@ -737,7 +741,8 @@ bool VM::callValue(Value callee, int argCount)
 bool VM::invokeFromClass(ObjClass* klass, ObjString* name, int argCount)
 {
     Value method;
-    if (!klass->methods.get(name->chars, &method)) {
+    //TODO: should pass nsl::string
+    if (!klass->methods.get(name->chars.c_str(), &method)) {
         runtimeError("Undefined property '%s'.", name->chars.c_str());
         return false;
     }
@@ -756,7 +761,8 @@ bool VM::invoke(ObjString* name, int argCount)
         //> invoke-field
 
         Value value;
-        if (instance->fields.get(name->chars, &value)) {
+        //TODO: should pass nsl::string
+        if (instance->fields.get(name->chars.c_str(), &value)) {
             thread->stackTop[-argCount - 1] = value;
             return callValue(value, argCount);
         }
@@ -1171,7 +1177,8 @@ ObjComplex* VM::newComplex(const std::complex<double> v)
 bool VM::bindMethod(ObjClass* klass, ObjString* name)
 {
     Value method;
-    if (!klass->methods.get(name->chars, &method)) {
+    //TODO: should pass nsl::string
+    if (!klass->methods.get(name->chars.c_str(), &method)) {
         runtimeError("Undefined property '%s'.", name->chars.c_str());
         return false;
     }
@@ -1229,7 +1236,8 @@ void VM::defineMethod(ObjString* name)
 {
     Value method = peek(0);
     ObjClass* klass = AS_CLASS(peek(1));
-    klass->methods.set(name->chars, method);
+    //TODO: should pass nsl::string
+    klass->methods.set(name->chars.c_str(), method);
     pop();
 }
 //< Methods and Initializers define-method
@@ -1380,7 +1388,8 @@ InterpretResult VM::run(void)
         case OP_GET_GLOBAL: {
             ObjString* name = READ_STRING();
             Value value;
-            if (!globals.get(name->chars, &value)) {
+            //TODO: should pass nsl::string
+            if (!globals.get(name->chars.c_str(), &value)) {
                 runtimeError("Undefined variable '%s'.", name->chars.c_str());
                 return INTERPRET_RUNTIME_ERROR;
             }
@@ -1391,7 +1400,8 @@ InterpretResult VM::run(void)
             //> Global Variables interpret-define-global
         case OP_DEFINE_GLOBAL: {
             ObjString* name = READ_STRING();
-            globals.set(name->chars, peek(0));
+            //TODO: should pass nsl::string
+            globals.set(name->chars.c_str(), peek(0));
             pop();
             break;
         }
@@ -1399,8 +1409,10 @@ InterpretResult VM::run(void)
             //> Global Variables interpret-set-global
         case OP_SET_GLOBAL: {
             ObjString* name = READ_STRING();
-            if (globals.set(name->chars, peek(0))) {
-                globals.remove(name->chars); // [delete]
+            //TODO: should pass nsl::string
+            if (globals.set(name->chars.c_str(), peek(0))) {
+                //TODO: should pass nsl::string
+                globals.remove(name->chars.c_str()); // [delete]
                 runtimeError("Undefined variable '%s'.", name->chars.c_str());
                 return INTERPRET_RUNTIME_ERROR;
             }
@@ -1430,7 +1442,8 @@ InterpretResult VM::run(void)
                 ObjString* name = READ_STRING();
 
                 Value value;
-                if (instance->fields.get(name->chars, &value)) {
+                //TODO: should pass nsl::string
+                if (instance->fields.get(name->chars.c_str(), &value)) {
                     pop(); // Instance.
                     push(value);
                     break;
@@ -1502,7 +1515,8 @@ InterpretResult VM::run(void)
 
             //< set-not-instance
             ObjInstance* instance = AS_INSTANCE(peek(1));
-            instance->fields.set(READ_STRING()->chars, peek(0));
+                //TODO: should pass nsl::string
+            instance->fields.set(READ_STRING()->chars.c_str(), peek(0));
             Value value = pop();
             pop();
             push(value);

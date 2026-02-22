@@ -6,9 +6,9 @@
 #include "value.hpp"
 
 namespace sce {
-bool Table::get(std::string& key, Value* value)
+bool Table::get(const nsl::string& key, Value* value)
 {
-    std::map<std::string, Value>::iterator it = entries.find(key);
+    std::map<nsl::string, Value>::iterator it = entries.find(key);
     if (it == entries.end())
         return false;
 
@@ -17,18 +17,18 @@ bool Table::get(std::string& key, Value* value)
 }
 //< table-get
 //> table-set
-bool Table::set(std::string& key, Value value)
+bool Table::set(const nsl::string& key, Value value)
 {
-    std::map<std::string, Value>::iterator it = entries.find(key);
+    std::map<nsl::string, Value>::iterator it = entries.find(key);
     bool isNewKey = (it != entries.end()) ? false : true;
     entries[key] = value;
     return isNewKey;
 }
 //< table-set
 //> table-delete
-bool Table::remove(std::string& key)
+bool Table::remove(const nsl::string& key)
 {
-    std::map<std::string, Value>::iterator it = entries.find(key);
+    std::map<nsl::string, Value>::iterator it = entries.find(key);
     if (it == entries.end())
         return false;
 
@@ -45,7 +45,7 @@ void Table::addAll(Table& from)
 //> Garbage Collection mark-table
 void Table::mark(std::function<void(Value)> callback)
 {
-    for (std::map<std::string, Value>::iterator it = entries.begin(); it != entries.end(); it++) {
+    for (std::map<nsl::string, Value>::iterator it = entries.begin(); it != entries.end(); it++) {
         callback(it->second);
     }
 }
