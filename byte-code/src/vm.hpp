@@ -102,7 +102,7 @@ private:
     //< Strings free-objects-h
 
     ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
-    ObjClass* newClass(std::string name);
+    ObjClass* newClass(nsl::string name);
     ObjClosure* newClosure(ObjFunction* function);
     ObjInstance* newInstance(ObjClass* klass);
     ObjNative* newNative(NativeFn function);

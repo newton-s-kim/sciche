@@ -56,9 +56,9 @@ basic_string<T>::basic_string(basic_string& str)
 template <typename T>
 basic_string<T>::basic_string(const T* str)
 {
-    m_str = (cstr_t*)malloc(sizeof(c_str) + strlen(str) + 1);
+    m_str = (cstr_t*)malloc(sizeof(cstr_t) + strlen(str) + 1);
     m_str->ptr = m_str + 1;
-    strcpy(str->ptr, str);
+    strcpy((T*)m_str->ptr, str);
 }
 
 template <typename T>

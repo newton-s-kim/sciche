@@ -825,7 +825,7 @@ ObjBoundMethod* VM::newBoundMethod(Value receiver, ObjClosure* method)
 }
 //< Methods and Initializers new-bound-method
 //> Classes and Instances new-class
-ObjClass* VM::newClass(std::string name)
+ObjClass* VM::newClass(nsl::string name)
 {
     collect(0, sizeof(ObjClass));
     ObjClass* ret = new ObjClass(name);
@@ -2194,7 +2194,8 @@ InterpretResult VM::run(void)
         }
             //> Classes and Instances interpret-class
         case OP_CLASS:
-            push(OBJ_VAL(newClass(READ_STRING()->chars)));
+            //TODO:should pass nsl::string
+            push(OBJ_VAL(newClass(READ_STRING()->chars.c_str())));
             break;
             //< Classes and Instances interpret-class
         case OP_LIST: {

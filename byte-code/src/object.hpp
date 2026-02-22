@@ -11,6 +11,7 @@
 //< Classes and Instances object-include-table
 #include "value.hpp"
 #include "vector.hpp"
+#include "string.hpp"
 //> obj-type-macro
 
 #include <armadillo>
@@ -244,11 +245,11 @@ public:
 
 class ObjClass : public Obj {
 public:
-    std::string name;
+    nsl::string name;
     //> Methods and Initializers class-methods
     Table methods;
     //< Methods and Initializers class-methods
-    ObjClass(std::string name);
+    ObjClass(nsl::string name);
     ~ObjClass();
     std::string stringify(void);
     void blaken(void);
