@@ -63,7 +63,7 @@ private:
 public:
     CompilerInterface* compiler;
     ObjThread* thread;
-    std::vector<ObjThread*> threadStack;
+    nsl::vector<ObjThread*> threadStack;
 
     //> Global Variables vm-globals
     Table globals;
@@ -109,7 +109,7 @@ private:
     ObjUpvalue* newUpvalue(Value* slot);
     ObjString* allocateString(std::string chars);
 
-    void markArray(std::vector<Value>& array);
+    void markArray(nsl::vector<Value>& array);
     void blackenObject(Obj* object);
     void markRoots();
     void traceReferences();

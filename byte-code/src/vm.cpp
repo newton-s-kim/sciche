@@ -86,7 +86,7 @@ void VM::markValue(Value value)
 }
 //< Garbage Collection mark-value
 //> Garbage Collection mark-array
-void VM::markArray(std::vector<Value>& array)
+void VM::markArray(nsl::vector<Value>& array)
 {
     for (size_t i = 0; i < array.size(); i++) {
         markValue(array[i]);
@@ -205,8 +205,8 @@ void VM::markRoots()
     for (ObjThread* thd = thread; thd; thd = thd->caller) {
         markObject(thd);
     }
-    for (std::vector<ObjThread*>::iterator it = threadStack.begin(); it != threadStack.end(); it++) {
-        markObject(*it);
+    for (size_t idx = 0 ; idx < threadStack.size() ; idx++) {
+        markObject(threadStack[idx]);
     }
     //< mark-closures
     //> mark-open-upvalues

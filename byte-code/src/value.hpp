@@ -8,8 +8,6 @@
 
 #include "common.hpp"
 
-#include <vector>
-
 namespace sce {
 //> Strings forward-declare-obj
 class Obj;

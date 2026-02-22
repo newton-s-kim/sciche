@@ -7,6 +7,7 @@
 #include "value.hpp"
 //< chunk-h-include-value
 #include "log.hpp"
+#include "vector.hpp"
 //> op-enum
 
 namespace sce {
@@ -126,7 +127,7 @@ public:
     //< count-and-capacity
     uint8_t* code;
     //> chunk-constants
-    std::vector<Value> constants;
+    nsl::vector<Value> constants;
     //< chunk-constants
     //> init-chunk-h
     Chunk();

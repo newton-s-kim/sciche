@@ -16,12 +16,15 @@ public:
     vector();
     ~vector();
     inline void push_back(T v);
+    inline void pop_back(void);
+    inline T back(void);
     inline size_t size(void);
     inline size_t capacity(void);
     inline T& operator[](size_t idx);
     inline void clear(void);
     inline void insert(size_t idx, T v);
     inline void reserve(size_t idx);
+    inline bool empty(void);
 };
 
 template <typename T>
@@ -56,6 +59,19 @@ void vector<T>::push_back(T v)
     if (m_size == m_capacity)
         grow();
     m_buffer[m_size++] = v;
+}
+
+template <typename T>
+void vector<T>::pop_back(void)
+{
+    if(0 < m_size) m_size--;
+}
+
+template <typename T>
+T vector<T>::back(void)
+{
+    if(0 == m_size) throw "vector is empty";
+    return m_buffer[m_size - 1];
 }
 
 template <typename T>
@@ -104,5 +120,11 @@ T& vector<T>::operator[](size_t idx)
     if (m_size <= idx)
         throw "out of bound";
     return m_buffer[idx];
+}
+
+template <typename T>
+bool vector<T>::empty(void)
+{
+	return 0 == m_size;
 }
 } // namespace sce
