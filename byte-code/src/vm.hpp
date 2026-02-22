@@ -25,6 +25,7 @@
 #include <map>
 #include <stack>
 #include <string>
+#include <unordered_map>
 
 #define THREAD_MAX 4
 // clang-format off
@@ -86,7 +87,7 @@ public:
     std::stack<Obj*> grayStack;
     //< Garbage Collection vm-gray-stack
     //> Hash Tables strings
-    std::map<std::string, ObjString*> strings;
+    std::unordered_map<std::string, ObjString*> strings;
     //< Hash Tables strings
     Primitive primitive;
 

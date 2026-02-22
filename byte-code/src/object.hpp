@@ -9,9 +9,9 @@
 //> Classes and Instances object-include-table
 #include "table.hpp"
 //< Classes and Instances object-include-table
+#include "string.hpp"
 #include "value.hpp"
 #include "vector.hpp"
-#include "string.hpp"
 //> obj-type-macro
 
 #include <armadillo>

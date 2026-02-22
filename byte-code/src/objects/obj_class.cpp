@@ -14,7 +14,7 @@ ObjClass::~ObjClass()
 
 std::string ObjClass::stringify(void)
 {
-    //TODO:return nsl::string
+    // TODO:return nsl::string
     return name.c_str();
 }
 

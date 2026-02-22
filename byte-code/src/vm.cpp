@@ -205,7 +205,7 @@ void VM::markRoots()
     for (ObjThread* thd = thread; thd; thd = thd->caller) {
         markObject(thd);
     }
-    for (size_t idx = 0 ; idx < threadStack.size() ; idx++) {
+    for (size_t idx = 0; idx < threadStack.size(); idx++) {
         markObject(threadStack[idx]);
     }
     //< mark-closures
@@ -271,7 +271,7 @@ void VM::sweep()
 //< Garbage Collection sweep
 void VM::removeString(void)
 {
-    for (std::map<std::string, ObjString*>::iterator it = strings.begin(); it != strings.end();) {
+    for (std::unordered_map<std::string, ObjString*>::iterator it = strings.begin(); it != strings.end();) {
         if (!it->second->isMarked) {
             it = strings.erase(it);
         }
@@ -1146,7 +1146,7 @@ ObjString* VM::newString(const char* pchars, int length)
         }
     }
     //> take-string-intern
-    std::map<std::string, ObjString*>::iterator found = strings.find(chars);
+    std::unordered_map<std::string, ObjString*>::iterator found = strings.find(chars);
     ObjString* interned = (found == strings.end()) ? NULL : found->second;
     if (interned != NULL) {
         LAX_LOG("%s is found", chars.c_str());
@@ -2194,7 +2194,7 @@ InterpretResult VM::run(void)
         }
             //> Classes and Instances interpret-class
         case OP_CLASS:
-            //TODO:should pass nsl::string
+            // TODO:should pass nsl::string
             push(OBJ_VAL(newClass(READ_STRING()->chars.c_str())));
             break;
             //< Classes and Instances interpret-class

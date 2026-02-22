@@ -8,7 +8,7 @@
 namespace sce {
 bool Table::get(std::string& key, Value* value)
 {
-    std::map<std::string, Value>::iterator it = entries.find(key);
+    std::unordered_map<std::string, Value>::iterator it = entries.find(key);
     if (it == entries.end())
         return false;
 
@@ -19,7 +19,7 @@ bool Table::get(std::string& key, Value* value)
 //> table-set
 bool Table::set(std::string& key, Value value)
 {
-    std::map<std::string, Value>::iterator it = entries.find(key);
+    std::unordered_map<std::string, Value>::iterator it = entries.find(key);
     bool isNewKey = (it != entries.end()) ? false : true;
     entries[key] = value;
     return isNewKey;
@@ -28,7 +28,7 @@ bool Table::set(std::string& key, Value value)
 //> table-delete
 bool Table::remove(std::string& key)
 {
-    std::map<std::string, Value>::iterator it = entries.find(key);
+    std::unordered_map<std::string, Value>::iterator it = entries.find(key);
     if (it == entries.end())
         return false;
 
@@ -45,7 +45,7 @@ void Table::addAll(Table& from)
 //> Garbage Collection mark-table
 void Table::mark(std::function<void(Value)> callback)
 {
-    for (std::map<std::string, Value>::iterator it = entries.begin(); it != entries.end(); it++) {
+    for (std::unordered_map<std::string, Value>::iterator it = entries.begin(); it != entries.end(); it++) {
         callback(it->second);
     }
 }

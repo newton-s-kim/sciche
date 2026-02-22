@@ -5,13 +5,13 @@
 #include "common.hpp"
 #include "value.hpp"
 #include <functional>
-#include <map>
 #include <string>
+#include <unordered_map>
 
 namespace sce {
 class Table {
 private:
-    std::map<std::string, Value> entries;
+    std::unordered_map<std::string, Value> entries;
 
 public:
     //> table-get-h
