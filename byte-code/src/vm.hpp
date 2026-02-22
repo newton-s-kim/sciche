@@ -120,7 +120,7 @@ private:
     void markValue(Value value);
     void removeString(void);
     void collect(size_t oldSize, size_t newSize);
-    std::map<std::string, dl*> m_dl;
+    std::unordered_map<std::string, dl*> m_dl;
 
 public:
     //< Strings extern-vm

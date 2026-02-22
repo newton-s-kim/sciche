@@ -1,8 +1,8 @@
 #include "object.hpp"
 
 namespace sce {
-NativeObject::NativeObject(std::map<std::string, NativeObjectBoundFn>& apis,
-                           std::map<std::string, NativeObjectBoundProperty>& properties)
+NativeObject::NativeObject(std::unordered_map<std::string_view, NativeObjectBoundFn>& apis,
+                           std::unordered_map<std::string_view, NativeObjectBoundProperty>& properties)
     : m_apis(apis), m_properties(properties)
 {
 }
@@ -13,7 +13,7 @@ NativeObject::~NativeObject()
 
 Value NativeObject::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
 {
-    std::map<std::string, NativeObjectBoundFn>::iterator it = m_apis.find(name);
+    std::unordered_map<std::string_view, NativeObjectBoundFn>::iterator it = m_apis.find(name);
     if (it == m_apis.end())
         throw std::runtime_error("invalid method");
     return it->second(factory, this, argc, argv);
@@ -21,7 +21,7 @@ Value NativeObject::invoke(ObjectFactory* factory, std::string name, int argc, V
 
 Value NativeObject::property(ObjectFactory* factory, std::string name)
 {
-    std::map<std::string, NativeObjectBoundProperty>::iterator it = m_properties.find(name);
+    std::unordered_map<std::string_view, NativeObjectBoundProperty>::iterator it = m_properties.find(name);
     if (it == m_properties.end())
         throw std::runtime_error("invalid property");
     return it->second(factory, this);

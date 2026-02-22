@@ -304,7 +304,7 @@ public:
 
 class ObjMap : public Obj {
 public:
-    std::map<std::string, Value> container;
+    std::unordered_map<std::string, Value> container;
     ObjMap();
     ~ObjMap();
     std::string stringify(void);
@@ -377,12 +377,12 @@ typedef Value (*NativeClassBoundProperty)(ObjectFactory* factory, NativeClass* k
 
 class NativeClass {
 protected:
-    std::map<std::string, NativeClassBoundFn>& m_apis;
-    std::map<std::string, NativeClassBoundProperty>& m_constants;
+    std::unordered_map<std::string_view, NativeClassBoundFn>& m_apis;
+    std::unordered_map<std::string_view, NativeClassBoundProperty>& m_constants;
 
 public:
-    NativeClass(std::map<std::string, NativeClassBoundFn>& apis,
-                std::map<std::string, NativeClassBoundProperty>& constants);
+    NativeClass(std::unordered_map<std::string_view, NativeClassBoundFn>& apis,
+                std::unordered_map<std::string_view, NativeClassBoundProperty>& constants);
     virtual ~NativeClass();
     Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
     virtual Value call(ObjectFactory* factory, int argc, Value* argv);
@@ -405,12 +405,12 @@ typedef Value (*NativeObjectBoundProperty)(ObjectFactory* factory, NativeObject*
 
 class NativeObject {
 protected:
-    std::map<std::string, NativeObjectBoundFn>& m_apis;
-    std::map<std::string, NativeObjectBoundProperty>& m_properties;
+    std::unordered_map<std::string_view, NativeObjectBoundFn>& m_apis;
+    std::unordered_map<std::string_view, NativeObjectBoundProperty>& m_properties;
 
 public:
-    NativeObject(std::map<std::string, NativeObjectBoundFn>& apis,
-                 std::map<std::string, NativeObjectBoundProperty>& properties);
+    NativeObject(std::unordered_map<std::string_view, NativeObjectBoundFn>& apis,
+                 std::unordered_map<std::string_view, NativeObjectBoundProperty>& properties);
     virtual ~NativeObject();
     Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
     Value property(ObjectFactory* factory, std::string name);

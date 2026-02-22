@@ -13,7 +13,7 @@ std::string ObjMap::stringify(void)
 {
     std::stringstream ss;
     ss << "{";
-    for (std::map<std::string, Value>::iterator it = container.begin(); it != container.end(); it++) {
+    for (std::unordered_map<std::string, Value>::iterator it = container.begin(); it != container.end(); it++) {
         if (it != container.begin())
             ss << ",";
         ss << "\"" << it->first << "\":";
@@ -46,7 +46,7 @@ void ObjMap::blaken(void)
 
 Value ObjMap::get(std::string index)
 {
-    std::map<std::string, Value>::iterator it = container.find(index);
+    std::unordered_map<std::string, Value>::iterator it = container.find(index);
     if (it == container.end()) {
         throw std::runtime_error("Index is invalid.");
     }

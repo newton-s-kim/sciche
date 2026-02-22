@@ -169,7 +169,8 @@ void VM::blackenObject(Obj* object)
     }
     case OBJ_MAP: {
         ObjMap* map = (ObjMap*)object;
-        for (std::map<std::string, Value>::iterator it = map->container.begin(); it != map->container.end(); it++) {
+        for (std::unordered_map<std::string, Value>::iterator it = map->container.begin(); it != map->container.end();
+             it++) {
             markValue(it->second);
         }
         break;
@@ -587,7 +588,7 @@ VM::~VM()
     //> Strings call-free-objects
     freeObjects();
     //< Strings call-free-objects
-    for (std::map<std::string, dl*>::iterator it = m_dl.begin(); it != m_dl.end(); it++) {
+    for (std::unordered_map<std::string, dl*>::iterator it = m_dl.begin(); it != m_dl.end(); it++) {
         delete it->second;
     }
 }
@@ -2343,7 +2344,7 @@ void VM::freeObjects()
 
 bool VM::loadLibrary(std::string path, std::string name)
 {
-    std::map<std::string, dl*>::iterator it = m_dl.find(name);
+    std::unordered_map<std::string, dl*>::iterator it = m_dl.find(name);
     if (it != m_dl.end()) {
         return false;
     }

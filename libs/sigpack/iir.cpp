@@ -32,12 +32,12 @@ static Value iir_filter(ObjectFactory* factory, NativeObject* obj, int argc, Val
 }
 
 // clang-format off
-std::map<std::string, NativeObjectBoundFn> s_iir_apis = {
+std::unordered_map<std::string_view, NativeObjectBoundFn> s_iir_apis = {
     {"set_coeffs", iir_set_coeffs},
     {"filter", iir_filter}
 };
 
-std::map<std::string, NativeObjectBoundProperty> s_iir_properties;
+std::unordered_map<std::string_view, NativeObjectBoundProperty> s_iir_properties;
 // clang-format on
 
 IirFilter::IirFilter() : NativeObject(s_iir_apis, s_iir_properties)

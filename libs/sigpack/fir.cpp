@@ -120,7 +120,7 @@ static Value fir_kalman_adapt(ObjectFactory* factory, NativeObject* obj, int arg
 }
 
 // clang-format off
-std::map<std::string, NativeObjectBoundFn> s_fir_apis = {
+std::unordered_map<std::string_view, NativeObjectBoundFn> s_fir_apis = {
     {"set_coeffs", fir_set_coeffs},
     {"update_coeffs", fir_update_coeffs},
     {"get_coeffs", fir_get_coeffs},
@@ -132,7 +132,7 @@ std::map<std::string, NativeObjectBoundFn> s_fir_apis = {
     {"kalman_adapt", fir_kalman_adapt}
 };
 
-std::map<std::string, NativeObjectBoundProperty> s_fir_properties;
+std::unordered_map<std::string_view, NativeObjectBoundProperty> s_fir_properties;
 // clang-format on
 
 FirFilter::FirFilter() : NativeObject(s_fir_apis, s_fir_properties)

@@ -140,7 +140,7 @@ static Value kf_rts_smooth(ObjectFactory* factory, NativeObject* obj, int argc, 
 }
 
 // clang-format off
-std::map<std::string, NativeObjectBoundFn> s_kf_apis = {
+std::unordered_map<std::string_view, NativeObjectBoundFn> s_kf_apis = {
     {"set_trans_mat", kf_set_trans_mat},
     {"set_meas_mat", kf_set_meas_mat},
     {"set_err_cov", kf_set_err_cov},
@@ -154,7 +154,7 @@ std::map<std::string, NativeObjectBoundFn> s_kf_apis = {
     {"rts_smooth", kf_rts_smooth}
 };
 
-std::map<std::string, NativeObjectBoundProperty> s_kf_properties;
+std::unordered_map<std::string_view, NativeObjectBoundProperty> s_kf_properties;
 // clang-format on
 
 kalmanFilter::kalmanFilter(int n, int m, int l) : NativeObject(s_kf_apis, s_kf_properties), kalman(n, m, l)

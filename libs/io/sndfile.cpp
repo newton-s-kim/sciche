@@ -49,11 +49,11 @@ static Value sndfile_prop_rdwr(ObjectFactory* factory, NativeClass* klass)
 }
 
 // clang-format off
-std::map<std::string, NativeClassBoundFn> s_sndfile_apis = {
+std::unordered_map<std::string_view, NativeClassBoundFn> s_sndfile_apis = {
     {"open", sndfile_open}
 };
 
-std::map<std::string, NativeClassBoundProperty> s_sndfile_constatns = {
+std::unordered_map<std::string_view, NativeClassBoundProperty> s_sndfile_constatns = {
     {"READ", sndfile_prop_read},
     {"WRITE", sndfile_prop_write},
     {"RDWR", sndfile_prop_rdwr}

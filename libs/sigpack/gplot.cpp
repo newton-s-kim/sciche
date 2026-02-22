@@ -228,7 +228,7 @@ static Value gplot_grid_on(ObjectFactory* factory, NativeObject* obj, int argc, 
 }
 
 // clang-format off
-std::map<std::string, NativeObjectBoundFn> s_gplot_apis = {
+std::unordered_map<std::string_view, NativeObjectBoundFn> s_gplot_apis = {
     {"window", gplot_window},
     {"xlabel", gplot_xlabel},
     {"ylabel", gplot_ylabel},
@@ -241,7 +241,7 @@ std::map<std::string, NativeObjectBoundFn> s_gplot_apis = {
     {"grid_on", gplot_grid_on}
 };
 
-std::map<std::string, NativeObjectBoundProperty> s_gplot_properties;
+std::unordered_map<std::string_view, NativeObjectBoundProperty> s_gplot_properties;
 // clang-format on
 
 gPlot::gPlot() : NativeObject(s_gplot_apis, s_gplot_properties)

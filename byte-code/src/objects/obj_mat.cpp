@@ -81,7 +81,7 @@ Value ObjMat::mul(Value v, ObjectFactory* factory, bool opposite)
 }
 
 // clang-format off
-std::map<std::string, NativeClassBoundFn> s_mat_class_apis;
+std::unordered_map<std::string_view, NativeClassBoundFn> s_mat_class_apis;
 
 //TODO: refactoring to fillout
 static Value mat_class_prop_default(ObjectFactory* factory, NativeClass* klass)
@@ -126,7 +126,7 @@ static Value mat_class_prop_randn(ObjectFactory* factory, NativeClass* klass)
     return NUMBER_VAL(OBJ_FILL_RANDN);
 }
 
-std::map<std::string, NativeClassBoundProperty> s_mat_class_constants = {
+std::unordered_map<std::string_view, NativeClassBoundProperty> s_mat_class_constants = {
     {"default", mat_class_prop_default},
     {"zeros", mat_class_prop_zeros},
     {"ones", mat_class_prop_ones},

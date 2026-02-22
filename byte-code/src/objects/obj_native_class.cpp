@@ -1,8 +1,8 @@
 #include "object.hpp"
 
 namespace sce {
-NativeClass::NativeClass(std::map<std::string, NativeClassBoundFn>& apis,
-                         std::map<std::string, NativeClassBoundProperty>& constants)
+NativeClass::NativeClass(std::unordered_map<std::string_view, NativeClassBoundFn>& apis,
+                         std::unordered_map<std::string_view, NativeClassBoundProperty>& constants)
     : m_apis(apis), m_constants(constants)
 {
 }
@@ -13,7 +13,7 @@ NativeClass::~NativeClass()
 
 Value NativeClass::invoke(ObjectFactory* factory, std::string name, int argc, Value* argv)
 {
-    std::map<std::string, NativeClassBoundFn>::iterator it = m_apis.find(name);
+    std::unordered_map<std::string_view, NativeClassBoundFn>::iterator it = m_apis.find(name);
     if (it == m_apis.end())
         throw std::runtime_error("invalid method");
     return it->second(factory, this, argc, argv);
@@ -30,7 +30,7 @@ Value NativeClass::call(ObjectFactory* factory, int argc, Value* argv)
 
 Value NativeClass::constant(ObjectFactory* factory, std::string name)
 {
-    std::map<std::string, NativeClassBoundProperty>::iterator it = m_constants.find(name);
+    std::unordered_map<std::string_view, NativeClassBoundProperty>::iterator it = m_constants.find(name);
     if (it == m_constants.end())
         throw std::runtime_error("invalid property");
     return it->second(factory, this);

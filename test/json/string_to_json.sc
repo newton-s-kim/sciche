@@ -4,4 +4,4 @@ var str = "{\"name\": \"John Doe\", \"age\": 30, \"city\": \"New York\", \"is_st
 
 var dict = json.load(str);
 
-print dict; // expect: {"age":30,"city":"New York","hobbies":["reading","gaming","coding"],"is_student":false,"name":"John Doe"}
+print dict; // expect: {"hobbies":["reading","gaming","coding"],"is_student":false,"age":30,"city":"New York","name":"John Doe"}

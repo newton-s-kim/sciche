@@ -271,12 +271,12 @@ static Value json_dump(ObjectFactory* factory, NativeClass* klass, int argc, Val
 }
 
 // clang-format off
-std::map<std::string, NativeClassBoundFn> s_json_apis = {
+std::unordered_map<std::string_view, NativeClassBoundFn> s_json_apis = {
     {"load", json_load},
     {"dump", json_dump}
 };
 
-std::map<std::string, NativeClassBoundProperty> s_json_constatns;
+std::unordered_map<std::string_view, NativeClassBoundProperty> s_json_constatns;
 // clang-format on
 
 JsonInterface::JsonInterface() : NativeClass(s_json_apis, s_json_constatns)
@@ -292,7 +292,8 @@ void JsonInterface::write(rapidjson::Writer<rapidjson::StringBuffer>& writer, Va
     if (IS_MAP(value)) {
         ObjMap* map = AS_MAP(value);
         writer.StartObject();
-        for (std::map<std::string, Value>::iterator it = map->container.begin(); it != map->container.end(); it++) {
+        for (std::unordered_map<std::string, Value>::iterator it = map->container.begin(); it != map->container.end();
+             it++) {
             writer.Key(it->first.c_str());
             write(writer, it->second);
         }

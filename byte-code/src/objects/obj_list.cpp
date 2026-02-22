@@ -94,11 +94,11 @@ static Value list_class_filled(ObjectFactory* factory, NativeClass* klass, int a
 }
 
 // clang-format off
-std::map<std::string, NativeClassBoundFn> s_list_class_apis = {
+std::unordered_map<std::string_view, NativeClassBoundFn> s_list_class_apis = {
     {"filled", list_class_filled},
 };
 
-std::map<std::string, NativeClassBoundProperty> s_list_class_constants = {
+std::unordered_map<std::string_view, NativeClassBoundProperty> s_list_class_constants = {
 };
 // clang-format on
 
