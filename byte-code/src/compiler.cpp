@@ -130,6 +130,43 @@ public:
     //< Closures is-captured-field
 };
 //< Local Variables local-struct
+class Locals {
+    Local locals[UINT8_COUNT];
+    int localCount;
+
+public:
+    Locals();
+    inline int size(void)
+    {
+        return localCount;
+    }
+    inline void clear(void)
+    {
+        localCount = 0;
+    }
+    inline Local* create(void)
+    {
+        return &locals[localCount++];
+    }
+    inline Local* last(void)
+    {
+        return &locals[localCount - 1];
+    }
+    inline void pop_back(void)
+    {
+        localCount--;
+    }
+    inline Local& operator[](size_t idx)
+    {
+        return locals[idx];
+    }
+    inline void push_back(Token name);
+};
+
+Locals::Locals() : localCount(0)
+{
+}
+
 //> Closures upvalue-struct
 class Upvalue {
 public:
@@ -194,8 +231,7 @@ public:
     FunctionType type;
 
     //< Calls and Functions function-fields
-    Local locals[UINT8_COUNT];
-    int localCount;
+    Locals locals;
     //> Closures upvalues-array
     Upvalue upvalues[UINT8_COUNT];
     //< Closures upvalues-array
@@ -288,7 +324,6 @@ private:
     void defineVariable(uint16_t global);
     uint16_t parseVariable(const char* errorMessage);
     void declareVariable();
-    void addLocal(Token name);
     int resolveUpvalue(Compiler* compiler, Token* name);
     int resolveLocal(Compiler* compiler, Token* name);
     int addUpvalue(Compiler* compiler, int index, bool isLocal);
@@ -518,7 +553,7 @@ void CompilerInterfaceConcrete::initCompiler(Compiler* compiler, FunctionType ty
     compiler->function = NULL;
     compiler->type = type;
     //< Calls and Functions init-compiler
-    compiler->localCount = 0;
+    compiler->locals.clear();
     compiler->scopeDepth = 0;
     //> Calls and Functions init-function
     compiler->function = factory->newFunction();
@@ -531,7 +566,7 @@ void CompilerInterfaceConcrete::initCompiler(Compiler* compiler, FunctionType ty
     //< Calls and Functions init-function-name
     //> Calls and Functions init-function-slot
 
-    Local* local = &current->locals[current->localCount++];
+    Local* local = current->locals.create();
     local->depth = 0;
     //> Closures init-zero-local-is-captured
     local->isCaptured = false;
@@ -599,19 +634,19 @@ void CompilerInterfaceConcrete::endScope()
     current->scopeDepth--;
     //> pop-locals
 
-    while (current->localCount > 0 && current->locals[current->localCount - 1].depth > current->scopeDepth) {
+    while (current->locals.size() > 0 && current->locals.last()->depth > current->scopeDepth) {
         /* Local Variables pop-locals < Closures end-scope
             emitByte(OP_POP);
         */
         //> Closures end-scope
-        if (current->locals[current->localCount - 1].isCaptured) {
+        if (current->locals.last()->isCaptured) {
             emitByte(OP_CLOSE_UPVALUE);
         }
         else {
             emitByte(OP_POP);
         }
         //< Closures end-scope
-        current->localCount--;
+        current->locals.pop_back();
     }
     //< pop-locals
 }
@@ -641,7 +676,7 @@ bool Compiler::identifiersEqual(Token* a, Token* b)
 //> Local Variables resolve-local
 int CompilerInterfaceConcrete::resolveLocal(Compiler* compiler, Token* name)
 {
-    for (int i = compiler->localCount - 1; i >= 0; i--) {
+    for (int i = compiler->locals.size() - 1; i >= 0; i--) {
         Local* local = &compiler->locals[i];
         if (compiler->identifiersEqual(name, &local->name)) {
             //> own-initializer-error
@@ -707,16 +742,16 @@ int CompilerInterfaceConcrete::resolveUpvalue(Compiler* compiler, Token* name)
 }
 //< Closures resolve-upvalue
 //> Local Variables add-local
-void CompilerInterfaceConcrete::addLocal(Token name)
+void Locals::push_back(Token name)
 {
     //> too-many-locals
-    if (current->localCount == UINT8_COUNT) {
-        parser.error("Too many local variables in function.");
+    if (size() == UINT8_COUNT) {
+        throw std::runtime_error("Too many local variables in function.");
         return;
     }
 
     //< too-many-locals
-    Local* local = &current->locals[current->localCount++];
+    Local* local = create();
     local->name = name;
     /* Local Variables add-local < Local Variables declare-undefined
       local->depth = current->scopeDepth;
@@ -737,7 +772,7 @@ void CompilerInterfaceConcrete::declareVariable()
 
     Token* name = &parser.previous;
     //> existing-in-scope
-    for (int i = current->localCount - 1; i >= 0; i--) {
+    for (int i = current->locals.size() - 1; i >= 0; i--) {
         Local* local = &current->locals[i];
         if (local->depth != -1 && local->depth < current->scopeDepth) {
             break; // [negative]
@@ -749,7 +784,12 @@ void CompilerInterfaceConcrete::declareVariable()
     }
 
     //< existing-in-scope
-    addLocal(*name);
+    try {
+        current->locals.push_back(*name);
+    }
+    catch (std::exception& e) {
+        parser.error(e.what());
+    }
 }
 //< Local Variables declare-variable
 //> Global Variables parse-variable
@@ -773,7 +813,7 @@ void Compiler::markInitialized()
     if (scopeDepth == 0)
         return;
     //< Calls and Functions check-depth
-    locals[localCount - 1].depth = scopeDepth;
+    locals.last()->depth = scopeDepth;
 }
 //< Local Variables mark-initialized
 //> Global Variables define-variable
@@ -1542,7 +1582,13 @@ void CompilerInterfaceConcrete::classDeclaration()
         //< inherit-self
         //> superclass-variable
         beginScope();
-        addLocal(current->syntheticToken("super"));
+        try {
+            current->locals.push_back(current->syntheticToken("super"));
+        }
+        catch (std::exception& e) {
+            parser.error(e.what());
+        }
+
         defineVariable(0);
 
         //< superclass-variable
