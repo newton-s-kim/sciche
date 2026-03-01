@@ -218,9 +218,9 @@ void VM::markRoots()
     //< mark-open-upvalues
     //> mark-globals
 
-    globals.mark([=](Value value) {
-        markValue(value);
-    });
+    for(size_t idx = 0 ; idx < globals.size() ; idx++) {
+        markValue(globals[idx]);
+    }
     //< mark-globals
     //> call-mark-compiler-roots
     compiler->markCompilerRoots([=](Obj* obj) {
@@ -518,27 +518,28 @@ void VM::runtimeError(const char* format, ...)
 //> Calls and Functions define-native
 void VM::defineNative(const char* name, NativeFn function)
 {
-    push(OBJ_VAL(newString(name)));
+    uint16_t addr = compiler->newGlobalAddress(name);
     push(OBJ_VAL(newNative(function)));
-    globals.set(AS_STRING(thread->stack[0])->chars, thread->stack[1]);
-    pop();
+    LAX_LOG("addr: %d, capacity: %lu", addr, globals.capacity());
+    if(globals.size() <= addr) globals.resize((size_t)addr + 1);
+    globals[addr] = thread->stack[0];
     pop();
 }
 void VM::defineSymbol(const char* name, NativeClass* klass)
 {
-    push(OBJ_VAL(newString(name)));
+    uint16_t addr = compiler->newGlobalAddress(name);
     push(OBJ_VAL(newNativeClass(klass)));
-    globals.set(AS_STRING(thread->stack[0])->chars, thread->stack[1]);
-    pop();
+    if(globals.size() <= addr) globals.resize((size_t)addr + 1);
+    globals[addr] = thread->stack[0];
     pop();
 }
 //< Calls and Functions define-native
 void VM::defineNumber(const char* name, double v)
 {
-    push(OBJ_VAL(newString(name)));
+    uint16_t addr = compiler->newGlobalAddress(name);
     push(NUMBER_VAL(v));
-    globals.set(AS_STRING(thread->stack[0])->chars, thread->stack[1]);
-    pop();
+    if(globals.size() <= addr) globals.resize((size_t)addr + 1);
+    globals[addr] = thread->stack[0];
     pop();
 }
 
@@ -1379,32 +1380,36 @@ InterpretResult VM::run(void)
             //< Local Variables interpret-set-local
             //> Global Variables interpret-get-global
         case OP_GET_GLOBAL: {
-            ObjString* name = READ_STRING();
+            uint16_t name = READ_SHORT();
             Value value;
-            if (!globals.get(name->chars, &value)) {
-                runtimeError("Undefined variable '%s'.", name->chars.c_str());
+            if (globals.size() <= name) {
+		    //TODO:how to get string out of the address
+                //runtimeError("Undefined variable '%s'.", name->chars.c_str());
                 return INTERPRET_RUNTIME_ERROR;
             }
+	    value = globals[name];
             push(value);
             break;
         }
             //< Global Variables interpret-get-global
             //> Global Variables interpret-define-global
         case OP_DEFINE_GLOBAL: {
-            ObjString* name = READ_STRING();
-            globals.set(name->chars, peek(0));
+            uint16_t name = READ_SHORT();
+            if (globals.size() <= name) globals.resize(name + 1);
+            globals[name] = peek(0);
             pop();
             break;
         }
             //< Global Variables interpret-define-global
             //> Global Variables interpret-set-global
         case OP_SET_GLOBAL: {
-            ObjString* name = READ_STRING();
-            if (globals.set(name->chars, peek(0))) {
-                globals.remove(name->chars); // [delete]
-                runtimeError("Undefined variable '%s'.", name->chars.c_str());
+            uint16_t name = READ_SHORT();
+            if (globals.size() <= name) {
+		    //TODO:how to get string out of the address
+                //runtimeError("Undefined variable '%s'.", name->chars.c_str());
                 return INTERPRET_RUNTIME_ERROR;
             }
+            globals[name] = peek(0);
             break;
         }
             //< Global Variables interpret-set-global

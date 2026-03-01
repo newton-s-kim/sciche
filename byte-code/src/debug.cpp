@@ -59,6 +59,12 @@ int Debug::byteInstruction(const char* name, Chunk* chunk, int offset)
     printf("%-16s %4d\n", name, slot);
     return offset + 2; // [debug]
 }
+int Debug::shortInstruction(const char* name, Chunk* chunk, int offset)
+{
+    uint16_t slot = READ_ADDRESS();
+    printf("%-16s %4d\n", name, slot);
+    return offset + 3; // [debug]
+}
 //< Local Variables byte-instruction
 //> Jumping Back and Forth jump-instruction
 int Debug::jumpInstruction(const char* name, int sign, Chunk* chunk, int offset)
@@ -107,15 +113,15 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
         //< Local Variables disassemble-local
         //> Global Variables disassemble-get-global
     case OP_GET_GLOBAL:
-        return constantInstruction("OP_GET_GLOBAL", chunk, offset);
+        return shortInstruction("OP_GET_GLOBAL", chunk, offset);
         //< Global Variables disassemble-get-global
         //> Global Variables disassemble-define-global
     case OP_DEFINE_GLOBAL:
-        return constantInstruction("OP_DEFINE_GLOBAL", chunk, offset);
+        return shortInstruction("OP_DEFINE_GLOBAL", chunk, offset);
         //< Global Variables disassemble-define-global
         //> Global Variables disassemble-set-global
     case OP_SET_GLOBAL:
-        return constantInstruction("OP_SET_GLOBAL", chunk, offset);
+        return shortInstruction("OP_SET_GLOBAL", chunk, offset);
         //< Global Variables disassemble-set-global
         //> Closures disassemble-upvalue-ops
     case OP_GET_UPVALUE:

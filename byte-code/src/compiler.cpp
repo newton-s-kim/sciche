@@ -295,6 +295,7 @@ private:
 #ifdef DEBUG_PRINT_CODE
     Debug debug;
 #endif
+    std::unordered_map<std::string, Value> globals;
     ObjectFactory* factory;
     void block();
     void declaration();
@@ -349,6 +350,7 @@ public:
     //> Garbage Collection mark-compiler-roots-h
     void markCompilerRoots(std::function<void(Obj*)> callback);
     //< Garbage Collection mark-compiler-roots-h
+    uint16_t newGlobalAddress(std::string);
 };
 
 //> Calls and Functions current-chunk
@@ -803,7 +805,11 @@ uint16_t CompilerInterfaceConcrete::parseVariable(const char* errorMessage)
         return 0;
 
     //< Local Variables parse-local
-    return identifierConstant(&parser.previous);
+    //return identifierConstant(&parser.previous);
+    std::string str(parser.previous.start, parser.previous.length);
+    uint16_t gaddr = globals.size() + 1;
+    globals[str] = gaddr;
+    return gaddr;
 }
 //< Global Variables parse-variable
 //> Local Variables mark-initialized
@@ -1144,7 +1150,9 @@ void CompilerInterfaceConcrete::namedVariable(Token name, bool canAssign)
         //< Closures named-variable-upvalue
     }
     else {
-        arg = identifierConstant(&name);
+        //arg = identifierConstant(&name);
+        std::string str(name.start, name.length);
+	arg = (uint16_t) globals[str];
         getOp = OP_GET_GLOBAL;
         setOp = OP_SET_GLOBAL;
     }
@@ -2055,6 +2063,19 @@ void CompilerInterfaceConcrete::markCompilerRoots(std::function<void(Obj*)> call
         compiler = compiler->enclosing;
     }
 }
+
+uint16_t CompilerInterfaceConcrete::newGlobalAddress(std::string name) {
+	std::unordered_map<std::string, Value>::iterator it = globals.find(name);
+	if(it != globals.end()) {
+		std::stringstream ss;
+		ss << name << " already exists";
+		throw std::runtime_error(ss.str());
+	}
+	uint16_t sz = globals.size();
+	globals[name] = sz;
+	return sz;
+}
+
 //< Garbage Collection mark-compiler-roots
 
 class CompilerFactoryConcrete : public CompilerFactory {

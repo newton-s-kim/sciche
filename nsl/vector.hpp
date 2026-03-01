@@ -24,6 +24,7 @@ public:
     inline void clear(void);
     inline void insert(size_t idx, T v);
     inline void reserve(size_t idx);
+    inline void resize(size_t idx);
     inline bool empty(void);
 };
 
@@ -41,6 +42,7 @@ vector<T>::~vector()
 template <typename T>
 void vector<T>::grow(size_t increment)
 {
+    if(m_capacity >= m_size + increment) return;
     m_capacity = ((m_size + increment) / VECTOR_STRIDE + 1) * VECTOR_STRIDE;
     m_buffer = (T*)realloc(m_buffer, sizeof(T) * m_capacity);
 }
@@ -51,6 +53,13 @@ void vector<T>::reserve(size_t size)
     if (m_size < size)
         size -= m_size;
     grow(size);
+}
+
+template <typename T>
+void vector<T>::resize(size_t size)
+{
+    reserve(size);
+    m_size = size;
 }
 
 template <typename T>

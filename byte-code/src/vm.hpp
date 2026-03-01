@@ -67,7 +67,7 @@ public:
     nsl::vector<ObjThread*> threadStack;
 
     //> Global Variables vm-globals
-    Table globals;
+    nsl::vector<Value> globals;
     //< Global Variables vm-globals
     //> Methods and Initializers vm-init-string
     ObjString* initString;

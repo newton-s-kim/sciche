@@ -23,6 +23,7 @@ public:
     //> Garbage Collection mark-compiler-roots-h
     virtual void markCompilerRoots(std::function<void(Obj*)> callback) = 0;
     //< Garbage Collection mark-compiler-roots-h
+    virtual uint16_t newGlobalAddress(std::string) = 0;
 };
 
 class CompilerFactory {
