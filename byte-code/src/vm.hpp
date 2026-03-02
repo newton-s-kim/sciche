@@ -41,7 +41,7 @@ typedef enum {
 
 //< Calls and Functions call-frame
 
-class VM : public ObjectFactory {
+class VM : public ObjectFactory, GlobalMemoryInterface {
     /* A Virtual Machine vm-h < Calls and Functions frame-array
       Chunk* chunk;
     */
@@ -101,6 +101,7 @@ private:
     //> Strings free-objects-h
     void freeObjects();
     //< Strings free-objects-h
+    std::unordered_map<size_t, std::string> undefined;
 
     ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
     ObjClass* newClass(nsl::string name);
@@ -156,6 +157,8 @@ public:
     ObjThread* newThread(ObjClosure* closure);
     bool loadLibrary(std::string path, std::string name);
     bool callFunction(Value value, int argc, Value* argv, bool startNew);
+
+    void define(size_t address, Value value);
 };
 
 //< interpret-result

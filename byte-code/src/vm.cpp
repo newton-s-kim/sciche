@@ -218,7 +218,7 @@ void VM::markRoots()
     //< mark-open-upvalues
     //> mark-globals
 
-    for(size_t idx = 0 ; idx < globals.size() ; idx++) {
+    for (size_t idx = 0; idx < globals.size(); idx++) {
         markValue(globals[idx]);
     }
     //< mark-globals
@@ -520,8 +520,6 @@ void VM::defineNative(const char* name, NativeFn function)
 {
     uint16_t addr = compiler->newGlobalAddress(name);
     push(OBJ_VAL(newNative(function)));
-    LAX_LOG("addr: %d, capacity: %lu", addr, globals.capacity());
-    if(globals.size() <= addr) globals.resize((size_t)addr + 1);
     globals[addr] = thread->stack[0];
     pop();
 }
@@ -529,7 +527,6 @@ void VM::defineSymbol(const char* name, NativeClass* klass)
 {
     uint16_t addr = compiler->newGlobalAddress(name);
     push(OBJ_VAL(newNativeClass(klass)));
-    if(globals.size() <= addr) globals.resize((size_t)addr + 1);
     globals[addr] = thread->stack[0];
     pop();
 }
@@ -538,7 +535,6 @@ void VM::defineNumber(const char* name, double v)
 {
     uint16_t addr = compiler->newGlobalAddress(name);
     push(NUMBER_VAL(v));
-    if(globals.size() <= addr) globals.resize((size_t)addr + 1);
     globals[addr] = thread->stack[0];
     pop();
 }
@@ -546,7 +542,7 @@ void VM::defineNumber(const char* name, double v)
 VM::VM() : thread(NULL), openUpvalues(NULL), objects(NULL)
 {
     thread = new ObjThread();
-    compiler = CompilerFactory::instance()->create(this);
+    compiler = CompilerFactory::instance()->create(this, this);
     //> call-reset-stack
     resetStack();
     //< call-reset-stack
@@ -1308,11 +1304,11 @@ InterpretResult VM::run(void)
         }
         printf("\n");
         printf("          global:");
-	for(size_t idx = 0 ; idx < globals.size() ; idx++) {
+        for (size_t idx = 0; idx < globals.size(); idx++) {
             printf("[ ");
             util.print(globals[idx]);
             printf(" ]");
-	}
+        }
         printf("\n");
         //< trace-stack
         /* A Virtual Machine trace-execution < Calls and Functions trace-execution
@@ -1389,12 +1385,11 @@ InterpretResult VM::run(void)
         case OP_GET_GLOBAL: {
             uint16_t name = READ_SHORT();
             Value value;
-            if (globals.size() <= name) {
-		    //TODO:how to get string out of the address
-                //runtimeError("Undefined variable '%s'.", name->chars.c_str());
+            if (globals.size() <= name || IS_UNDEF(globals[name])) {
+                runtimeError("Undefined variable '%s'.", compiler->undefinedSymbol(name).c_str());
                 return INTERPRET_RUNTIME_ERROR;
             }
-	    value = globals[name];
+            value = globals[name];
             push(value);
             break;
         }
@@ -1402,7 +1397,6 @@ InterpretResult VM::run(void)
             //> Global Variables interpret-define-global
         case OP_DEFINE_GLOBAL: {
             uint16_t name = READ_SHORT();
-            if (globals.size() <= name) globals.resize(name + 1);
             globals[name] = peek(0);
             pop();
             break;
@@ -1411,9 +1405,8 @@ InterpretResult VM::run(void)
             //> Global Variables interpret-set-global
         case OP_SET_GLOBAL: {
             uint16_t name = READ_SHORT();
-            if (globals.size() <= name) {
-		    //TODO:how to get string out of the address
-                //runtimeError("Undefined variable '%s'.", name->chars.c_str());
+            if (globals.size() <= name || IS_UNDEF(globals[name])) {
+                runtimeError("Undefined variable '%s'.", compiler->undefinedSymbol(name).c_str());
                 return INTERPRET_RUNTIME_ERROR;
             }
             globals[name] = peek(0);
@@ -2420,6 +2413,13 @@ bool VM::callFunction(Value value, int argc, Value* argv, bool startNew)
     for (int i = 0; i < argc; i++)
         pop();
     return ret;
+}
+
+void VM::define(size_t address, Value value)
+{
+    if (globals.size() <= address)
+        globals.resize(address + 1);
+    globals[address] = value;
 }
 } // namespace sce
 //< interpret

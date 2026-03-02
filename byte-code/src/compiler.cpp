@@ -295,8 +295,10 @@ private:
 #ifdef DEBUG_PRINT_CODE
     Debug debug;
 #endif
-    std::unordered_map<std::string, Value> globals;
+    std::unordered_map<std::string, uint16_t> globalSymtab;
     ObjectFactory* factory;
+    GlobalMemoryInterface* globalMemory;
+    std::unordered_map<uint16_t, std::string> undefined;
     void block();
     void declaration();
     void function(FunctionType type);
@@ -343,7 +345,7 @@ private:
     std::string findPath(std::string file);
 
 public:
-    CompilerInterfaceConcrete(ObjectFactory* pFactory);
+    CompilerInterfaceConcrete(ObjectFactory* pFactory, GlobalMemoryInterface* global);
     //> Calls and Functions compile-h
     ObjFunction* compile(const char* source);
     //< Calls and Functions compile-h
@@ -351,6 +353,7 @@ public:
     void markCompilerRoots(std::function<void(Obj*)> callback);
     //< Garbage Collection mark-compiler-roots-h
     uint16_t newGlobalAddress(std::string);
+    std::string undefinedSymbol(uint16_t address);
 };
 
 //> Calls and Functions current-chunk
@@ -442,7 +445,8 @@ bool Parser::match(TokenType type)
 }
 //< Global Variables match
 
-CompilerInterfaceConcrete::CompilerInterfaceConcrete(ObjectFactory* pFactory) : factory(pFactory)
+CompilerInterfaceConcrete::CompilerInterfaceConcrete(ObjectFactory* pFactory, GlobalMemoryInterface* global)
+    : factory(pFactory), globalMemory(global)
 {
 }
 //> Compiling Expressions emit-byte
@@ -805,10 +809,18 @@ uint16_t CompilerInterfaceConcrete::parseVariable(const char* errorMessage)
         return 0;
 
     //< Local Variables parse-local
-    //return identifierConstant(&parser.previous);
+    // return identifierConstant(&parser.previous);
     std::string str(parser.previous.start, parser.previous.length);
-    uint16_t gaddr = globals.size();
-    globals[str] = gaddr;
+    uint16_t gaddr = 0;
+    std::unordered_map<std::string, uint16_t>::iterator it = globalSymtab.find(str);
+    if (it == globalSymtab.end()) {
+        gaddr = globalSymtab.size();
+        globalSymtab[str] = gaddr;
+        globalMemory->define(gaddr, NIL_VAL);
+    }
+    else {
+        gaddr = globalSymtab[str];
+    }
     return gaddr;
 }
 //< Global Variables parse-variable
@@ -1150,15 +1162,18 @@ void CompilerInterfaceConcrete::namedVariable(Token name, bool canAssign)
         //< Closures named-variable-upvalue
     }
     else {
-        //arg = identifierConstant(&name);
+        // arg = identifierConstant(&name);
         std::string str(name.start, name.length);
-	std::unordered_map<std::string, Value>::iterator it = globals.find(str);
-	if(it == globals.end()) {
-            std::stringstream ss;
-	    ss << "Undefined variable " << str;
-            parser.error(ss.str().c_str());
-	}
-	arg = (uint16_t) globals[str];
+        std::unordered_map<std::string, uint16_t>::iterator it = globalSymtab.find(str);
+        if (it == globalSymtab.end()) {
+            arg = globalSymtab.size();
+            globalSymtab[str] = arg;
+            globalMemory->define(arg, UNDEF_VAL);
+            undefined[arg] = str;
+        }
+        else {
+            arg = (uint16_t)globalSymtab[str];
+        }
         getOp = OP_GET_GLOBAL;
         setOp = OP_SET_GLOBAL;
     }
@@ -1570,8 +1585,16 @@ void CompilerInterfaceConcrete::classDeclaration()
     //< Methods and Initializers class-name
     uint16_t nameConstant = identifierConstant(&parser.previous);
     std::string str(parser.previous.start, parser.previous.length);
-    uint16_t gaddr = globals.size();
-    globals[str] = gaddr;
+    uint16_t gaddr = 0;
+    std::unordered_map<std::string, uint16_t>::iterator it = globalSymtab.find(str);
+    if (it == globalSymtab.end()) {
+        gaddr = globalSymtab.size();
+        globalSymtab[str] = gaddr;
+        globalMemory->define(gaddr, NIL_VAL);
+    }
+    else {
+        gaddr = globalSymtab[str];
+    }
 
     declareVariable();
 
@@ -2074,28 +2097,46 @@ void CompilerInterfaceConcrete::markCompilerRoots(std::function<void(Obj*)> call
     }
 }
 
-uint16_t CompilerInterfaceConcrete::newGlobalAddress(std::string name) {
-	std::unordered_map<std::string, Value>::iterator it = globals.find(name);
-	if(it != globals.end()) {
-		std::stringstream ss;
-		ss << name << " already exists";
-		throw std::runtime_error(ss.str());
-	}
-	uint16_t sz = globals.size();
-	globals[name] = sz;
-	return sz;
+uint16_t CompilerInterfaceConcrete::newGlobalAddress(std::string name)
+{
+    std::unordered_map<std::string, uint16_t>::iterator it = globalSymtab.find(name);
+    uint16_t ret = 0;
+    if (it != globalSymtab.end()) {
+        if (IS_UNDEF(it->second)) {
+            ret = it->second;
+        }
+        else {
+            std::stringstream ss;
+            ss << name << " already exists";
+            throw std::runtime_error(ss.str());
+        }
+    }
+    else {
+        ret = globalSymtab.size();
+        globalSymtab[name] = ret;
+        globalMemory->define(ret, NIL_VAL);
+    }
+    return ret;
+}
+
+std::string CompilerInterfaceConcrete::undefinedSymbol(uint16_t addr)
+{
+    std::unordered_map<uint16_t, std::string>::iterator it = undefined.find(addr);
+    if (it == undefined.end())
+        throw std::runtime_error("The address is not undefined");
+    return it->second;
 }
 
 //< Garbage Collection mark-compiler-roots
 
 class CompilerFactoryConcrete : public CompilerFactory {
 public:
-    CompilerInterface* create(ObjectFactory* factory);
+    CompilerInterface* create(ObjectFactory* factory, GlobalMemoryInterface* global);
 };
 
-CompilerInterface* CompilerFactoryConcrete::create(ObjectFactory* factory)
+CompilerInterface* CompilerFactoryConcrete::create(ObjectFactory* factory, GlobalMemoryInterface* global)
 {
-    return new CompilerInterfaceConcrete(factory);
+    return new CompilerInterfaceConcrete(factory, global);
 }
 
 CompilerFactory* CompilerFactory::instance(void)
