@@ -1310,6 +1310,14 @@ InterpretResult VM::run(void)
             printf(" ]");
         }
         printf("\n");
+        printf("          constant:");
+        nsl::vector<Value>& ctns = frame->closure->function->chunk.constants;
+        for (size_t idx = 0; idx < ctns.size(); idx++) {
+            printf("[ ");
+            util.print(ctns[idx]);
+            printf(" ]");
+        }
+        printf("\n");
         //< trace-stack
         /* A Virtual Machine trace-execution < Calls and Functions trace-execution
             disassembleInstruction(chunk,
