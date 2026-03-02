@@ -36,6 +36,7 @@ typedef uint64_t Value;
 //< is-bool
 //> is-nil
 #define IS_NIL(value) ((value) == NIL_VAL)
+#define IS_UNDEF(value) ((value) == UNDEF_VAL)
 //< is-nil
 #define IS_NUMBER(value) (((value) & QNAN) != QNAN)
 //< is-number
@@ -64,6 +65,7 @@ typedef uint64_t Value;
 //> nil-val
 #define NIL_VAL ((Value)(uint64_t)(QNAN | TAG_NIL))
 //< nil-val
+#define UNDEF_VAL 0
 #define NUMBER_VAL(num) numToValue(num)
 //< number-val
 //> obj-val
@@ -93,6 +95,7 @@ static inline Value numToValue(double num)
 //< Optimization nan-boxing
 //> Types of Values value-type
 typedef enum {
+    VAL_UNDEF,
     VAL_BOOL,
     VAL_NIL, // [user-types]
     VAL_NUMBER,
@@ -121,6 +124,7 @@ typedef struct {
 
 #define IS_BOOL(value) ((value).type == VAL_BOOL)
 #define IS_NIL(value) ((value).type == VAL_NIL)
+#define IS_UNDEF(value) ((value).type == VAL_UNDEF)
 #define IS_NUMBER(value) ((value).type == VAL_NUMBER)
 //> Strings is-obj
 #define IS_OBJ(value) ((value).type == VAL_OBJ)
@@ -138,6 +142,7 @@ typedef struct {
 
 #define BOOL_VAL(value) ((Value){VAL_BOOL, {.boolean = value}})
 #define NIL_VAL ((Value){VAL_NIL, {.number = 0}})
+#define UNDEF_VAL ((Value){VAL_UNDEF, {.number = 0}})
 #define NUMBER_VAL(value) ((Value){VAL_NUMBER, {.number = value}})
 //> Strings obj-val
 #define OBJ_VAL(object) ((Value){VAL_OBJ, {.obj = (Obj*)object}})

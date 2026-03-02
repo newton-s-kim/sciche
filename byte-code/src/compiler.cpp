@@ -807,7 +807,7 @@ uint16_t CompilerInterfaceConcrete::parseVariable(const char* errorMessage)
     //< Local Variables parse-local
     //return identifierConstant(&parser.previous);
     std::string str(parser.previous.start, parser.previous.length);
-    uint16_t gaddr = globals.size() + 1;
+    uint16_t gaddr = globals.size();
     globals[str] = gaddr;
     return gaddr;
 }
@@ -1152,6 +1152,12 @@ void CompilerInterfaceConcrete::namedVariable(Token name, bool canAssign)
     else {
         //arg = identifierConstant(&name);
         std::string str(name.start, name.length);
+	std::unordered_map<std::string, Value>::iterator it = globals.find(str);
+	if(it == globals.end()) {
+            std::stringstream ss;
+	    ss << "Undefined variable " << str;
+            parser.error(ss.str().c_str());
+	}
 	arg = (uint16_t) globals[str];
         getOp = OP_GET_GLOBAL;
         setOp = OP_SET_GLOBAL;
@@ -1563,10 +1569,14 @@ void CompilerInterfaceConcrete::classDeclaration()
     Token className = parser.previous;
     //< Methods and Initializers class-name
     uint16_t nameConstant = identifierConstant(&parser.previous);
+    std::string str(parser.previous.start, parser.previous.length);
+    uint16_t gaddr = globals.size();
+    globals[str] = gaddr;
+
     declareVariable();
 
     emitShort(OP_CLASS, nameConstant);
-    defineVariable(nameConstant);
+    defineVariable(gaddr);
 
     //> Methods and Initializers create-class-compiler
     ClassCompiler classCompiler;
