@@ -1299,13 +1299,20 @@ InterpretResult VM::run(void)
 //> trace-execution
 #ifdef DEBUG_TRACE_EXECUTION
         //> trace-stack
-        printf("          ");
         ValueUtil util;
+        printf("          local:");
         for (Value* slot = thread->stack; slot < thread->stackTop; slot++) {
             printf("[ ");
             util.print(*slot);
             printf(" ]");
         }
+        printf("\n");
+        printf("          global:");
+	for(size_t idx = 0 ; idx < globals.size() ; idx++) {
+            printf("[ ");
+            util.print(globals[idx]);
+            printf(" ]");
+	}
         printf("\n");
         //< trace-stack
         /* A Virtual Machine trace-execution < Calls and Functions trace-execution
