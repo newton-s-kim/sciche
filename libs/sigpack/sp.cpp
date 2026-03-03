@@ -162,7 +162,7 @@ Value kfNative(ObjectFactory* factory, NativeClass* klass, int argc, Value* args
 }
 
 // clang-format off
-std::unordered_map<std::string_view, NativeClassBoundFn> s_sigpack_apis = {
+tsl::robin_map<std::string_view, NativeClassBoundFn> s_sigpack_apis = {
     {"FIR_filt", firFiltNative},
     {"IIR_filt", iirFiltNative},
     {"fir1", fir1Native},
@@ -176,7 +176,7 @@ std::unordered_map<std::string_view, NativeClassBoundFn> s_sigpack_apis = {
     {"KF", kfNative}
 };
 
-std::unordered_map<std::string_view, NativeClassBoundProperty> s_sigpack_properties;
+tsl::robin_map<std::string_view, NativeClassBoundProperty> s_sigpack_properties;
 // clang-format on
 
 SigpackInterface::SigpackInterface() : NativeClass(s_sigpack_apis, s_sigpack_properties)

@@ -22,12 +22,12 @@ static Value sndwav_close(ObjectFactory* factory, NativeObject* obj, int argc, V
 }
 
 // clang-format off
-std::unordered_map<std::string_view, NativeObjectBoundFn> s_sndwav_apis = {
+tsl::robin_map<std::string_view, NativeObjectBoundFn> s_sndwav_apis = {
     {"read", sndwav_read},
     {"close", sndwav_close}
 };
 
-std::unordered_map<std::string_view, NativeObjectBoundProperty> s_sndwav_properties;
+tsl::robin_map<std::string_view, NativeObjectBoundProperty> s_sndwav_properties;
 // clang-format on
 
 SndWav::SndWav(std::string path, int mode) : NativeObject(s_sndwav_apis, s_sndwav_properties), m_handle(NULL)

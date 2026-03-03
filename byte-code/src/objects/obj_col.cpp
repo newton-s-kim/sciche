@@ -234,12 +234,12 @@ static Value vec_class_prop_randn(ObjectFactory* factory, NativeClass* klass)
 }
 
 // clang-format off
-std::unordered_map<std::string_view, NativeClassBoundFn> s_vec_class_apis = {
+tsl::robin_map<std::string_view, NativeClassBoundFn> s_vec_class_apis = {
     {"conv", vec_class_convolute},
     {"corr", vec_class_correlate}
 };
 
-std::unordered_map<std::string_view, NativeClassBoundProperty> s_vec_class_constants = {
+tsl::robin_map<std::string_view, NativeClassBoundProperty> s_vec_class_constants = {
     {"default", vec_class_prop_default},
     {"zeros", vec_class_prop_zeros},
     {"ones", vec_class_prop_ones},

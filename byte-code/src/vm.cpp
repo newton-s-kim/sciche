@@ -169,7 +169,7 @@ void VM::blackenObject(Obj* object)
     }
     case OBJ_MAP: {
         ObjMap* map = (ObjMap*)object;
-        for (std::unordered_map<std::string, Value>::iterator it = map->container.begin(); it != map->container.end();
+        for (tsl::robin_map<std::string, Value>::iterator it = map->container.begin(); it != map->container.end();
              it++) {
             markValue(it->second);
         }
@@ -272,7 +272,7 @@ void VM::sweep()
 //< Garbage Collection sweep
 void VM::removeString(void)
 {
-    for (std::unordered_map<std::string, ObjString*>::iterator it = strings.begin(); it != strings.end();) {
+    for (tsl::robin_map<std::string, ObjString*>::iterator it = strings.begin(); it != strings.end();) {
         if (!it->second->isMarked) {
             it = strings.erase(it);
         }
@@ -585,7 +585,7 @@ VM::~VM()
     //> Strings call-free-objects
     freeObjects();
     //< Strings call-free-objects
-    for (std::unordered_map<std::string, dl*>::iterator it = m_dl.begin(); it != m_dl.end(); it++) {
+    for (tsl::robin_map<std::string, dl*>::iterator it = m_dl.begin(); it != m_dl.end(); it++) {
         delete it->second;
     }
 }
@@ -1144,7 +1144,7 @@ ObjString* VM::newString(const char* pchars, int length)
         }
     }
     //> take-string-intern
-    std::unordered_map<std::string, ObjString*>::iterator found = strings.find(chars);
+    tsl::robin_map<std::string, ObjString*>::iterator found = strings.find(chars);
     ObjString* interned = (found == strings.end()) ? NULL : found->second;
     if (interned != NULL) {
         LAX_LOG("%s is found", chars.c_str());
@@ -2357,7 +2357,7 @@ void VM::freeObjects()
 
 bool VM::loadLibrary(std::string path, std::string name)
 {
-    std::unordered_map<std::string, dl*>::iterator it = m_dl.find(name);
+    tsl::robin_map<std::string, dl*>::iterator it = m_dl.find(name);
     if (it != m_dl.end()) {
         return false;
     }

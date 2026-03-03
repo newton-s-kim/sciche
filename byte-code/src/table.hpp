@@ -6,12 +6,12 @@
 #include "value.hpp"
 #include <functional>
 #include <string>
-#include <unordered_map>
+#include <tsl/robin_map.h>
 
 namespace sce {
 class Table {
 private:
-    std::unordered_map<std::string, Value> entries;
+    tsl::robin_map<std::string, Value> entries;
 
 public:
     //> table-get-h

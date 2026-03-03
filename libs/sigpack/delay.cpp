@@ -17,11 +17,11 @@ static Value delay_delay(ObjectFactory* factory, NativeObject* obj, int argc, Va
 }
 
 // clang-format off
-std::unordered_map<std::string_view, NativeObjectBoundFn> s_delay_apis = {
+tsl::robin_map<std::string_view, NativeObjectBoundFn> s_delay_apis = {
     {"delay", delay_delay}
 };
 
-std::unordered_map<std::string_view, NativeObjectBoundProperty> s_delay_properties;
+tsl::robin_map<std::string_view, NativeObjectBoundProperty> s_delay_properties;
 // clang-format on
 
 DelayFilter::DelayFilter() : NativeObject(s_delay_apis, s_delay_properties)

@@ -22,10 +22,9 @@
 #include "dl.hpp"
 #include "primitive.hpp"
 
-#include <map>
 #include <stack>
 #include <string>
-#include <unordered_map>
+#include <tsl/robin_map.h>
 
 #define THREAD_MAX 4
 // clang-format off
@@ -87,7 +86,7 @@ public:
     std::stack<Obj*> grayStack;
     //< Garbage Collection vm-gray-stack
     //> Hash Tables strings
-    std::unordered_map<std::string, ObjString*> strings;
+    tsl::robin_map<std::string, ObjString*> strings;
     //< Hash Tables strings
     Primitive primitive;
 
@@ -101,7 +100,7 @@ private:
     //> Strings free-objects-h
     void freeObjects();
     //< Strings free-objects-h
-    std::unordered_map<size_t, std::string> undefined;
+    tsl::robin_map<size_t, std::string> undefined;
 
     ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
     ObjClass* newClass(nsl::string name);
@@ -121,7 +120,7 @@ private:
     void markValue(Value value);
     void removeString(void);
     void collect(size_t oldSize, size_t newSize);
-    std::unordered_map<std::string, dl*> m_dl;
+    tsl::robin_map<std::string, dl*> m_dl;
 
 public:
     //< Strings extern-vm

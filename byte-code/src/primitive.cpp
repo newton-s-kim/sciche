@@ -2,7 +2,7 @@
 #include "log.hpp"
 
 #include <string>
-#include <unordered_map>
+#include <tsl/robin_map.h>
 
 namespace sce {
 typedef Value (*PrimitiveBoundFn)(ObjectFactory* factory, Value value, int argc, Value* argv);
@@ -100,7 +100,7 @@ static Value list_insert(ObjectFactory* factory, Value value, int argc, Value* a
 }
 
 // clang-format off
-std::unordered_map<std::string_view, PrimitiveBoundFn> s_list_apis = {
+tsl::robin_map<std::string_view, PrimitiveBoundFn> s_list_apis = {
     {"add", list_add},
     {"each", list_each},
     {"clear", list_clear},
@@ -109,7 +109,7 @@ std::unordered_map<std::string_view, PrimitiveBoundFn> s_list_apis = {
     {"insert", list_insert},
 };
 
-std::unordered_map<std::string_view, PrimitiveBoundProperty> s_list_props = {
+tsl::robin_map<std::string_view, PrimitiveBoundProperty> s_list_props = {
     {"size", list_size},
 };
 // clang-format on
@@ -138,11 +138,11 @@ static Value unordered_map_size(ObjectFactory* factory, Value value)
 }
 
 // clang-format off
-std::unordered_map<std::string_view, PrimitiveBoundFn> s_unordered_map_apis = {
+tsl::robin_map<std::string_view, PrimitiveBoundFn> s_unordered_map_apis = {
     {"remove", unordered_map_remove}
 };
 
-std::unordered_map<std::string_view, PrimitiveBoundProperty> s_unordered_map_props = {
+tsl::robin_map<std::string_view, PrimitiveBoundProperty> s_unordered_map_props = {
     {"size", unordered_map_size}
 };
 // clang-format on
@@ -224,14 +224,14 @@ static Value col_add(ObjectFactory* factory, Value value, int argc, Value* argv)
 }
 
 // clang-format off
-std::unordered_map<std::string_view, PrimitiveBoundFn> s_col_apis = {
+tsl::robin_map<std::string_view, PrimitiveBoundFn> s_col_apis = {
     {"resize", col_resize},
     {"zeros", col_zeros},
     {"add", col_add},
     {"t", col_transpose},
     {"randn", col_randn}
 };
-std::unordered_map<std::string_view, PrimitiveBoundProperty> s_col_props = {
+tsl::robin_map<std::string_view, PrimitiveBoundProperty> s_col_props = {
     {"size", col_size}
 };
 // clang-format on
@@ -248,10 +248,10 @@ static Value row_transpose(ObjectFactory* factory, Value value, int argc, Value*
     return OBJ_VAL(col);
 }
 
-std::unordered_map<std::string_view, PrimitiveBoundFn> s_row_apis = {
+tsl::robin_map<std::string_view, PrimitiveBoundFn> s_row_apis = {
     {"t", row_transpose},
 };
-std::unordered_map<std::string_view, PrimitiveBoundProperty> s_row_props = {};
+tsl::robin_map<std::string_view, PrimitiveBoundProperty> s_row_props = {};
 
 static Value mat_col(ObjectFactory* factory, Value value, int argc, Value* argv)
 {
@@ -407,14 +407,14 @@ static Value mat_abs(ObjectFactory* factory, Value value)
 }
 
 // clang-format off
-std::unordered_map<std::string_view, PrimitiveBoundFn> s_mat_apis = {
+tsl::robin_map<std::string_view, PrimitiveBoundFn> s_mat_apis = {
     {"col", mat_col},
     {"row", mat_row},
     {"rows", mat_rows},
     {"set", mat_set},
     {"t", mat_transpose}
 };
-std::unordered_map<std::string_view, PrimitiveBoundProperty> s_mat_props = {
+tsl::robin_map<std::string_view, PrimitiveBoundProperty> s_mat_props = {
     {"abs", mat_abs}
 };
 // clang-format on
@@ -448,10 +448,10 @@ static Value cube_slice(ObjectFactory* factory, Value value, int argc, Value* ar
 }
 
 // clang-format off
-std::unordered_map<std::string_view, PrimitiveBoundFn> s_cube_apis = {
+tsl::robin_map<std::string_view, PrimitiveBoundFn> s_cube_apis = {
     {"slice", cube_slice}
 };
-std::unordered_map<std::string_view, PrimitiveBoundProperty> s_cube_props = {
+tsl::robin_map<std::string_view, PrimitiveBoundProperty> s_cube_props = {
 };
 // clang-format on
 
@@ -532,10 +532,10 @@ static Value num_truncate(ObjectFactory* factory, Value value)
 }
 
 // clang-format off
-std::unordered_map<std::string_view, PrimitiveBoundFn> s_number_apis = {
+tsl::robin_map<std::string_view, PrimitiveBoundFn> s_number_apis = {
 };
 
-std::unordered_map<std::string_view, PrimitiveBoundProperty> s_number_props = {
+tsl::robin_map<std::string_view, PrimitiveBoundProperty> s_number_props = {
     {"ceil", num_ceil},
     {"floor", num_floor},
     {"round", num_round},
@@ -545,16 +545,16 @@ std::unordered_map<std::string_view, PrimitiveBoundProperty> s_number_props = {
     {"truncate", num_truncate}
 };
 
-std::unordered_map<std::string_view, PrimitiveBoundFn> s_bool_apis = {
+tsl::robin_map<std::string_view, PrimitiveBoundFn> s_bool_apis = {
 };
-std::unordered_map<std::string_view, PrimitiveBoundProperty> s_bool_props = {
+tsl::robin_map<std::string_view, PrimitiveBoundProperty> s_bool_props = {
 };
 // clang-format on
 
 Value Primitive::call(ObjectFactory* factory, Value value, std::string& name, int argc, Value* argv)
 {
     Value ret = 0;
-    std::unordered_map<std::string_view, PrimitiveBoundFn>::iterator it;
+    tsl::robin_map<std::string_view, PrimitiveBoundFn>::iterator it;
     if (IS_NUMBER(value)) {
         it = s_number_apis.find(name);
         if (it != s_number_apis.end())
@@ -621,7 +621,7 @@ Value Primitive::property(ObjectFactory* factory, Value value, std::string& name
 {
     (void)factory;
     Value ret = 0;
-    std::unordered_map<std::string_view, PrimitiveBoundProperty>::iterator it;
+    tsl::robin_map<std::string_view, PrimitiveBoundProperty>::iterator it;
     if (IS_NUMBER(value)) {
         it = s_number_props.find(name);
         if (it != s_number_props.end())

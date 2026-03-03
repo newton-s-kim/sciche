@@ -304,7 +304,7 @@ public:
 
 class ObjMap : public Obj {
 public:
-    std::unordered_map<std::string, Value> container;
+    tsl::robin_map<std::string, Value> container;
     ObjMap();
     ~ObjMap();
     std::string stringify(void);
@@ -377,12 +377,12 @@ typedef Value (*NativeClassBoundProperty)(ObjectFactory* factory, NativeClass* k
 
 class NativeClass {
 protected:
-    std::unordered_map<std::string_view, NativeClassBoundFn>& m_apis;
-    std::unordered_map<std::string_view, NativeClassBoundProperty>& m_constants;
+    tsl::robin_map<std::string_view, NativeClassBoundFn>& m_apis;
+    tsl::robin_map<std::string_view, NativeClassBoundProperty>& m_constants;
 
 public:
-    NativeClass(std::unordered_map<std::string_view, NativeClassBoundFn>& apis,
-                std::unordered_map<std::string_view, NativeClassBoundProperty>& constants);
+    NativeClass(tsl::robin_map<std::string_view, NativeClassBoundFn>& apis,
+                tsl::robin_map<std::string_view, NativeClassBoundProperty>& constants);
     virtual ~NativeClass();
     Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
     virtual Value call(ObjectFactory* factory, int argc, Value* argv);
@@ -405,12 +405,12 @@ typedef Value (*NativeObjectBoundProperty)(ObjectFactory* factory, NativeObject*
 
 class NativeObject {
 protected:
-    std::unordered_map<std::string_view, NativeObjectBoundFn>& m_apis;
-    std::unordered_map<std::string_view, NativeObjectBoundProperty>& m_properties;
+    tsl::robin_map<std::string_view, NativeObjectBoundFn>& m_apis;
+    tsl::robin_map<std::string_view, NativeObjectBoundProperty>& m_properties;
 
 public:
-    NativeObject(std::unordered_map<std::string_view, NativeObjectBoundFn>& apis,
-                 std::unordered_map<std::string_view, NativeObjectBoundProperty>& properties);
+    NativeObject(tsl::robin_map<std::string_view, NativeObjectBoundFn>& apis,
+                 tsl::robin_map<std::string_view, NativeObjectBoundProperty>& properties);
     virtual ~NativeObject();
     Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
     Value property(ObjectFactory* factory, std::string name);
