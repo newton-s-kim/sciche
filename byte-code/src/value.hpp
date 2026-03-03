@@ -23,9 +23,10 @@ class Obj;
 //< qnan
 //> tags
 
-#define TAG_NIL 1   // 01.
-#define TAG_FALSE 2 // 10.
-#define TAG_TRUE 3  // 11.
+#define TAG_NIL 1   //  01.
+#define TAG_FALSE 2 //  10.
+#define TAG_TRUE 3  //  11.
+#define TAG_UNDEF 4 // 100.
 //< tags
 
 typedef uint64_t Value;
@@ -65,7 +66,7 @@ typedef uint64_t Value;
 //> nil-val
 #define NIL_VAL ((Value)(uint64_t)(QNAN | TAG_NIL))
 //< nil-val
-#define UNDEF_VAL 0
+#define UNDEF_VAL ((Value)(uint64_t)(QNAN | TAG_UNDEF))
 #define NUMBER_VAL(num) numToValue(num)
 //< number-val
 //> obj-val
