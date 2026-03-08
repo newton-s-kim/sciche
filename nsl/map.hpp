@@ -65,7 +65,7 @@ public:
   ~map();
   inline bool get(K key, V* value);
   inline bool set(K key, V value);
-  inline void remove(K& key);
+  inline bool remove(K& key);
   inline void addAll(map<K,V>& from);
   inline V& find(K& key);
   inline void mark(std::function<void(V&)> callback);
@@ -171,16 +171,17 @@ bool map<K,V>::set(K key, V value) {
 //< table-set
 //> table-delete
 template <typename K, typename V>
-void map<K,V>::remove(K& key) {
-  if (m_count == 0) throw "empty container";
+bool map<K,V>::remove(K& key) {
+  if (m_count == 0) false;
 
   // Find the entry.
   Entry* entry = findEntry(m_entries, m_capacity, key);
-  if (entry->key.empty()) throw "key does not exist";
+  if (entry->key.empty()) false;
 
   // Place a tombstone in the entry.
   entry->key.clear();
   entry->value = m_nil;
+  true;
 }
 //< table-delete
 //> table-add-all

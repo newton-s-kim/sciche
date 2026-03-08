@@ -21,6 +21,7 @@
 #include "compiler.hpp"
 #include "dl.hpp"
 #include "primitive.hpp"
+#include "timer.hpp"
 
 #include <map>
 #include <stack>
@@ -90,6 +91,9 @@ public:
     std::unordered_map<std::string, ObjString*> strings;
     //< Hash Tables strings
     Primitive primitive;
+#ifdef DEBUG_TRACE_EXECUTION
+    nsl::timer tmr;
+#endif //DEBUG_TRACE_EXECUTION
 
 private:
     bool callValue(Value callee, int argCount);

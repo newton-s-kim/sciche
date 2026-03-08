@@ -738,7 +738,7 @@ bool VM::invokeFromClass(ObjClass* klass, ObjString* name, int argCount)
     Value method;
     // TODO: pass nsl::string
     if (!klass->methods.get(name->nchars, &method)) {
-        runtimeError("Undefined property '%s'.", name->nchars);
+        runtimeError("Undefined property '%s'.", name->chars.c_str());
         return false;
     }
     return call(AS_CLOSURE(method), argCount);
@@ -1079,7 +1079,7 @@ ObjString* VM::allocateString(std::string chars)
     objects = ret;
     //< Garbage Collection push-string
     strings[chars] = ret;
-    LAX_LOG("%s is registered", nchars);
+    LAX_LOG("%s is registered", chars.c_str());
     //> Garbage Collection pop-string
     pop();
     return ret;
@@ -1150,10 +1150,10 @@ ObjString* VM::newString(const char* pchars, int length)
     std::unordered_map<std::string, ObjString*>::iterator found = strings.find(chars);
     ObjString* interned = (found == strings.end()) ? NULL : found->second;
     if (interned != NULL) {
-        LAX_LOG("%s is found", nchars);
+        LAX_LOG("%s is found", chars.c_str());
         return interned;
     }
-    LAX_LOG("%s is not found", nchars);
+    LAX_LOG("%s is not found", chars.c_str());
 
     //< take-string-intern
     return allocateString(chars);
@@ -1174,7 +1174,7 @@ bool VM::bindMethod(ObjClass* klass, ObjString* name)
     Value method;
     // TODO: pass nsl::string
     if (!klass->methods.get(name->nchars, &method)) {
-        runtimeError("Undefined property '%s'.", name->nchars);
+        runtimeError("Undefined property '%s'.", name->chars.c_str());
         return false;
     }
 
@@ -1295,10 +1295,17 @@ InterpretResult VM::run(void)
     } while (false)
     //< Types of Values binary-op
 
+#ifdef DEBUG_TRACE_EXECUTION
+    tmr.tick();
+#endif //DEBUG_TRACE_EXECUTION
     for (;;) {
         CallFrame* frame = &thread->frames[thread->frameCount - 1];
 //> trace-execution
 #ifdef DEBUG_TRACE_EXECUTION
+	tmr.tock();
+	if(0 < tmr.duration()) printf("elapse: %lu ms\n", tmr.duration());
+	tmr.tick();
+
         //> trace-stack
         ValueUtil util;
         printf("          local:");
