@@ -93,7 +93,7 @@ public:
     Primitive primitive;
 #ifdef DEBUG_TRACE_EXECUTION
     nsl::timer tmr;
-#endif //DEBUG_TRACE_EXECUTION
+#endif // DEBUG_TRACE_EXECUTION
 
 private:
     bool callValue(Value callee, int argCount);

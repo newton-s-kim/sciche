@@ -1297,14 +1297,17 @@ InterpretResult VM::run(void)
 
 #ifdef DEBUG_TRACE_EXECUTION
     tmr.tick();
-#endif //DEBUG_TRACE_EXECUTION
+#endif // DEBUG_TRACE_EXECUTION
+    CallFrame* frame = NULL;
+    uint8_t instruction;
     for (;;) {
-        CallFrame* frame = &thread->frames[thread->frameCount - 1];
+        frame = &thread->frames[thread->frameCount - 1];
 //> trace-execution
 #ifdef DEBUG_TRACE_EXECUTION
-	tmr.tock();
-	if(0 < tmr.duration()) printf("elapse: %lu ms\n", tmr.duration());
-	tmr.tick();
+        tmr.tock();
+        if (0 < tmr.duration())
+            printf("elapse: %lu ms\n", tmr.duration());
+        tmr.tick();
 
         //> trace-stack
         ValueUtil util;
@@ -1346,7 +1349,6 @@ InterpretResult VM::run(void)
 #endif
 
         //< trace-execution
-        uint8_t instruction;
         switch (instruction = READ_BYTE()) {
             //> op-constant
         case OP_CONSTANT: {
