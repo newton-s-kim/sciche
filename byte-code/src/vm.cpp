@@ -118,7 +118,7 @@ void VM::blackenObject(Obj* object)
     case OBJ_CLASS: {
         ObjClass* klass = (ObjClass*)object;
         //> Methods and Initializers mark-methods
-        klass->methods.mark([=](Value value) {
+        klass->methods.visit([=](Value value) {
             markValue(value);
         });
         //< Methods and Initializers mark-methods
@@ -146,7 +146,7 @@ void VM::blackenObject(Obj* object)
     case OBJ_INSTANCE: {
         ObjInstance* instance = (ObjInstance*)object;
         markObject((Obj*)instance->klass);
-        instance->fields.mark([=](Value value) {
+        instance->fields.visit([=](Value value) {
             markValue(value);
         });
         break;
@@ -169,10 +169,9 @@ void VM::blackenObject(Obj* object)
     }
     case OBJ_MAP: {
         ObjMap* map = (ObjMap*)object;
-        for (std::unordered_map<std::string, Value>::iterator it = map->container.begin(); it != map->container.end();
-             it++) {
-            markValue(it->second);
-        }
+        map->container.visit([=](Value second) {
+            markValue(second);
+        });
         break;
     }
     case OBJ_NATIVE:
@@ -590,24 +589,30 @@ VM::~VM()
     }
 }
 //> push
+/*
 void VM::push(Value value)
 {
     *thread->stackTop = value;
     thread->stackTop++;
 }
+*/
 //< push
 //> pop
+/*
 Value VM::pop()
 {
     thread->stackTop--;
     return *thread->stackTop;
 }
+*/
 //< pop
 //> Types of Values peek
+/*
 Value VM::peek(int distance)
 {
     return thread->stackTop[-1 - distance];
 }
+*/
 //< Types of Values peek
 /* Calls and Functions call < Closures call-signature
 static bool call(ObjFunction* function, int argCount) {
@@ -1586,7 +1591,7 @@ InterpretResult VM::run(void)
                     if (IS_MAP(peek(1))) {
                         ObjMap* map = AS_MAP(peek(1));
                         try {
-                            value = map->get(index->chars);
+                            value = map->get(index->nchars);
                         }
                         catch (std::exception& e) {
                             runtimeError(e.what());
@@ -1701,7 +1706,7 @@ InterpretResult VM::run(void)
                     if (IS_MAP(peek(2))) {
                         ObjMap* map = AS_MAP(peek(2));
                         try {
-                            map->set(index->chars, peek(0));
+                            map->set(index->nchars, peek(0));
                         }
                         catch (std::exception& e) {
                             runtimeError(e.what());

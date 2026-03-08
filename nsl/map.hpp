@@ -1,6 +1,7 @@
 #pragma once
 
 #include "array.hpp"
+#include "string.hpp"
 
 #include <functional>
 
@@ -68,7 +69,9 @@ public:
   inline bool remove(K& key);
   inline void addAll(map<K,V>& from);
   inline V& find(K& key);
-  inline void mark(std::function<void(V&)> callback);
+  inline void visit(std::function<void(V&)> callback);
+  inline void iterate(std::function<void(nsl::string, V&)> callback);
+  inline size_t size(void) { return m_count; }
 };
 
 //> max-load
@@ -172,16 +175,16 @@ bool map<K,V>::set(K key, V value) {
 //> table-delete
 template <typename K, typename V>
 bool map<K,V>::remove(K& key) {
-  if (m_count == 0) false;
+  if (m_count == 0) return false;
 
   // Find the entry.
   Entry* entry = findEntry(m_entries, m_capacity, key);
-  if (entry->key.empty()) false;
+  if (entry->key.empty()) return false;
 
   // Place a tombstone in the entry.
   entry->key.clear();
   entry->value = m_nil;
-  true;
+  return true;
 }
 //< table-delete
 //> table-add-all
@@ -197,10 +200,17 @@ void map<K,V>::addAll(map<K,V>& from) {
 //< table-add-all
 //> Garbage Collection mark-table
 template <typename K, typename V>
-void map<K,V>::mark(std::function<void(V&)> callback) {
+void map<K,V>::visit(std::function<void(V&)> callback) {
   for (size_t i = 0; i < m_capacity; i++) {
     Entry* entry = &m_entries[i];
     if(!entry->key.empty()) callback(entry->value);
+  }
+}
+template <typename K, typename V>
+void map<K,V>::iterate(std::function<void(nsl::string, V&)> callback) {
+  for (size_t i = 0; i < m_capacity; i++) {
+    Entry* entry = &m_entries[i];
+    if(!entry->key.empty()) callback(entry->key, entry->value);
   }
 }
 

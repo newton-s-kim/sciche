@@ -57,7 +57,10 @@ private:
     void runtimeError(const char* format, ...);
     bool call(ObjClosure* closure, int argCount);
     bool invokeFromClass(ObjClass* klass, ObjString* name, int argCount);
-    Value peek(int distance);
+    inline Value peek(int distance)
+    {
+        return thread->stackTop[-1 - distance];
+    }
     ObjUpvalue* captureUpvalue(Value* local);
     void closeUpvalues(Value* last);
     bool isFalsey(Value value);
@@ -141,8 +144,16 @@ public:
     InterpretResult interpret(const char* source);
     //< Scanning on Demand vm-interpret-h
     //> push-pop
-    void push(Value value);
-    Value pop();
+    inline void push(Value value)
+    {
+        *thread->stackTop = value;
+        thread->stackTop++;
+    }
+    Value pop()
+    {
+        thread->stackTop--;
+        return *thread->stackTop;
+    }
     //< push-pop
     ObjFunction* newFunction();
     // ObjString* newString(std::string& chars);

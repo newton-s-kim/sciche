@@ -1,7 +1,7 @@
 #include "object.hpp"
 
 namespace sce {
-ObjMap::ObjMap() : Obj(OBJ_MAP)
+ObjMap::ObjMap() : Obj(OBJ_MAP), container(NIL_VAL)
 {
 }
 
@@ -11,13 +11,18 @@ ObjMap::~ObjMap()
 
 std::string ObjMap::stringify(void)
 {
+    bool is_first = true;
     std::stringstream ss;
     ss << "{";
-    for (std::unordered_map<std::string, Value>::iterator it = container.begin(); it != container.end(); it++) {
-        if (it != container.begin())
+    container.iterate([&](nsl::string first, Value second) {
+        if (!is_first) {
             ss << ",";
-        ss << "\"" << it->first << "\":";
-        Value v = it->second;
+        }
+        else {
+            is_first = false;
+        }
+        ss << "\"" << first.c_str() << "\":";
+        Value v = second;
         if (IS_NIL(v)) {
             ss << "nil";
         }
@@ -35,7 +40,7 @@ std::string ObjMap::stringify(void)
             if (isString)
                 ss << "\"";
         }
-    }
+    });
     ss << "}";
     return ss.str();
 }
@@ -44,17 +49,17 @@ void ObjMap::blaken(void)
 {
 }
 
-Value ObjMap::get(std::string index)
+Value ObjMap::get(nsl::string index)
 {
-    std::unordered_map<std::string, Value>::iterator it = container.find(index);
-    if (it == container.end()) {
+    Value v;
+    if (!container.get(index, &v)) {
         throw std::runtime_error("Index is invalid.");
     }
-    return it->second;
+    return v;
 }
 
-void ObjMap::set(std::string index, Value value)
+void ObjMap::set(nsl::string index, Value value)
 {
-    container[index] = value;
+    container.set(index, value);
 }
 } // namespace sce

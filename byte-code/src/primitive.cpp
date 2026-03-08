@@ -124,7 +124,7 @@ static Value unordered_map_remove(ObjectFactory* factory, Value value, int argc,
         throw std::runtime_error("invalid number of arguments.");
     if (!IS_STRING(argv[0]))
         throw std::runtime_error("Key must be a string.");
-    unordered_map->container.erase(AS_STRING(argv[0])->chars);
+    unordered_map->container.remove(AS_STRING(argv[0])->nchars);
     return NIL_VAL;
 }
 

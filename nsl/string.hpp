@@ -29,6 +29,7 @@ public:
     inline bool operator ==(const basic_string& str);
     inline bool operator <(const basic_string& str) const;
     inline uint32_t hash(void) { return (m_str) ? m_str->m_hash : 0; }
+    inline void clear(void) {decreaseReference(); m_str = NULL;}
 };
 
 template <typename T>

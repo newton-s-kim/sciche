@@ -306,13 +306,13 @@ public:
 
 class ObjMap : public Obj {
 public:
-    std::unordered_map<std::string, Value> container;
+    nsl::map<nsl::string, Value> container;
     ObjMap();
     ~ObjMap();
     std::string stringify(void);
     void blaken(void);
-    Value get(std::string index);
-    void set(std::string index, Value v);
+    Value get(nsl::string index);
+    void set(nsl::string index, Value v);
 };
 
 class ObjCol : public Obj {

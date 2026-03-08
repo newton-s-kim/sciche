@@ -9,7 +9,7 @@
 namespace sce {
 struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHandler> {
     ObjectFactory* factory;
-    std::string key;
+    nsl::string key;
     std::stack<Obj*> stack;
     Obj* final_obj = NULL;
     bool Null()
@@ -27,7 +27,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
             if (key.empty())
                 throw std::runtime_error("key is not defined");
             ObjMap* map = (ObjMap*)obj;
-            map->container[key] = NIL_VAL;
+            map->container.set(key, NIL_VAL);
             key.clear();
         }
         return true;
@@ -47,7 +47,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
             if (key.empty())
                 throw std::runtime_error("key is not defined");
             ObjMap* map = (ObjMap*)obj;
-            map->container[key] = BOOL_VAL(b);
+            map->container.set(key, BOOL_VAL(b));
             key.clear();
         }
         return true;
@@ -67,7 +67,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
             if (key.empty())
                 throw std::runtime_error("key is not defined");
             ObjMap* map = (ObjMap*)obj;
-            map->container[key] = NUMBER_VAL(i);
+            map->container.set(key, NUMBER_VAL(i));
             key.clear();
         }
         return true;
@@ -87,7 +87,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
             if (key.empty())
                 throw std::runtime_error("key is not defined");
             ObjMap* map = (ObjMap*)obj;
-            map->container[key] = NUMBER_VAL(u);
+            map->container.set(key, NUMBER_VAL(u));
             key.clear();
         }
         return true;
@@ -107,7 +107,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
             if (key.empty())
                 throw std::runtime_error("key is not defined");
             ObjMap* map = (ObjMap*)obj;
-            map->container[key] = NUMBER_VAL(i);
+            map->container.set(key, NUMBER_VAL(i));
             key.clear();
         }
         return true;
@@ -127,7 +127,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
             if (key.empty())
                 throw std::runtime_error("key is not defined");
             ObjMap* map = (ObjMap*)obj;
-            map->container[key] = NUMBER_VAL(u);
+            map->container.set(key, NUMBER_VAL(u));
             key.clear();
         }
         return true;
@@ -147,7 +147,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
             if (key.empty())
                 throw std::runtime_error("key is not defined");
             ObjMap* map = (ObjMap*)obj;
-            map->container[key] = NUMBER_VAL(d);
+            map->container.set(key, NUMBER_VAL(d));
             key.clear();
         }
         return true;
@@ -170,7 +170,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
             if (key.empty())
                 throw std::runtime_error("key is not defined");
             ObjMap* map = (ObjMap*)obj;
-            map->container[key] = OBJ_VAL(s);
+            map->container.set(key, OBJ_VAL(s));
             key.clear();
         }
         return true;
@@ -190,7 +190,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
                 if (key.empty())
                     throw std::runtime_error("key is not defined");
                 ObjMap* map = (ObjMap*)obj;
-                map->container[key] = OBJ_VAL(map);
+                map->container.set(key, OBJ_VAL(map));
                 key.clear();
             }
         }
@@ -230,7 +230,7 @@ struct MyHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, MyHand
                 if (key.empty())
                     throw std::runtime_error("key is not defined");
                 ObjMap* map = (ObjMap*)obj;
-                map->container[key] = OBJ_VAL(list);
+                map->container.set(key, OBJ_VAL(list));
                 key.clear();
             }
         }
@@ -292,11 +292,10 @@ void JsonInterface::write(rapidjson::Writer<rapidjson::StringBuffer>& writer, Va
     if (IS_MAP(value)) {
         ObjMap* map = AS_MAP(value);
         writer.StartObject();
-        for (std::unordered_map<std::string, Value>::iterator it = map->container.begin(); it != map->container.end();
-             it++) {
-            writer.Key(it->first.c_str());
-            write(writer, it->second);
-        }
+        map->container.iterate([&](nsl::string first, Value second) {
+            writer.Key(first.c_str());
+            write(writer, second);
+        });
         writer.EndObject();
     }
     else if (IS_LIST(value)) {
