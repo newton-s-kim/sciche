@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROGRAMME=./build/sciche/sciche
+PROGRAMME=./build/scsa/scsa
 GPROF=gprof
 GPROF2DOT=gprof2dot
 
