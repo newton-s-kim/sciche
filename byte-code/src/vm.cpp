@@ -672,7 +672,7 @@ bool VM::callValue(Value callee, int argCount)
             //> Methods and Initializers call-init
             Value initializer;
             // TODO: pass nsl::string
-            if (klass->methods.get(initString->chars.c_str(), &initializer)) {
+            if (klass->methods.get(initString->nchars, &initializer)) {
                 return call(AS_CLOSURE(initializer), argCount);
                 //> no-init-arity-error
             }
@@ -737,8 +737,8 @@ bool VM::invokeFromClass(ObjClass* klass, ObjString* name, int argCount)
 {
     Value method;
     // TODO: pass nsl::string
-    if (!klass->methods.get(name->chars.c_str(), &method)) {
-        runtimeError("Undefined property '%s'.", name->chars.c_str());
+    if (!klass->methods.get(name->nchars, &method)) {
+        runtimeError("Undefined property '%s'.", name->nchars);
         return false;
     }
     return call(AS_CLOSURE(method), argCount);
@@ -757,7 +757,7 @@ bool VM::invoke(ObjString* name, int argCount)
 
         Value value;
         // TODO: pass nsl::string
-        if (instance->fields.get(name->chars.c_str(), &value)) {
+        if (instance->fields.get(name->nchars, &value)) {
             thread->stackTop[-argCount - 1] = value;
             return callValue(value, argCount);
         }
@@ -1079,7 +1079,7 @@ ObjString* VM::allocateString(std::string chars)
     objects = ret;
     //< Garbage Collection push-string
     strings[chars] = ret;
-    LAX_LOG("%s is registered", chars.c_str());
+    LAX_LOG("%s is registered", nchars);
     //> Garbage Collection pop-string
     pop();
     return ret;
@@ -1089,7 +1089,7 @@ ObjString* VM::allocateString(std::string chars)
 /*
 ObjString* VM::newString(std::string& pchars)
 {
-    return newString(pchars.c_str(), pchars.size());
+    return newString(pnchars, pchars.size());
 }
 */
 //< take-string
@@ -1150,10 +1150,10 @@ ObjString* VM::newString(const char* pchars, int length)
     std::unordered_map<std::string, ObjString*>::iterator found = strings.find(chars);
     ObjString* interned = (found == strings.end()) ? NULL : found->second;
     if (interned != NULL) {
-        LAX_LOG("%s is found", chars.c_str());
+        LAX_LOG("%s is found", nchars);
         return interned;
     }
-    LAX_LOG("%s is not found", chars.c_str());
+    LAX_LOG("%s is not found", nchars);
 
     //< take-string-intern
     return allocateString(chars);
@@ -1173,8 +1173,8 @@ bool VM::bindMethod(ObjClass* klass, ObjString* name)
 {
     Value method;
     // TODO: pass nsl::string
-    if (!klass->methods.get(name->chars.c_str(), &method)) {
-        runtimeError("Undefined property '%s'.", name->chars.c_str());
+    if (!klass->methods.get(name->nchars, &method)) {
+        runtimeError("Undefined property '%s'.", name->nchars);
         return false;
     }
 
@@ -1232,7 +1232,7 @@ void VM::defineMethod(ObjString* name)
     Value method = peek(0);
     ObjClass* klass = AS_CLASS(peek(1));
     // TODO: pass nsl::string
-    klass->methods.set(name->chars.c_str(), method);
+    klass->methods.set(name->nchars, method);
     pop();
 }
 //< Methods and Initializers define-method
@@ -1450,7 +1450,7 @@ InterpretResult VM::run(void)
 
                 Value value;
                 // TODO: pass nsl::string
-                if (instance->fields.get(name->chars.c_str(), &value)) {
+                if (instance->fields.get(name->nchars, &value)) {
                     pop(); // Instance.
                     push(value);
                     break;
@@ -1523,7 +1523,7 @@ InterpretResult VM::run(void)
             //< set-not-instance
             ObjInstance* instance = AS_INSTANCE(peek(1));
             // TODO: pass nsl::string
-            instance->fields.set(READ_STRING()->chars.c_str(), peek(0));
+            instance->fields.set(READ_STRING()->nchars, peek(0));
             Value value = pop();
             pop();
             push(value);
@@ -2216,7 +2216,7 @@ InterpretResult VM::run(void)
             //> Classes and Instances interpret-class
         case OP_CLASS:
             // TODO:should pass nsl::string
-            push(OBJ_VAL(newClass(READ_STRING()->chars.c_str())));
+            push(OBJ_VAL(newClass(READ_STRING()->nchars)));
             break;
             //< Classes and Instances interpret-class
         case OP_LIST: {

@@ -1,7 +1,7 @@
 #include "object.hpp"
 
 namespace sce {
-ObjString::ObjString(std::string pChars) : Obj(OBJ_STRING), chars(pChars)
+ObjString::ObjString(std::string pChars) : Obj(OBJ_STRING), chars(pChars), nchars(pChars.c_str())
 {
 #ifdef DEBUG_LOG_GC
     printf("%p allocate %zu for %d\n", (void*)this, sizeof(ObjString), type);

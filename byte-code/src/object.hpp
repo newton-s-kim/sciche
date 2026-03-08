@@ -208,6 +208,7 @@ public:
 class ObjString : public Obj {
 public:
     std::string chars;
+    nsl::string nchars;
     ObjString(std::string pChars);
     std::string stringify(void);
     void blaken(void);
