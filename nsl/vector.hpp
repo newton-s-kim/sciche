@@ -3,7 +3,7 @@
 namespace nsl {
 #include <stdlib.h>
 
-#define VECTOR_STRIDE 256
+#define VECTOR_STRIDE 32
 template <typename T>
 class vector {
 private:

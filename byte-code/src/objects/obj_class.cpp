@@ -1,7 +1,7 @@
 #include "object.hpp"
 
 namespace sce {
-ObjClass::ObjClass(nsl::string pName) : Obj(OBJ_CLASS), name(pName)
+ObjClass::ObjClass(nsl::string pName) : Obj(OBJ_CLASS), name(pName), methods(NIL_VAL)
 {
 #ifdef DEBUG_LOG_GC
     printf("%p allocate %zu for %d\n", (void*)this, sizeof(ObjClass), type);

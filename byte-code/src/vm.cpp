@@ -671,7 +671,8 @@ bool VM::callValue(Value callee, int argCount)
             thread->stackTop[-argCount - 1] = OBJ_VAL(newInstance(klass));
             //> Methods and Initializers call-init
             Value initializer;
-            if (klass->methods.get(initString->chars, &initializer)) {
+            // TODO: pass nsl::string
+            if (klass->methods.get(initString->chars.c_str(), &initializer)) {
                 return call(AS_CLOSURE(initializer), argCount);
                 //> no-init-arity-error
             }
@@ -735,7 +736,8 @@ bool VM::callValue(Value callee, int argCount)
 bool VM::invokeFromClass(ObjClass* klass, ObjString* name, int argCount)
 {
     Value method;
-    if (!klass->methods.get(name->chars, &method)) {
+    // TODO: pass nsl::string
+    if (!klass->methods.get(name->chars.c_str(), &method)) {
         runtimeError("Undefined property '%s'.", name->chars.c_str());
         return false;
     }
@@ -754,7 +756,8 @@ bool VM::invoke(ObjString* name, int argCount)
         //> invoke-field
 
         Value value;
-        if (instance->fields.get(name->chars, &value)) {
+        // TODO: pass nsl::string
+        if (instance->fields.get(name->chars.c_str(), &value)) {
             thread->stackTop[-argCount - 1] = value;
             return callValue(value, argCount);
         }
@@ -1169,7 +1172,8 @@ ObjComplex* VM::newComplex(const std::complex<double> v)
 bool VM::bindMethod(ObjClass* klass, ObjString* name)
 {
     Value method;
-    if (!klass->methods.get(name->chars, &method)) {
+    // TODO: pass nsl::string
+    if (!klass->methods.get(name->chars.c_str(), &method)) {
         runtimeError("Undefined property '%s'.", name->chars.c_str());
         return false;
     }
@@ -1227,7 +1231,8 @@ void VM::defineMethod(ObjString* name)
 {
     Value method = peek(0);
     ObjClass* klass = AS_CLASS(peek(1));
-    klass->methods.set(name->chars, method);
+    // TODO: pass nsl::string
+    klass->methods.set(name->chars.c_str(), method);
     pop();
 }
 //< Methods and Initializers define-method
@@ -1444,7 +1449,8 @@ InterpretResult VM::run(void)
                 ObjString* name = READ_STRING();
 
                 Value value;
-                if (instance->fields.get(name->chars, &value)) {
+                // TODO: pass nsl::string
+                if (instance->fields.get(name->chars.c_str(), &value)) {
                     pop(); // Instance.
                     push(value);
                     break;
@@ -1516,7 +1522,8 @@ InterpretResult VM::run(void)
 
             //< set-not-instance
             ObjInstance* instance = AS_INSTANCE(peek(1));
-            instance->fields.set(READ_STRING()->chars, peek(0));
+            // TODO: pass nsl::string
+            instance->fields.set(READ_STRING()->chars.c_str(), peek(0));
             Value value = pop();
             pop();
             push(value);

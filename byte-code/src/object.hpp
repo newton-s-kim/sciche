@@ -7,8 +7,9 @@
 #include "chunk.hpp"
 //< Calls and Functions object-include-chunk
 //> Classes and Instances object-include-table
-#include "table.hpp"
+// #include "table.hpp"
 //< Classes and Instances object-include-table
+#include "map.hpp"
 #include "string.hpp"
 #include "value.hpp"
 #include "vector.hpp"
@@ -247,7 +248,7 @@ class ObjClass : public Obj {
 public:
     nsl::string name;
     //> Methods and Initializers class-methods
-    Table methods;
+    nsl::map<nsl::string, Value> methods;
     //< Methods and Initializers class-methods
     ObjClass(nsl::string name);
     ~ObjClass();
@@ -260,7 +261,7 @@ public:
 class ObjInstance : public Obj {
 public:
     ObjClass* klass;
-    Table fields; // [fields]
+    nsl::map<nsl::string, Value> fields; // [fields]
     ObjInstance(ObjClass* klass);
     ~ObjInstance();
     std::string stringify(void);

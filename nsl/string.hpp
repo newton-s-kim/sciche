@@ -10,21 +10,25 @@ private:
 struct cstr_t {
     size_t reference;
     size_t length;
+    uint32_t m_hash;
     T* ptr;
 } * m_str;
     void increaseReference(void);
     void decreaseReference(void);
+    uint32_t hashString(const char* str, size_t len);
 
 public:
     basic_string();
     basic_string(const basic_string& str);
     basic_string(const T* str);
     ~basic_string();
-    const T* c_str(void);
-    size_t size(void);
-    basic_string<T>& operator =(const basic_string& str);
-    bool operator ==(const basic_string& str);
-    bool operator <(const basic_string& str) const;
+    inline const T* c_str(void);
+    inline size_t size(void);
+    inline bool empty(void);
+    inline basic_string<T>& operator =(const basic_string& str);
+    inline bool operator ==(const basic_string& str);
+    inline bool operator <(const basic_string& str) const;
+    inline uint32_t hash(void) { return (m_str) ? m_str->m_hash : 0; }
 };
 
 template <typename T>
@@ -63,6 +67,7 @@ basic_string<T>::basic_string(const T* str)
     m_str->ptr = (T*)(m_str + 1);
     m_str->reference = 1;
     m_str->length = sz;
+    m_str->m_hash = hashString(str, sz);
     strcpy((T*)m_str->ptr, str);
 }
 
@@ -80,6 +85,13 @@ size_t basic_string<T>::size()
 }
 
 template <typename T>
+bool basic_string<T>::empty(void)
+{
+    return (m_str && m_str->length) ? false : true;
+}
+
+
+template <typename T>
 const T* basic_string<T>::c_str(void)
 {
     return (m_str) ? m_str->ptr : NULL;
@@ -88,7 +100,7 @@ const T* basic_string<T>::c_str(void)
 template <typename T>
 basic_string<T>& basic_string<T>::operator =(const basic_string& str) {
 	if(m_str) decreaseReference();
-	m_str = str->m_str;
+	m_str = str.m_str;
 	if(m_str) increaseReference();
 	return *this;
 }
@@ -96,6 +108,7 @@ basic_string<T>& basic_string<T>::operator =(const basic_string& str) {
 template <typename T>
 bool basic_string<T>::operator ==(const basic_string& str) {
 	if(m_str == str.m_str) return true;
+	if(m_str->m_hash != str.m_str->m_hash) return false;
 	if(!str.m_str || !m_str) return false;
 	if(str.m_str->length != m_str->length) return false;
 	return (!strcmp(m_str->ptr, str.m_str->ptr));
@@ -107,6 +120,16 @@ bool basic_string<T>::operator <(const basic_string& str) const {
 	LAX_LOG("strcmp(%s, %s)", m_str->ptr, str.m_str->ptr);
 	if(m_str->ptr[0] < str.m_str->ptr[0]) return true;
 	return (0 > strcmp(m_str->ptr, str.m_str->ptr));
+}
+
+template <typename T>
+uint32_t basic_string<T>::hashString(const char* str, size_t len) {
+	uint32_t hash = 2166136261u;
+	for(size_t i = 0 ; i < len; i++) {
+		hash ^= (uint8_t)str[i];
+		hash *= 16777619;
+	}
+	return hash;
 }
 
 using string = basic_string<char>;
