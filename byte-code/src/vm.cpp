@@ -1242,10 +1242,12 @@ void VM::defineMethod(ObjString* name)
 }
 //< Methods and Initializers define-method
 //> Types of Values is-falsey
+/*
 bool VM::isFalsey(Value value)
 {
     return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
 }
+*/
 //< Types of Values is-falsey
 //> run
 InterpretResult VM::run(void)

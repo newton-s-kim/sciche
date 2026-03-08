@@ -63,7 +63,10 @@ private:
     }
     ObjUpvalue* captureUpvalue(Value* local);
     void closeUpvalues(Value* last);
-    bool isFalsey(Value value);
+    inline bool isFalsey(Value value)
+    {
+        return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
+    }
 
 public:
     CompilerInterface* compiler;
