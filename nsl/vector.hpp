@@ -126,8 +126,6 @@ void vector<T>::insert(size_t idx, T v)
 template <typename T>
 T& vector<T>::operator[](size_t idx)
 {
-    if (m_size <= idx)
-        throw "out of bound";
     return m_buffer[idx];
 }
 
