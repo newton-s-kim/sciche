@@ -5,8 +5,15 @@
 #include <unordered_map>
 
 namespace sce {
-typedef Value (*PrimitiveBoundFn)(ObjectFactory* factory, Value value, int argc, Value* argv);
-typedef Value (*PrimitiveBoundProperty)(ObjectFactory* factory, Value value);
+typedef struct {
+    const char* name;
+    PrimitiveBoundFn func;
+} PrimitiveAPI;
+
+typedef struct {
+    const char* name;
+    PrimitiveBoundProperty prop;
+} PrimitiveProperty;
 
 static Value list_size(ObjectFactory* factory, Value value)
 {
@@ -100,50 +107,54 @@ static Value list_insert(ObjectFactory* factory, Value value, int argc, Value* a
 }
 
 // clang-format off
-std::unordered_map<std::string_view, PrimitiveBoundFn> s_list_apis = {
+PrimitiveAPI s_list_apis[] = {
     {"add", list_add},
     {"each", list_each},
     {"clear", list_clear},
     {"indexOf", list_indexof},
     {"contains", list_contains},
     {"insert", list_insert},
+    {NULL, NULL}
 };
 
-std::unordered_map<std::string_view, PrimitiveBoundProperty> s_list_props = {
+PrimitiveProperty s_list_props[] = {
     {"size", list_size},
+    {NULL, NULL}
 };
 // clang-format on
 
-static Value unordered_map_remove(ObjectFactory* factory, Value value, int argc, Value* argv)
+static Value map_remove(ObjectFactory* factory, Value value, int argc, Value* argv)
 {
     (void)factory;
     if (!IS_MAP(value))
-        throw std::runtime_error("unordered_map is expected.");
-    ObjMap* unordered_map = AS_MAP(value);
+        throw std::runtime_error("map is expected.");
+    ObjMap* map = AS_MAP(value);
     if (1 != argc)
         throw std::runtime_error("invalid number of arguments.");
     if (!IS_STRING(argv[0]))
         throw std::runtime_error("Key must be a string.");
-    unordered_map->container.remove(AS_STRING(argv[0])->nchars);
+    map->container.remove(AS_STRING(argv[0])->nchars);
     return NIL_VAL;
 }
 
-static Value unordered_map_size(ObjectFactory* factory, Value value)
+static Value map_size(ObjectFactory* factory, Value value)
 {
     (void)factory;
     if (!IS_MAP(value))
-        throw std::runtime_error("unordered_map is expected.");
-    ObjMap* unordered_map = AS_MAP(value);
-    return NUMBER_VAL(unordered_map->container.size());
+        throw std::runtime_error("map is expected.");
+    ObjMap* map = AS_MAP(value);
+    return NUMBER_VAL(map->container.size());
 }
 
 // clang-format off
-std::unordered_map<std::string_view, PrimitiveBoundFn> s_unordered_map_apis = {
-    {"remove", unordered_map_remove}
+PrimitiveAPI s_map_apis[] = {
+    {"remove", map_remove},
+    {NULL, NULL}
 };
 
-std::unordered_map<std::string_view, PrimitiveBoundProperty> s_unordered_map_props = {
-    {"size", unordered_map_size}
+PrimitiveProperty s_map_props[] = {
+    {"size", map_size},
+    {NULL, NULL}
 };
 // clang-format on
 
@@ -224,15 +235,17 @@ static Value col_add(ObjectFactory* factory, Value value, int argc, Value* argv)
 }
 
 // clang-format off
-std::unordered_map<std::string_view, PrimitiveBoundFn> s_col_apis = {
+PrimitiveAPI s_col_apis[] = {
     {"resize", col_resize},
     {"zeros", col_zeros},
     {"add", col_add},
     {"t", col_transpose},
-    {"randn", col_randn}
+    {"randn", col_randn},
+    {NULL, NULL}
 };
-std::unordered_map<std::string_view, PrimitiveBoundProperty> s_col_props = {
-    {"size", col_size}
+PrimitiveProperty s_col_props[] = {
+    {"size", col_size},
+    {NULL, NULL}
 };
 // clang-format on
 
@@ -248,10 +261,8 @@ static Value row_transpose(ObjectFactory* factory, Value value, int argc, Value*
     return OBJ_VAL(col);
 }
 
-std::unordered_map<std::string_view, PrimitiveBoundFn> s_row_apis = {
-    {"t", row_transpose},
-};
-std::unordered_map<std::string_view, PrimitiveBoundProperty> s_row_props = {};
+PrimitiveAPI s_row_apis[] = {{"t", row_transpose}, {NULL, NULL}};
+PrimitiveProperty s_row_props[] = {{NULL, NULL}};
 
 static Value mat_col(ObjectFactory* factory, Value value, int argc, Value* argv)
 {
@@ -407,15 +418,17 @@ static Value mat_abs(ObjectFactory* factory, Value value)
 }
 
 // clang-format off
-std::unordered_map<std::string_view, PrimitiveBoundFn> s_mat_apis = {
+PrimitiveAPI s_mat_apis[] = {
     {"col", mat_col},
     {"row", mat_row},
     {"rows", mat_rows},
     {"set", mat_set},
-    {"t", mat_transpose}
+    {"t", mat_transpose},
+    {NULL, NULL}
 };
-std::unordered_map<std::string_view, PrimitiveBoundProperty> s_mat_props = {
-    {"abs", mat_abs}
+PrimitiveProperty s_mat_props[] = {
+    {"abs", mat_abs},
+    {NULL, NULL}
 };
 // clang-format on
 
@@ -448,10 +461,12 @@ static Value cube_slice(ObjectFactory* factory, Value value, int argc, Value* ar
 }
 
 // clang-format off
-std::unordered_map<std::string_view, PrimitiveBoundFn> s_cube_apis = {
-    {"slice", cube_slice}
+PrimitiveAPI s_cube_apis[] = {
+    {"slice", cube_slice},
+    {NULL, NULL}
 };
-std::unordered_map<std::string_view, PrimitiveBoundProperty> s_cube_props = {
+PrimitiveProperty s_cube_props[] = {
+    {NULL, NULL}
 };
 // clang-format on
 
@@ -532,84 +547,101 @@ static Value num_truncate(ObjectFactory* factory, Value value)
 }
 
 // clang-format off
-std::unordered_map<std::string_view, PrimitiveBoundFn> s_number_apis = {
+PrimitiveAPI s_number_apis[] = {
+    {NULL, NULL}
 };
 
-std::unordered_map<std::string_view, PrimitiveBoundProperty> s_number_props = {
+PrimitiveProperty s_number_props[] = {
     {"ceil", num_ceil},
     {"floor", num_floor},
     {"round", num_round},
     {"fraction", num_fraction},
     {"sign", num_sign},
     {"abs", num_abs},
-    {"truncate", num_truncate}
+    {"truncate", num_truncate},
+    {NULL, NULL}
 };
 
-std::unordered_map<std::string_view, PrimitiveBoundFn> s_bool_apis = {
+PrimitiveAPI s_bool_apis[] = {
+    {NULL, NULL}
 };
-std::unordered_map<std::string_view, PrimitiveBoundProperty> s_bool_props = {
+PrimitiveProperty s_bool_props[] = {
+    {NULL, NULL}
 };
 // clang-format on
 
-Value Primitive::call(ObjectFactory* factory, Value value, std::string& name, int argc, Value* argv)
+Primitive::Primitive()
+    : m_list_apis(NULL), m_list_properties(NULL), m_map_apis(NULL), m_map_properties(NULL), m_col_apis(NULL),
+      m_col_properties(NULL), m_row_apis(NULL), m_row_properties(NULL), m_mat_apis(NULL), m_mat_properties(NULL),
+      m_cube_apis(NULL), m_cube_properties(NULL), m_number_apis(NULL), m_number_properties(NULL), m_bool_apis(NULL),
+      m_bool_properties(NULL)
 {
+#define PRIMITIVE_API_LOAD(m, s)                                                                                       \
+    {                                                                                                                  \
+        for (size_t idx = 0; (s)[idx].name; idx++) {                                                                   \
+            (m).set((s)[idx].name, (s)[idx].func);                                                                     \
+        }                                                                                                              \
+    }
+#define PRIMITIVE_PROPERTY_LOAD(m, s)                                                                                  \
+    {                                                                                                                  \
+        for (size_t idx = 0; (s)[idx].name; idx++) {                                                                   \
+            (m).set((s)[idx].name, (s)[idx].prop);                                                                     \
+        }                                                                                                              \
+    }
+    PRIMITIVE_API_LOAD(m_list_apis, s_list_apis);
+    PRIMITIVE_PROPERTY_LOAD(m_list_properties, s_list_props);
+    PRIMITIVE_API_LOAD(m_map_apis, s_map_apis);
+    PRIMITIVE_PROPERTY_LOAD(m_map_properties, s_map_props);
+    PRIMITIVE_API_LOAD(m_col_apis, s_col_apis);
+    PRIMITIVE_PROPERTY_LOAD(m_col_properties, s_col_props);
+    PRIMITIVE_API_LOAD(m_row_apis, s_row_apis);
+    PRIMITIVE_PROPERTY_LOAD(m_row_properties, s_row_props);
+    PRIMITIVE_API_LOAD(m_mat_apis, s_mat_apis);
+    PRIMITIVE_PROPERTY_LOAD(m_mat_properties, s_mat_props);
+    PRIMITIVE_API_LOAD(m_cube_apis, s_cube_apis);
+    PRIMITIVE_PROPERTY_LOAD(m_cube_properties, s_cube_props);
+    PRIMITIVE_API_LOAD(m_number_apis, s_number_apis);
+    PRIMITIVE_PROPERTY_LOAD(m_number_properties, s_number_props);
+    PRIMITIVE_API_LOAD(m_bool_apis, s_bool_apis);
+    PRIMITIVE_PROPERTY_LOAD(m_bool_properties, s_bool_props);
+}
+
+Value Primitive::call(ObjectFactory* factory, Value value, nsl::string& name, int argc, Value* argv)
+{
+#define PRIMITIVE_API_CALL(list, name, factory, value, argc, argv, msg)                                                \
+    {                                                                                                                  \
+        if (!(list).get(name, &fn)) {                                                                                  \
+            throw std::runtime_error(msg);                                                                             \
+        }                                                                                                              \
+        else {                                                                                                         \
+            ret = fn(factory, value, argc, argv);                                                                      \
+        }                                                                                                              \
+    }
     Value ret = 0;
-    std::unordered_map<std::string_view, PrimitiveBoundFn>::iterator it;
+    PrimitiveBoundFn fn = 0;
     if (IS_NUMBER(value)) {
-        it = s_number_apis.find(name);
-        if (it != s_number_apis.end())
-            ret = it->second(factory, value, argc, argv);
-        else
-            throw std::runtime_error("The method does not exist in number.");
+        PRIMITIVE_API_CALL(m_number_apis, name, factory, value, argc, argv, "The method does not exist in number.");
     }
     else if (IS_BOOL(value)) {
-        it = s_bool_apis.find(name);
-        if (it != s_bool_apis.end())
-            ret = it->second(factory, value, argc, argv);
-        else
-            throw std::runtime_error("The method does not exist in bool.");
+        PRIMITIVE_API_CALL(m_bool_apis, name, factory, value, argc, argv, "The method does not exist in bool.");
     }
     else if (IS_LIST(value)) {
-        it = s_list_apis.find(name);
-        if (it != s_list_apis.end())
-            ret = it->second(factory, value, argc, argv);
-        else
-            throw std::runtime_error("The method does not exist in List.");
+        PRIMITIVE_API_CALL(m_list_apis, name, factory, value, argc, argv, "The method does not exist in List.");
     }
     else if (IS_MAP(value)) {
-        it = s_unordered_map_apis.find(name);
-        if (it != s_unordered_map_apis.end())
-            ret = it->second(factory, value, argc, argv);
-        else
-            throw std::runtime_error("The method does not exist in Map.");
+        PRIMITIVE_API_CALL(m_map_apis, name, factory, value, argc, argv, "The method does not exist in Map.");
     }
     else if (IS_COL(value)) {
-        it = s_col_apis.find(name);
-        if (it != s_col_apis.end())
-            ret = it->second(factory, value, argc, argv);
-        else
-            throw std::runtime_error("The method does not exist in vec.");
+        PRIMITIVE_API_CALL(m_col_apis, name, factory, value, argc, argv, "The method does not exist in col.");
     }
     else if (IS_ROW(value)) {
-        it = s_row_apis.find(name);
-        if (it != s_row_apis.end())
-            ret = it->second(factory, value, argc, argv);
-        else
-            throw std::runtime_error("The method does not exist in rowvec.");
+        PRIMITIVE_API_CALL(m_row_apis, name, factory, value, argc, argv, "The method does not exist in row.");
     }
     else if (IS_MAT(value)) {
-        it = s_mat_apis.find(name);
-        if (it != s_mat_apis.end())
-            ret = it->second(factory, value, argc, argv);
-        else
-            throw std::runtime_error("The method does not exist in mat.");
+        PRIMITIVE_API_CALL(m_mat_apis, name, factory, value, argc, argv, "The method does not exist in mat.");
     }
     else if (IS_CUBE(value)) {
-        it = s_cube_apis.find(name);
-        if (it != s_mat_apis.end())
-            ret = it->second(factory, value, argc, argv);
-        else
-            throw std::runtime_error("The method does not exist in cube.");
+        PRIMITIVE_API_CALL(m_cube_apis, name, factory, value, argc, argv, "The method does not exist in cube.");
     }
     else {
         throw std::runtime_error("Only instances have methods.");
@@ -617,66 +649,42 @@ Value Primitive::call(ObjectFactory* factory, Value value, std::string& name, in
     return ret;
 }
 
-Value Primitive::property(ObjectFactory* factory, Value value, std::string& name)
+Value Primitive::property(ObjectFactory* factory, Value value, nsl::string& name)
 {
-    (void)factory;
+#define PRIMITIVE_PROPERTY_CALL(list, name, factory, value, msg)                                                       \
+    {                                                                                                                  \
+        if (!(list).get(name, &py)) {                                                                                  \
+            throw std::runtime_error(msg);                                                                             \
+        }                                                                                                              \
+        else {                                                                                                         \
+            ret = py(factory, value);                                                                                  \
+        }                                                                                                              \
+    }
     Value ret = 0;
-    std::unordered_map<std::string_view, PrimitiveBoundProperty>::iterator it;
+    PrimitiveBoundProperty py = 0;
     if (IS_NUMBER(value)) {
-        it = s_number_props.find(name);
-        if (it != s_number_props.end())
-            ret = it->second(factory, value);
-        else
-            throw std::runtime_error("The property does not exist in number.");
+        PRIMITIVE_PROPERTY_CALL(m_number_properties, name, factory, value, "The property does not exist in number.");
     }
     else if (IS_BOOL(value)) {
-        it = s_bool_props.find(name);
-        if (it != s_bool_props.end())
-            ret = it->second(factory, value);
-        else
-            throw std::runtime_error("The property does not exist in bool.");
+        PRIMITIVE_PROPERTY_CALL(m_bool_properties, name, factory, value, "The property does not exist in bool.");
     }
     else if (IS_LIST(value)) {
-        it = s_list_props.find(name);
-        if (it != s_list_props.end())
-            ret = it->second(factory, value);
-        else
-            throw std::runtime_error("The property does not exist in List.");
+        PRIMITIVE_PROPERTY_CALL(m_list_properties, name, factory, value, "The property does not exist in List.");
     }
     else if (IS_MAP(value)) {
-        it = s_unordered_map_props.find(name);
-        if (it != s_unordered_map_props.end())
-            ret = it->second(factory, value);
-        else
-            throw std::runtime_error("The property does not exist in Map.");
+        PRIMITIVE_PROPERTY_CALL(m_map_properties, name, factory, value, "The property does not exist in Map.");
     }
     else if (IS_COL(value)) {
-        it = s_col_props.find(name);
-        if (it != s_col_props.end())
-            ret = it->second(factory, value);
-        else
-            throw std::runtime_error("The property does not exist in vec.");
+        PRIMITIVE_PROPERTY_CALL(m_col_properties, name, factory, value, "The property does not exist in vec.");
     }
     else if (IS_ROW(value)) {
-        it = s_row_props.find(name);
-        if (it != s_row_props.end())
-            ret = it->second(factory, value);
-        else
-            throw std::runtime_error("The property does not exist in rowvec.");
+        PRIMITIVE_PROPERTY_CALL(m_row_properties, name, factory, value, "The property does not exist in row.");
     }
     else if (IS_MAT(value)) {
-        it = s_mat_props.find(name);
-        if (it != s_mat_props.end())
-            ret = it->second(factory, value);
-        else
-            throw std::runtime_error("The property does not exist in mat.");
+        PRIMITIVE_PROPERTY_CALL(m_mat_properties, name, factory, value, "The property does not exist in mat.");
     }
     else if (IS_CUBE(value)) {
-        it = s_cube_props.find(name);
-        if (it != s_mat_props.end())
-            ret = it->second(factory, value);
-        else
-            throw std::runtime_error("The property does not exist in cube.");
+        PRIMITIVE_PROPERTY_CALL(m_cube_properties, name, factory, value, "The property does not exist in cube.");
     }
     else {
         throw std::runtime_error("Only instances have properties.");

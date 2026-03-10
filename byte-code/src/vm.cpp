@@ -805,7 +805,7 @@ bool VM::invoke(ObjString* name, int argCount)
     else {
         Value result = 0;
         try {
-            result = primitive.call(this, receiver, name->chars, argCount, thread->stackTop - argCount);
+            result = primitive.call(this, receiver, name->nchars, argCount, thread->stackTop - argCount);
         }
         catch (std::exception& e) {
             runtimeError(e.what());
@@ -1515,7 +1515,7 @@ InterpretResult VM::run(void)
                 ObjString* name = READ_STRING();
                 Value result = 0;
                 try {
-                    result = primitive.property(this, peek(0), name->chars);
+                    result = primitive.property(this, peek(0), name->nchars);
                     pop();
                     push(result);
                 }
