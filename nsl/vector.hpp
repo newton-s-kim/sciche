@@ -42,7 +42,8 @@ vector<T>::~vector()
 template <typename T>
 void vector<T>::grow(size_t increment)
 {
-    if(m_capacity >= m_size + increment) return;
+    if (m_capacity >= m_size + increment)
+        return;
     m_capacity = ((m_size + increment) / VECTOR_STRIDE + 1) * VECTOR_STRIDE;
     m_buffer = (T*)realloc(m_buffer, sizeof(T) * m_capacity);
 }
@@ -73,13 +74,15 @@ void vector<T>::push_back(T v)
 template <typename T>
 void vector<T>::pop_back(void)
 {
-    if(0 < m_size) m_size--;
+    if (0 < m_size)
+        m_size--;
 }
 
 template <typename T>
 T vector<T>::back(void)
 {
-    if(0 == m_size) throw "vector is empty";
+    if (0 == m_size)
+        throw "vector is empty";
     return m_buffer[m_size - 1];
 }
 
@@ -132,6 +135,6 @@ T& vector<T>::operator[](size_t idx)
 template <typename T>
 bool vector<T>::empty(void)
 {
-	return 0 == m_size;
+    return 0 == m_size;
 }
-} // namespace sce
+} // namespace nsl
