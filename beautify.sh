@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DIRS="sciche byte-code libs/math libs/sigpack libs/json libs/io"
+DIRS="sciche byte-code libs/math libs/sigpack libs/json libs/io nsl"
 EXTS="h cc hh hpp cpp c"
 
 find . -name "*~" -exec rm {} \;
