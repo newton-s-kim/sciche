@@ -32,6 +32,12 @@
 #define GC_HEAP_GROW_FACTOR 2
 //< Garbage Collection heap-grow-factor
 
+#define PUSH(value) (*thread->stackTop++ = value)
+#define POP() (*(--thread->stackTop))
+#define DROP() (thread->stackTop--)
+#define PEEK() (*(thread->stackTop - 1))
+#define NPEEK(n) (*(thread->stackTop - 1 - n))
+
 namespace sce {
 void VM::collect(size_t oldSize, size_t newSize)
 {
@@ -518,24 +524,24 @@ void VM::runtimeError(const char* format, ...)
 void VM::defineNative(const char* name, NativeFn function)
 {
     uint16_t addr = compiler->newGlobalAddress(name);
-    push(OBJ_VAL(newNative(function)));
+    PUSH(OBJ_VAL(newNative(function)));
     globals[addr] = thread->stack[0];
-    pop();
+    DROP();
 }
 void VM::defineSymbol(const char* name, NativeClass* klass)
 {
     uint16_t addr = compiler->newGlobalAddress(name);
-    push(OBJ_VAL(newNativeClass(klass)));
+    PUSH(OBJ_VAL(newNativeClass(klass)));
     globals[addr] = thread->stack[0];
-    pop();
+    DROP();
 }
 //< Calls and Functions define-native
 void VM::defineNumber(const char* name, double v)
 {
     uint16_t addr = compiler->newGlobalAddress(name);
-    push(NUMBER_VAL(v));
+    PUSH(NUMBER_VAL(v));
     globals[addr] = thread->stack[0];
-    pop();
+    DROP();
 }
 
 VM::VM() : thread(NULL), openUpvalues(NULL), objects(NULL)
@@ -606,14 +612,14 @@ Value VM::pop()
 }
 */
 //< pop
-//> Types of Values peek
+//> Types of Values PEEK
 /*
 Value VM::peek(int distance)
 {
     return thread->stackTop[-1 - distance];
 }
 */
-//< Types of Values peek
+//< Types of Values PEEK
 /* Calls and Functions call < Closures call-signature
 static bool call(ObjFunction* function, int argCount) {
 */
@@ -710,7 +716,7 @@ bool VM::callValue(Value callee, int argCount)
                 return false;
             }
             thread->stackTop -= argCount + 1;
-            push(result);
+            PUSH(result);
             return true;
         }
         case OBJ_NATIVE_CLASS: {
@@ -724,7 +730,7 @@ bool VM::callValue(Value callee, int argCount)
                 return false;
             }
             thread->stackTop -= argCount + 1;
-            push(result);
+            PUSH(result);
             return true;
         }
             //< call-native
@@ -752,7 +758,7 @@ bool VM::invokeFromClass(ObjClass* klass, ObjString* name, int argCount)
 //> Methods and Initializers invoke
 bool VM::invoke(ObjString* name, int argCount)
 {
-    Value receiver = peek(argCount);
+    Value receiver = NPEEK(argCount);
     //> invoke-check-type
 
     if (IS_INSTANCE(receiver)) {
@@ -781,9 +787,9 @@ bool VM::invoke(ObjString* name, int argCount)
             return false;
         }
         for (int i = 0; i < argCount; i++)
-            pop();
-        pop();
-        push(result);
+            DROP();
+        DROP();
+        PUSH(result);
         return true;
     }
     else if (IS_NATIVE_OBJECT(receiver)) {
@@ -797,9 +803,9 @@ bool VM::invoke(ObjString* name, int argCount)
             return false;
         }
         for (int i = 0; i < argCount; i++)
-            pop();
-        pop();
-        push(result);
+            DROP();
+        DROP();
+        PUSH(result);
         return true;
     }
     else {
@@ -812,9 +818,9 @@ bool VM::invoke(ObjString* name, int argCount)
             return false;
         }
         for (int i = 0; i < argCount; i++)
-            pop();
-        pop();
-        push(result);
+            DROP();
+        DROP();
+        PUSH(result);
         return true;
     }
     return false;
@@ -1079,14 +1085,14 @@ ObjString* VM::allocateString(std::string chars)
 {
     collect(0, sizeof(ObjString));
     ObjString* ret = new ObjString(chars);
-    push(OBJ_VAL(ret));
+    PUSH(OBJ_VAL(ret));
     ret->next = objects;
     objects = ret;
     //< Garbage Collection push-string
     strings[chars] = ret;
     LAX_LOG("%s is registered", chars.c_str());
     //> Garbage Collection pop-string
-    pop();
+    DROP();
     return ret;
 }
 //< allocate-string
@@ -1167,10 +1173,10 @@ ObjComplex* VM::newComplex(const std::complex<double> v)
 {
     collect(0, sizeof(ObjComplex));
     ObjComplex* ret = new ObjComplex(v);
-    push(OBJ_VAL(ret));
+    PUSH(OBJ_VAL(ret));
     ret->next = objects;
     objects = ret;
-    pop();
+    DROP();
     return ret;
 }
 //> Methods and Initializers bind-method
@@ -1183,9 +1189,9 @@ bool VM::bindMethod(ObjClass* klass, ObjString* name)
         return false;
     }
 
-    ObjBoundMethod* bound = newBoundMethod(peek(0), AS_CLOSURE(method));
-    pop();
-    push(OBJ_VAL(bound));
+    ObjBoundMethod* bound = newBoundMethod(PEEK(), AS_CLOSURE(method));
+    DROP();
+    PUSH(OBJ_VAL(bound));
     return true;
 }
 //< Methods and Initializers bind-method
@@ -1234,11 +1240,11 @@ void VM::closeUpvalues(Value* last)
 //> Methods and Initializers define-method
 void VM::defineMethod(ObjString* name)
 {
-    Value method = peek(0);
-    ObjClass* klass = AS_CLASS(peek(1));
+    Value method = PEEK();
+    ObjClass* klass = AS_CLASS(NPEEK(1));
     // TODO: pass nsl::string
     klass->methods.set(name->nchars, method);
-    pop();
+    DROP();
 }
 //< Methods and Initializers define-method
 //> Types of Values is-falsey
@@ -1286,19 +1292,19 @@ InterpretResult VM::run(void)
     do { \
       double b = pop(); \
       double a = pop(); \
-      push(a op b); \
+      PUSH(a op b); \
     } while (false)
 */
 //> Types of Values binary-op
 #define BINARY_OP(valueType, op)                                                                                       \
     do {                                                                                                               \
-        if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {                                                              \
+        if (!IS_NUMBER(PEEK()) || !IS_NUMBER(NPEEK(1))) {                                                              \
             runtimeError("Operands must be numbers.");                                                                 \
             return INTERPRET_RUNTIME_ERROR;                                                                            \
         }                                                                                                              \
         double b = AS_NUMBER(pop());                                                                                   \
         double a = AS_NUMBER(pop());                                                                                   \
-        push(valueType(a op b));                                                                                       \
+        PUSH(valueType(a op b));                                                                                       \
     } while (false)
     //< Types of Values binary-op
 
@@ -1365,35 +1371,35 @@ InterpretResult VM::run(void)
                     printf("\n");
             */
             //> push-constant
-            push(constant);
+            PUSH(constant);
             //< push-constant
             break;
         }
             //< op-constant
             //> Types of Values interpret-literals
         case OP_NIL:
-            push(NIL_VAL);
+            PUSH(NIL_VAL);
             break;
         case OP_TRUE:
-            push(BOOL_VAL(true));
+            PUSH(BOOL_VAL(true));
             break;
         case OP_FALSE:
-            push(BOOL_VAL(false));
+            PUSH(BOOL_VAL(false));
             break;
             //< Types of Values interpret-literals
             //> Global Variables interpret-pop
         case OP_POP:
-            pop();
+            DROP();
             break;
             //< Global Variables interpret-pop
             //> Local Variables interpret-get-local
         case OP_GET_LOCAL: {
             uint16_t slot = READ_SHORT();
             /* Local Variables interpret-get-local < Calls and Functions push-local
-                    push(stack[slot]); // [slot]
+                    PUSH(stack[slot]); // [slot]
             */
             //> Calls and Functions push-local
-            push(frame->slots[slot]);
+            PUSH(frame->slots[slot]);
             //< Calls and Functions push-local
             break;
         }
@@ -1402,10 +1408,10 @@ InterpretResult VM::run(void)
         case OP_SET_LOCAL: {
             uint16_t slot = READ_SHORT();
             /* Local Variables interpret-set-local < Calls and Functions set-local
-                    stack[slot] = peek(0);
+                    stack[slot] = PEEK();
             */
             //> Calls and Functions set-local
-            frame->slots[slot] = peek(0);
+            frame->slots[slot] = PEEK();
             //< Calls and Functions set-local
             break;
         }
@@ -1419,15 +1425,15 @@ InterpretResult VM::run(void)
                 return INTERPRET_RUNTIME_ERROR;
             }
             value = globals[name];
-            push(value);
+            PUSH(value);
             break;
         }
             //< Global Variables interpret-get-global
             //> Global Variables interpret-define-global
         case OP_DEFINE_GLOBAL: {
             uint16_t name = READ_SHORT();
-            globals[name] = peek(0);
-            pop();
+            globals[name] = PEEK();
+            DROP();
             break;
         }
             //< Global Variables interpret-define-global
@@ -1438,37 +1444,37 @@ InterpretResult VM::run(void)
                 runtimeError("Undefined variable '%s'.", compiler->undefinedSymbol(name).c_str());
                 return INTERPRET_RUNTIME_ERROR;
             }
-            globals[name] = peek(0);
+            globals[name] = PEEK();
             break;
         }
             //< Global Variables interpret-set-global
             //> Closures interpret-get-upvalue
         case OP_GET_UPVALUE: {
             uint8_t slot = READ_SHORT();
-            push(*frame->closure->upvalues[slot]->location);
+            PUSH(*frame->closure->upvalues[slot]->location);
             break;
         }
             //< Closures interpret-get-upvalue
             //> Closures interpret-set-upvalue
         case OP_SET_UPVALUE: {
             uint8_t slot = READ_SHORT();
-            *frame->closure->upvalues[slot]->location = peek(0);
+            *frame->closure->upvalues[slot]->location = PEEK();
             break;
         }
             //< Closures interpret-set-upvalue
             //> Classes and Instances interpret-get-property
         case OP_GET_PROPERTY: {
             //> get-not-instance
-            if (IS_INSTANCE(peek(0))) {
+            if (IS_INSTANCE(PEEK())) {
                 //< get-not-instance
-                ObjInstance* instance = AS_INSTANCE(peek(0));
+                ObjInstance* instance = AS_INSTANCE(PEEK());
                 ObjString* name = READ_STRING();
 
                 Value value;
                 // TODO: pass nsl::string
                 if (instance->fields.get(name->nchars, &value)) {
-                    pop(); // Instance.
-                    push(value);
+                    DROP(); // Instance.
+                    PUSH(value);
                     break;
                 }
                 //> get-undefined
@@ -1483,28 +1489,28 @@ InterpretResult VM::run(void)
                     return INTERPRET_RUNTIME_ERROR;
                 }
             }
-            else if (IS_NATIVE_CLASS(peek(0))) {
-                ObjNativeClass* klass = AS_NATIVE_CLASS(peek(0));
+            else if (IS_NATIVE_CLASS(PEEK())) {
+                ObjNativeClass* klass = AS_NATIVE_CLASS(PEEK());
                 ObjString* name = READ_STRING();
                 Value result = 0;
                 try {
                     result = klass->klass->constant(this, name->chars);
-                    pop();
-                    push(result);
+                    DROP();
+                    PUSH(result);
                 }
                 catch (std::exception& e) {
                     runtimeError(e.what());
                     return INTERPRET_RUNTIME_ERROR;
                 }
             }
-            else if (IS_NATIVE_OBJECT(peek(0))) {
-                ObjNativeObject* nobj = AS_NATIVE_OBJECT(peek(0));
+            else if (IS_NATIVE_OBJECT(PEEK())) {
+                ObjNativeObject* nobj = AS_NATIVE_OBJECT(PEEK());
                 ObjString* name = READ_STRING();
                 Value result = 0;
                 try {
                     result = nobj->object->property(this, name->chars);
-                    pop();
-                    push(result);
+                    DROP();
+                    PUSH(result);
                 }
                 catch (std::exception& e) {
                     runtimeError(e.what());
@@ -1515,9 +1521,9 @@ InterpretResult VM::run(void)
                 ObjString* name = READ_STRING();
                 Value result = 0;
                 try {
-                    result = primitive.property(this, peek(0), name->chars);
-                    pop();
-                    push(result);
+                    result = primitive.property(this, PEEK(), name->chars);
+                    DROP();
+                    PUSH(result);
                 }
                 catch (std::exception& e) {
                     runtimeError(e.what());
@@ -1531,18 +1537,18 @@ InterpretResult VM::run(void)
             //> Classes and Instances interpret-set-property
         case OP_SET_PROPERTY: {
             //> set-not-instance
-            if (!IS_INSTANCE(peek(1))) {
+            if (!IS_INSTANCE(NPEEK(1))) {
                 runtimeError("Only instances have fields.");
                 return INTERPRET_RUNTIME_ERROR;
             }
 
             //< set-not-instance
-            ObjInstance* instance = AS_INSTANCE(peek(1));
+            ObjInstance* instance = AS_INSTANCE(NPEEK(1));
             // TODO: pass nsl::string
-            instance->fields.set(READ_STRING()->nchars, peek(0));
+            instance->fields.set(READ_STRING()->nchars, PEEK());
             Value value = pop();
-            pop();
-            push(value);
+            DROP();
+            PUSH(value);
             break;
         }
             //< Classes and Instances interpret-set-property
@@ -1551,10 +1557,10 @@ InterpretResult VM::run(void)
             int argCount = READ_BYTE();
             Value value;
             if (1 == argCount) {
-                if (IS_NUMBER(peek(0))) {
-                    double index = AS_NUMBER(peek(0));
-                    if (IS_LIST(peek(1))) {
-                        ObjList* list = AS_LIST(peek(1));
+                if (IS_NUMBER(PEEK())) {
+                    double index = AS_NUMBER(PEEK());
+                    if (IS_LIST(NPEEK(1))) {
+                        ObjList* list = AS_LIST(NPEEK(1));
                         try {
                             value = list->get((int)index);
                         }
@@ -1563,8 +1569,8 @@ InterpretResult VM::run(void)
                             return INTERPRET_RUNTIME_ERROR;
                         }
                     }
-                    else if (IS_COL(peek(1))) {
-                        ObjCol* col = AS_COL(peek(1));
+                    else if (IS_COL(NPEEK(1))) {
+                        ObjCol* col = AS_COL(NPEEK(1));
                         try {
                             value = col->get((int)index);
                         }
@@ -1573,8 +1579,8 @@ InterpretResult VM::run(void)
                             return INTERPRET_RUNTIME_ERROR;
                         }
                     }
-                    else if (IS_ROW(peek(1))) {
-                        ObjRow* row = AS_ROW(peek(1));
+                    else if (IS_ROW(NPEEK(1))) {
+                        ObjRow* row = AS_ROW(NPEEK(1));
                         try {
                             value = row->get((int)index);
                         }
@@ -1588,10 +1594,10 @@ InterpretResult VM::run(void)
                         return INTERPRET_RUNTIME_ERROR;
                     }
                 }
-                else if (IS_STRING(peek(0))) {
-                    ObjString* index = AS_STRING(peek(0));
-                    if (IS_MAP(peek(1))) {
-                        ObjMap* map = AS_MAP(peek(1));
+                else if (IS_STRING(PEEK())) {
+                    ObjString* index = AS_STRING(PEEK());
+                    if (IS_MAP(NPEEK(1))) {
+                        ObjMap* map = AS_MAP(NPEEK(1));
                         try {
                             value = map->get(index->nchars);
                         }
@@ -1609,89 +1615,89 @@ InterpretResult VM::run(void)
                     runtimeError("Index is not number.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                pop();
-                pop();
+                DROP();
+                DROP();
             }
             else if (2 == argCount) {
-                if (!IS_MAT(peek(2))) {
+                if (!IS_MAT(NPEEK(2))) {
                     runtimeError("Only container has elements.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {
+                if (!IS_NUMBER(PEEK()) || !IS_NUMBER(NPEEK(1))) {
                     runtimeError("Index is not number.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                ObjMat* mat = AS_MAT(peek(2));
-                int row = AS_NUMBER(peek(1));
-                int col = AS_NUMBER(peek(0));
+                ObjMat* mat = AS_MAT(NPEEK(2));
+                int row = AS_NUMBER(NPEEK(1));
+                int col = AS_NUMBER(PEEK());
                 value = mat->get(row, col);
-                pop();
-                pop();
-                pop();
+                DROP();
+                DROP();
+                DROP();
             }
             else if (3 == argCount) {
-                if (!IS_CUBE(peek(3))) {
+                if (!IS_CUBE(NPEEK(3))) {
                     runtimeError("Only container has elements.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1)) || !IS_NUMBER(peek(2))) {
+                if (!IS_NUMBER(PEEK()) || !IS_NUMBER(NPEEK(1)) || !IS_NUMBER(NPEEK(2))) {
                     runtimeError("Index is not number.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                ObjCube* cube = AS_CUBE(peek(3));
-                int row = AS_NUMBER(peek(2));
-                int col = AS_NUMBER(peek(1));
-                int depth = AS_NUMBER(peek(0));
+                ObjCube* cube = AS_CUBE(NPEEK(3));
+                int row = AS_NUMBER(NPEEK(2));
+                int col = AS_NUMBER(NPEEK(1));
+                int depth = AS_NUMBER(PEEK());
                 value = cube->get(row, col, depth);
-                pop();
-                pop();
-                pop();
-                pop();
+                DROP();
+                DROP();
+                DROP();
+                DROP();
             }
             else {
                 runtimeError("Invalid index");
                 return INTERPRET_RUNTIME_ERROR;
             }
-            push(value);
+            PUSH(value);
             break;
         }
         case OP_SET_ELEMENT: {
             int argCount = READ_BYTE();
             if (1 == argCount) {
-                if (IS_NUMBER(peek(1))) {
-                    double index = AS_NUMBER(peek(1));
-                    if (IS_LIST(peek(2))) {
-                        ObjList* list = AS_LIST(peek(2));
+                if (IS_NUMBER(NPEEK(1))) {
+                    double index = AS_NUMBER(NPEEK(1));
+                    if (IS_LIST(NPEEK(2))) {
+                        ObjList* list = AS_LIST(NPEEK(2));
                         try {
-                            list->set((int)index, peek(0));
+                            list->set((int)index, PEEK());
                         }
                         catch (std::exception& e) {
                             runtimeError(e.what());
                             return INTERPRET_RUNTIME_ERROR;
                         }
                     }
-                    else if (IS_COL(peek(2))) {
-                        if (!IS_NUMBER(peek(0))) {
+                    else if (IS_COL(NPEEK(2))) {
+                        if (!IS_NUMBER(PEEK())) {
                             runtimeError("number is expected");
                             return INTERPRET_RUNTIME_ERROR;
                         }
-                        ObjCol* col = AS_COL(peek(2));
+                        ObjCol* col = AS_COL(NPEEK(2));
                         try {
-                            col->set((int)index, peek(0));
+                            col->set((int)index, PEEK());
                         }
                         catch (std::exception& e) {
                             runtimeError(e.what());
                             return INTERPRET_RUNTIME_ERROR;
                         }
                     }
-                    else if (IS_ROW(peek(2))) {
-                        if (!IS_NUMBER(peek(0))) {
+                    else if (IS_ROW(NPEEK(2))) {
+                        if (!IS_NUMBER(PEEK())) {
                             runtimeError("number is expected");
                             return INTERPRET_RUNTIME_ERROR;
                         }
-                        ObjRow* row = AS_ROW(peek(2));
+                        ObjRow* row = AS_ROW(NPEEK(2));
                         try {
-                            row->set((int)index, peek(0));
+                            row->set((int)index, PEEK());
                         }
                         catch (std::exception& e) {
                             runtimeError(e.what());
@@ -1703,12 +1709,12 @@ InterpretResult VM::run(void)
                         return INTERPRET_RUNTIME_ERROR;
                     }
                 }
-                else if (IS_STRING(peek(1))) {
-                    ObjString* index = AS_STRING(peek(1));
-                    if (IS_MAP(peek(2))) {
-                        ObjMap* map = AS_MAP(peek(2));
+                else if (IS_STRING(NPEEK(1))) {
+                    ObjString* index = AS_STRING(NPEEK(1));
+                    if (IS_MAP(NPEEK(2))) {
+                        ObjMap* map = AS_MAP(NPEEK(2));
                         try {
-                            map->set(index->nchars, peek(0));
+                            map->set(index->nchars, PEEK());
                         }
                         catch (std::exception& e) {
                             runtimeError(e.what());
@@ -1724,44 +1730,44 @@ InterpretResult VM::run(void)
                     runtimeError("Index is not number.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                pop();
-                pop();
+                DROP();
+                DROP();
             }
             else if (2 == argCount) {
-                if (!IS_MAT(peek(3))) {
+                if (!IS_MAT(NPEEK(3))) {
                     runtimeError("Only container has elements.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                if (!IS_NUMBER(peek(2)) || !IS_NUMBER(peek(1))) {
+                if (!IS_NUMBER(NPEEK(2)) || !IS_NUMBER(NPEEK(1))) {
                     runtimeError("Index is not number.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                ObjMat* mat = AS_MAT(peek(3));
-                int row = AS_NUMBER(peek(2));
-                int col = AS_NUMBER(peek(1));
-                mat->set(row, col, peek(0));
-                pop();
-                pop();
-                pop();
+                ObjMat* mat = AS_MAT(NPEEK(3));
+                int row = AS_NUMBER(NPEEK(2));
+                int col = AS_NUMBER(NPEEK(1));
+                mat->set(row, col, PEEK());
+                DROP();
+                DROP();
+                DROP();
             }
             else if (3 == argCount) {
-                if (!IS_CUBE(peek(4))) {
+                if (!IS_CUBE(NPEEK(4))) {
                     runtimeError("Only container has elements.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                if (!IS_NUMBER(peek(3)) || !IS_NUMBER(peek(2)) || !IS_NUMBER(peek(1))) {
+                if (!IS_NUMBER(NPEEK(3)) || !IS_NUMBER(NPEEK(2)) || !IS_NUMBER(NPEEK(1))) {
                     runtimeError("Index is not number.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                ObjCube* cube = AS_CUBE(peek(4));
-                int row = AS_NUMBER(peek(3));
-                int col = AS_NUMBER(peek(2));
-                int depth = AS_NUMBER(peek(1));
-                cube->set(row, col, depth, peek(0));
-                pop();
-                pop();
-                pop();
-                pop();
+                ObjCube* cube = AS_CUBE(NPEEK(4));
+                int row = AS_NUMBER(NPEEK(3));
+                int col = AS_NUMBER(NPEEK(2));
+                int depth = AS_NUMBER(NPEEK(1));
+                cube->set(row, col, depth, PEEK());
+                DROP();
+                DROP();
+                DROP();
+                DROP();
             }
             else {
                 runtimeError("Invalid index");
@@ -1784,7 +1790,7 @@ InterpretResult VM::run(void)
             Value b = pop();
             Value a = pop();
             ValueUtil util;
-            push(BOOL_VAL(util.equal(a, b)));
+            PUSH(BOOL_VAL(util.equal(a, b)));
             break;
         }
             //< Types of Values interpret-equal
@@ -1811,18 +1817,18 @@ InterpretResult VM::run(void)
             //> Strings add-strings
         case OP_ADD: {
             bool calculated = true;
-            if (IS_NUMBER(peek(1))) {
-                if (IS_NUMBER(peek(0))) {
+            if (IS_NUMBER(NPEEK(1))) {
+                if (IS_NUMBER(PEEK())) {
                     double b = AS_NUMBER(pop());
                     double a = AS_NUMBER(pop());
-                    push(NUMBER_VAL(a + b));
+                    PUSH(NUMBER_VAL(a + b));
                 }
-                else if (IS_OBJ(peek(0))) {
+                else if (IS_OBJ(PEEK())) {
                     try {
-                        Value r = AS_OBJ(peek(0))->add(peek(1), this, true);
-                        pop();
-                        pop();
-                        push(r);
+                        Value r = AS_OBJ(PEEK())->add(NPEEK(1), this, true);
+                        DROP();
+                        DROP();
+                        PUSH(r);
                     }
                     catch (std::exception& e) {
                         calculated = false;
@@ -1832,12 +1838,12 @@ InterpretResult VM::run(void)
                     calculated = false;
                 }
             }
-            else if (IS_OBJ(peek(1))) {
+            else if (IS_OBJ(NPEEK(1))) {
                 try {
-                    Value r = AS_OBJ(peek(1))->add(peek(0), this);
-                    pop();
-                    pop();
-                    push(r);
+                    Value r = AS_OBJ(NPEEK(1))->add(PEEK(), this);
+                    DROP();
+                    DROP();
+                    PUSH(r);
                 }
                 catch (std::exception& e) {
                     calculated = false;
@@ -1856,18 +1862,18 @@ InterpretResult VM::run(void)
             //> Types of Values op-arithmetic
         case OP_SUBTRACT: {
             bool calculated = true;
-            if (IS_NUMBER(peek(1))) {
-                if (IS_NUMBER(peek(0))) {
+            if (IS_NUMBER(NPEEK(1))) {
+                if (IS_NUMBER(PEEK())) {
                     double b = AS_NUMBER(pop());
                     double a = AS_NUMBER(pop());
-                    push(NUMBER_VAL(a - b));
+                    PUSH(NUMBER_VAL(a - b));
                 }
-                else if (IS_OBJ(peek(0))) {
+                else if (IS_OBJ(PEEK())) {
                     try {
-                        Value r = AS_OBJ(peek(0))->sub(peek(1), this, true);
-                        pop();
-                        pop();
-                        push(r);
+                        Value r = AS_OBJ(PEEK())->sub(NPEEK(1), this, true);
+                        DROP();
+                        DROP();
+                        PUSH(r);
                     }
                     catch (std::exception& e) {
                         calculated = false;
@@ -1877,12 +1883,12 @@ InterpretResult VM::run(void)
                     calculated = false;
                 }
             }
-            else if (IS_OBJ(peek(1))) {
+            else if (IS_OBJ(NPEEK(1))) {
                 try {
-                    Value r = AS_OBJ(peek(1))->sub(peek(0), this);
-                    pop();
-                    pop();
-                    push(r);
+                    Value r = AS_OBJ(NPEEK(1))->sub(PEEK(), this);
+                    DROP();
+                    DROP();
+                    PUSH(r);
                 }
                 catch (std::exception& e) {
                     calculated = false;
@@ -1899,18 +1905,18 @@ InterpretResult VM::run(void)
         }
         case OP_MULTIPLY: {
             bool calculated = true;
-            if (IS_NUMBER(peek(1))) {
-                if (IS_NUMBER(peek(0))) {
+            if (IS_NUMBER(NPEEK(1))) {
+                if (IS_NUMBER(PEEK())) {
                     double b = AS_NUMBER(pop());
                     double a = AS_NUMBER(pop());
-                    push(NUMBER_VAL(a * b));
+                    PUSH(NUMBER_VAL(a * b));
                 }
-                else if (IS_OBJ(peek(0))) {
+                else if (IS_OBJ(PEEK())) {
                     try {
-                        Value r = AS_OBJ(peek(0))->mul(peek(1), this, true);
-                        pop();
-                        pop();
-                        push(r);
+                        Value r = AS_OBJ(PEEK())->mul(NPEEK(1), this, true);
+                        DROP();
+                        DROP();
+                        PUSH(r);
                     }
                     catch (std::exception& e) {
                         calculated = false;
@@ -1920,12 +1926,12 @@ InterpretResult VM::run(void)
                     calculated = false;
                 }
             }
-            else if (IS_OBJ(peek(1))) {
+            else if (IS_OBJ(NPEEK(1))) {
                 try {
-                    Value r = AS_OBJ(peek(1))->mul(peek(0), this);
-                    pop();
-                    pop();
-                    push(r);
+                    Value r = AS_OBJ(NPEEK(1))->mul(PEEK(), this);
+                    DROP();
+                    DROP();
+                    PUSH(r);
                 }
                 catch (std::exception& e) {
                     calculated = false;
@@ -1942,18 +1948,18 @@ InterpretResult VM::run(void)
         }
         case OP_DIVIDE: {
             bool calculated = true;
-            if (IS_NUMBER(peek(1))) {
-                if (IS_NUMBER(peek(0))) {
+            if (IS_NUMBER(NPEEK(1))) {
+                if (IS_NUMBER(PEEK())) {
                     double b = AS_NUMBER(pop());
                     double a = AS_NUMBER(pop());
-                    push(NUMBER_VAL(a / b));
+                    PUSH(NUMBER_VAL(a / b));
                 }
-                else if (IS_OBJ(peek(0))) {
+                else if (IS_OBJ(PEEK())) {
                     try {
-                        Value r = AS_OBJ(peek(0))->div(peek(1), this, false);
-                        pop();
-                        pop();
-                        push(r);
+                        Value r = AS_OBJ(PEEK())->div(NPEEK(1), this, false);
+                        DROP();
+                        DROP();
+                        PUSH(r);
                     }
                     catch (std::exception& e) {
                         calculated = false;
@@ -1963,12 +1969,12 @@ InterpretResult VM::run(void)
                     calculated = false;
                 }
             }
-            else if (IS_OBJ(peek(1))) {
+            else if (IS_OBJ(NPEEK(1))) {
                 try {
-                    Value r = AS_OBJ(peek(1))->div(peek(0), this);
-                    pop();
-                    pop();
-                    push(r);
+                    Value r = AS_OBJ(NPEEK(1))->div(PEEK(), this);
+                    DROP();
+                    DROP();
+                    PUSH(r);
                 }
                 catch (std::exception& e) {
                     calculated = false;
@@ -1985,19 +1991,19 @@ InterpretResult VM::run(void)
         }
         case OP_MODULO: {
             bool calculated = true;
-            if (IS_NUMBER(peek(1))) {
-                if (IS_NUMBER(peek(0))) {
+            if (IS_NUMBER(NPEEK(1))) {
+                if (IS_NUMBER(PEEK())) {
                     double b = AS_NUMBER(pop());
                     double a = AS_NUMBER(pop());
                     LAX_LOG("fmod(%f, %f) is %f", a, b, fmod(a, b));
-                    push(NUMBER_VAL(fmod(a, b)));
+                    PUSH(NUMBER_VAL(fmod(a, b)));
                 }
-                else if (IS_OBJ(peek(0))) {
+                else if (IS_OBJ(PEEK())) {
                     try {
-                        Value r = AS_OBJ(peek(0))->mod(peek(1), this, true);
-                        pop();
-                        pop();
-                        push(r);
+                        Value r = AS_OBJ(PEEK())->mod(NPEEK(1), this, true);
+                        DROP();
+                        DROP();
+                        PUSH(r);
                     }
                     catch (std::exception& e) {
                         calculated = false;
@@ -2007,12 +2013,12 @@ InterpretResult VM::run(void)
                     calculated = false;
                 }
             }
-            else if (IS_OBJ(peek(1))) {
+            else if (IS_OBJ(NPEEK(1))) {
                 try {
-                    Value r = AS_OBJ(peek(1))->mod(peek(0), this);
-                    pop();
-                    pop();
-                    push(r);
+                    Value r = AS_OBJ(NPEEK(1))->mod(PEEK(), this);
+                    DROP();
+                    DROP();
+                    PUSH(r);
                 }
                 catch (std::exception& e) {
                     calculated = false;
@@ -2029,19 +2035,19 @@ InterpretResult VM::run(void)
         }
         case OP_EXPONENT: {
             bool calculated = true;
-            if (IS_NUMBER(peek(1))) {
-                if (IS_NUMBER(peek(0))) {
+            if (IS_NUMBER(NPEEK(1))) {
+                if (IS_NUMBER(PEEK())) {
                     double b = AS_NUMBER(pop());
                     double a = AS_NUMBER(pop());
                     LAX_LOG("pow(%f, %f) is %f", a, b, pow(a, b));
-                    push(NUMBER_VAL(pow(a, b)));
+                    PUSH(NUMBER_VAL(pow(a, b)));
                 }
-                else if (IS_OBJ(peek(0))) {
+                else if (IS_OBJ(PEEK())) {
                     try {
-                        Value r = AS_OBJ(peek(0))->pow(peek(1), this, true);
-                        pop();
-                        pop();
-                        push(r);
+                        Value r = AS_OBJ(PEEK())->pow(NPEEK(1), this, true);
+                        DROP();
+                        DROP();
+                        PUSH(r);
                     }
                     catch (std::exception& e) {
                         calculated = false;
@@ -2051,12 +2057,12 @@ InterpretResult VM::run(void)
                     calculated = false;
                 }
             }
-            else if (IS_OBJ(peek(1))) {
+            else if (IS_OBJ(NPEEK(1))) {
                 try {
-                    Value r = AS_OBJ(peek(1))->pow(peek(0), this);
-                    pop();
-                    pop();
-                    push(r);
+                    Value r = AS_OBJ(NPEEK(1))->pow(PEEK(), this);
+                    DROP();
+                    DROP();
+                    PUSH(r);
                 }
                 catch (std::exception& e) {
                     calculated = false;
@@ -2073,16 +2079,16 @@ InterpretResult VM::run(void)
         } //< Types of Values op-arithmetic
           //> Types of Values op-not
         case OP_NOT:
-            push(BOOL_VAL(isFalsey(pop())));
+            PUSH(BOOL_VAL(isFalsey(pop())));
             break;
             //< Types of Values op-not
             //> Types of Values op-negate
         case OP_NEGATE:
-            if (!IS_NUMBER(peek(0))) {
+            if (!IS_NUMBER(PEEK())) {
                 runtimeError("Operand must be a number.");
                 return INTERPRET_RUNTIME_ERROR;
             }
-            push(NUMBER_VAL(-AS_NUMBER(pop())));
+            PUSH(NUMBER_VAL(-AS_NUMBER(pop())));
             break;
             //< Types of Values op-negate
             //> Global Variables interpret-print
@@ -2109,10 +2115,10 @@ InterpretResult VM::run(void)
         case OP_JUMP_IF_FALSE: {
             uint16_t offset = READ_SHORT();
             /* Jumping Back and Forth op-jump-if-false < Calls and Functions jump-if-false
-                    if (isFalsey(peek(0))) ip += offset;
+                    if (isFalsey(PEEK())) ip += offset;
             */
             //> Calls and Functions jump-if-false
-            if (isFalsey(peek(0)))
+            if (isFalsey(PEEK()))
                 frame->ip += offset;
             //< Calls and Functions jump-if-false
             break;
@@ -2133,7 +2139,7 @@ InterpretResult VM::run(void)
             //> Calls and Functions interpret-call
         case OP_CALL: {
             int argCount = READ_BYTE();
-            if (!callValue(peek(argCount), argCount)) {
+            if (!callValue(NPEEK(argCount), argCount)) {
                 return INTERPRET_RUNTIME_ERROR;
             }
             //> update-frame-after-call
@@ -2169,7 +2175,7 @@ InterpretResult VM::run(void)
         case OP_CLOSURE: {
             ObjFunction* function = AS_FUNCTION(READ_CONSTANT());
             ObjClosure* closure = newClosure(function);
-            push(OBJ_VAL(closure));
+            PUSH(OBJ_VAL(closure));
             //> interpret-capture-upvalues
             for (int i = 0; i < closure->upvalueCount; i++) {
                 uint8_t isLocal = READ_BYTE();
@@ -2188,7 +2194,7 @@ InterpretResult VM::run(void)
             //> Closures interpret-close-upvalue
         case OP_CLOSE_UPVALUE:
             closeUpvalues(thread->stackTop - 1);
-            pop();
+            DROP();
             break;
             //< Closures interpret-close-upvalue
         case OP_RETURN: {
@@ -2210,7 +2216,7 @@ InterpretResult VM::run(void)
             thread->frameCount--;
             if (thread->frameCount == 0) {
                 if (NULL == thread->caller) {
-                    pop();
+                    DROP();
                     if (!threadStack.empty()) {
                         thread = threadStack.back();
                         threadStack.pop_back();
@@ -2224,7 +2230,7 @@ InterpretResult VM::run(void)
             }
 
             thread->stackTop = frame->slots;
-            push(result);
+            PUSH(result);
             frame = &thread->frames[thread->frameCount - 1];
             break;
             //< Calls and Functions interpret-return
@@ -2232,7 +2238,7 @@ InterpretResult VM::run(void)
             //> Classes and Instances interpret-class
         case OP_CLASS:
             // TODO:should pass nsl::string
-            push(OBJ_VAL(newClass(READ_STRING()->nchars)));
+            PUSH(OBJ_VAL(newClass(READ_STRING()->nchars)));
             break;
             //< Classes and Instances interpret-class
         case OP_LIST: {
@@ -2245,15 +2251,15 @@ InterpretResult VM::run(void)
                 list->container.push_back(stack.top());
                 stack.pop();
             }
-            push(OBJ_VAL(list));
+            PUSH(OBJ_VAL(list));
             break;
         }
         case OP_MAP:
-            push(OBJ_VAL(newMap()));
+            PUSH(OBJ_VAL(newMap()));
             break;
             //> Superclasses interpret-inherit
         case OP_INHERIT: {
-            Value superclass = peek(1);
+            Value superclass = NPEEK(1);
             //> inherit-non-class
             if (!IS_CLASS(superclass)) {
                 runtimeError("Superclass must be a class.");
@@ -2261,9 +2267,9 @@ InterpretResult VM::run(void)
             }
 
             //< inherit-non-class
-            ObjClass* subclass = AS_CLASS(peek(0));
+            ObjClass* subclass = AS_CLASS(PEEK());
             subclass->methods.addAll(AS_CLASS(superclass)->methods);
-            pop(); // Subclass.
+            DROP(); // Subclass.
             break;
         }
             //< Superclasses interpret-inherit
@@ -2332,7 +2338,7 @@ InterpretResult VM::interpret(const char* source)
     if (function == NULL)
         return INTERPRET_COMPILE_ERROR;
 
-    push(OBJ_VAL(function));
+    PUSH(OBJ_VAL(function));
     //< Calls and Functions interpret-stub
     /* Calls and Functions interpret-stub < Calls and Functions interpret
       CallFrame* frame = &frames[frameCount++];
@@ -2345,8 +2351,8 @@ InterpretResult VM::interpret(const char* source)
     */
     //> Closures interpret
     ObjClosure* closure = newClosure(function);
-    pop();
-    push(OBJ_VAL(closure));
+    DROP();
+    PUSH(OBJ_VAL(closure));
     call(closure, 0);
     //< Closures interpret
     //< Scanning on Demand vm-interpret-c
@@ -2438,11 +2444,11 @@ bool VM::callFunction(Value value, int argc, Value* argv, bool startNew)
     }
     thread = thd;
     for (int i = 0; i < argc; i++)
-        push(argv[i]);
+        PUSH(argv[i]);
     bool ret = callValue(value, argc);
     run();
     for (int i = 0; i < argc; i++)
-        pop();
+        DROP();
     return ret;
 }
 
