@@ -16,6 +16,9 @@ tc:
 bm:
 	./tool/benchmark.py
 
+prof:
+	for f in `find test/wren/benchmark/ -name "*.wren"`; do ./profile.sh $$f; done
+
 distclean:
 	rm Makefile
 	rm byte-code/src/common.hpp
