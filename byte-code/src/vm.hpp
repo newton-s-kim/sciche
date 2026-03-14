@@ -152,7 +152,7 @@ public:
         *thread->stackTop = value;
         thread->stackTop++;
     }
-    Value pop()
+    inline Value pop()
     {
         thread->stackTop--;
         return *thread->stackTop;

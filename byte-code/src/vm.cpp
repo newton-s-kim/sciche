@@ -1546,7 +1546,7 @@ InterpretResult VM::run(void)
             ObjInstance* instance = AS_INSTANCE(NPEEK(1));
             // TODO: pass nsl::string
             instance->fields.set(READ_STRING()->nchars, PEEK());
-            Value value = pop();
+            Value value = POP();
             DROP();
             PUSH(value);
             break;
@@ -1777,7 +1777,7 @@ InterpretResult VM::run(void)
         }
         case OP_GET_SUPER: {
             ObjString* name = READ_STRING();
-            ObjClass* superclass = AS_CLASS(pop());
+            ObjClass* superclass = AS_CLASS(POP());
 
             if (!bindMethod(superclass, name)) {
                 return INTERPRET_RUNTIME_ERROR;
@@ -1787,8 +1787,8 @@ InterpretResult VM::run(void)
             //< Superclasses interpret-get-super
             //> Types of Values interpret-equal
         case OP_EQUAL: {
-            Value b = pop();
-            Value a = pop();
+            Value b = POP();
+            Value a = POP();
             ValueUtil util;
             PUSH(BOOL_VAL(util.equal(a, b)));
             break;
@@ -1819,8 +1819,8 @@ InterpretResult VM::run(void)
             bool calculated = true;
             if (IS_NUMBER(NPEEK(1))) {
                 if (IS_NUMBER(PEEK())) {
-                    double b = AS_NUMBER(pop());
-                    double a = AS_NUMBER(pop());
+                    double b = AS_NUMBER(POP());
+                    double a = AS_NUMBER(POP());
                     PUSH(NUMBER_VAL(a + b));
                 }
                 else if (IS_OBJ(PEEK())) {
@@ -1864,8 +1864,8 @@ InterpretResult VM::run(void)
             bool calculated = true;
             if (IS_NUMBER(NPEEK(1))) {
                 if (IS_NUMBER(PEEK())) {
-                    double b = AS_NUMBER(pop());
-                    double a = AS_NUMBER(pop());
+                    double b = AS_NUMBER(POP());
+                    double a = AS_NUMBER(POP());
                     PUSH(NUMBER_VAL(a - b));
                 }
                 else if (IS_OBJ(PEEK())) {
@@ -1907,8 +1907,8 @@ InterpretResult VM::run(void)
             bool calculated = true;
             if (IS_NUMBER(NPEEK(1))) {
                 if (IS_NUMBER(PEEK())) {
-                    double b = AS_NUMBER(pop());
-                    double a = AS_NUMBER(pop());
+                    double b = AS_NUMBER(POP());
+                    double a = AS_NUMBER(POP());
                     PUSH(NUMBER_VAL(a * b));
                 }
                 else if (IS_OBJ(PEEK())) {
@@ -1950,8 +1950,8 @@ InterpretResult VM::run(void)
             bool calculated = true;
             if (IS_NUMBER(NPEEK(1))) {
                 if (IS_NUMBER(PEEK())) {
-                    double b = AS_NUMBER(pop());
-                    double a = AS_NUMBER(pop());
+                    double b = AS_NUMBER(POP());
+                    double a = AS_NUMBER(POP());
                     PUSH(NUMBER_VAL(a / b));
                 }
                 else if (IS_OBJ(PEEK())) {
@@ -1993,8 +1993,8 @@ InterpretResult VM::run(void)
             bool calculated = true;
             if (IS_NUMBER(NPEEK(1))) {
                 if (IS_NUMBER(PEEK())) {
-                    double b = AS_NUMBER(pop());
-                    double a = AS_NUMBER(pop());
+                    double b = AS_NUMBER(POP());
+                    double a = AS_NUMBER(POP());
                     LAX_LOG("fmod(%f, %f) is %f", a, b, fmod(a, b));
                     PUSH(NUMBER_VAL(fmod(a, b)));
                 }
@@ -2037,8 +2037,8 @@ InterpretResult VM::run(void)
             bool calculated = true;
             if (IS_NUMBER(NPEEK(1))) {
                 if (IS_NUMBER(PEEK())) {
-                    double b = AS_NUMBER(pop());
-                    double a = AS_NUMBER(pop());
+                    double b = AS_NUMBER(POP());
+                    double a = AS_NUMBER(POP());
                     LAX_LOG("pow(%f, %f) is %f", a, b, pow(a, b));
                     PUSH(NUMBER_VAL(pow(a, b)));
                 }
@@ -2078,23 +2078,27 @@ InterpretResult VM::run(void)
             break;
         } //< Types of Values op-arithmetic
           //> Types of Values op-not
-        case OP_NOT:
-            PUSH(BOOL_VAL(isFalsey(pop())));
+        case OP_NOT: {
+            bool v = isFalsey(POP());
+            PUSH(BOOL_VAL(v));
             break;
             //< Types of Values op-not
             //> Types of Values op-negate
-        case OP_NEGATE:
+	}
+        case OP_NEGATE: {
             if (!IS_NUMBER(PEEK())) {
                 runtimeError("Operand must be a number.");
                 return INTERPRET_RUNTIME_ERROR;
             }
-            PUSH(NUMBER_VAL(-AS_NUMBER(pop())));
+	    double v = AS_NUMBER(POP());
+            PUSH(NUMBER_VAL(-v));
             break;
             //< Types of Values op-negate
             //> Global Variables interpret-print
+	}
         case OP_PRINT: {
             ValueUtil util;
-            util.print(pop());
+            util.print(POP());
             printf("\n");
             break;
         }
@@ -2163,7 +2167,7 @@ InterpretResult VM::run(void)
         case OP_SUPER_INVOKE: {
             ObjString* method = READ_STRING();
             int argCount = READ_BYTE();
-            ObjClass* superclass = AS_CLASS(pop());
+            ObjClass* superclass = AS_CLASS(POP());
             if (!invokeFromClass(superclass, method, argCount)) {
                 return INTERPRET_RUNTIME_ERROR;
             }
@@ -2209,7 +2213,7 @@ InterpretResult VM::run(void)
                     return INTERPRET_OK;
             */
             //> Calls and Functions interpret-return
-            Value result = pop();
+            Value result = POP();
             //> Closures return-close-upvalues
             closeUpvalues(frame->slots);
             //< Closures return-close-upvalues
@@ -2245,7 +2249,7 @@ InterpretResult VM::run(void)
             ObjList* list = newList();
             std::stack<Value> stack;
             for (int argc = READ_BYTE(); argc > 0; argc--) {
-                stack.push(pop());
+                stack.push(POP());
             }
             while (!stack.empty()) {
                 list->container.push_back(stack.top());
