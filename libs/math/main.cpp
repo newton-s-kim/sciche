@@ -1,5 +1,7 @@
 #include "object.hpp"
 
+#include "mat.hpp"
+
 namespace sce {
 static Value asinNative(ObjectFactory* factory, int argc, Value* args)
 {
@@ -280,16 +282,83 @@ static Value expNative(ObjectFactory* factory, int argc, Value* args)
     return r;
 }
 
+static Value rowVecNative(ObjectFactory* factory, int argc, Value* args)
+{
+    ObjFillType fill_type = OBJ_FILL_DEFAULT;
+    size_t sz = 0;
+    switch (argc) {
+    case 2:
+        if (!IS_NUMBER(args[1])) {
+            throw std::runtime_error("number is expected");
+        }
+        fill_type = (ObjFillType)AS_NUMBER(args[1]);
+        if (!IS_NUMBER(args[0])) {
+            throw std::runtime_error("number is expected");
+        }
+        sz = AS_NUMBER(args[0]);
+        break;
+    case 1:
+        if (!IS_NUMBER(args[0])) {
+            throw std::runtime_error("number is expected");
+        }
+        sz = AS_NUMBER(args[0]);
+        break;
+    default:
+        throw std::runtime_error("invalid arguments");
+        break;
+    }
+    return OBJ_VAL(factory->newRow(sz, fill_type));
+}
+
+static Value cubeNative(ObjectFactory* factory, int argc, Value* args)
+{
+    ObjFillType fill_type = OBJ_FILL_DEFAULT;
+    size_t rows = 0, cols = 0, depth = 0;
+    switch (argc) {
+    case 4:
+        if (!IS_NUMBER(args[3])) {
+            throw std::runtime_error("number is expected");
+        }
+        fill_type = (ObjFillType)AS_NUMBER(args[3]);
+        if (!IS_NUMBER(args[0]))
+            throw std::runtime_error("number is expected");
+        if (!IS_NUMBER(args[1]))
+            throw std::runtime_error("number is expected");
+        if (!IS_NUMBER(args[2]))
+            throw std::runtime_error("number is expected");
+        rows = AS_NUMBER(args[0]);
+        cols = AS_NUMBER(args[1]);
+        depth = AS_NUMBER(args[2]);
+        break;
+    case 3:
+        if (!IS_NUMBER(args[0]))
+            throw std::runtime_error("number is expected");
+        if (!IS_NUMBER(args[1]))
+            throw std::runtime_error("number is expected");
+        if (!IS_NUMBER(args[2]))
+            throw std::runtime_error("number is expected");
+        rows = AS_NUMBER(args[0]);
+        cols = AS_NUMBER(args[1]);
+        depth = AS_NUMBER(args[2]);
+        break;
+    default:
+        throw std::runtime_error("invalid arguments");
+        break;
+    }
+    return OBJ_VAL(factory->newCube(rows, cols, depth, fill_type));
+}
+
 extern "C" void math_functions(std::vector<std::string>& names, std::vector<NativeFn>& functions)
 {
-    names.assign({"acos", "asin", "atan", "sin", "cos", "tan", "sqrt", "cbrt", "phase", "log10", "log2", "log", "exp"});
+    names.assign({"acos", "asin", "atan", "sin", "cos", "tan", "sqrt", "cbrt", "phase", "log10", "log2", "log", "exp",
+                  "rowvec", "cube"});
     functions.assign({acosNative, asinNative, atanNative, sinNative, cosNative, tanNative, sqrtNative, cbrtNative,
-                      phaseNative, log10Native, log2Native, logNative, expNative});
+                      phaseNative, log10Native, log2Native, logNative, expNative, rowVecNative, cubeNative});
 }
 extern "C" void math_symbols(std::vector<std::string>& names, std::vector<NativeClass*>& syms)
 {
-    names.assign({});
-    syms.assign({});
+    names.assign({"vec", "mat"});
+    syms.assign({new vecNative, new matNative});
 }
 extern "C" void math_constants(std::vector<std::string>& names, std::vector<double>& consts)
 {

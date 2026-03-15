@@ -1,3 +1,4 @@
+include "math";
 var h = vec();
 h.add(1,0,1);
 var x = vec();

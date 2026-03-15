@@ -1,3 +1,4 @@
+include "math";
 var x1 = vec();
 x1.add(4,2,-1,3,-2,-6,-5,4,5);
 var x2 = vec();

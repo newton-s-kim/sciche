@@ -477,18 +477,6 @@ public:
     Value call(ObjectFactory* factory, int argc, Value* argv);
 };
 
-class vecNative : public NativeClass {
-public:
-    vecNative();
-    Value call(ObjectFactory* factory, int argc, Value* argv);
-};
-
-class matNative : public NativeClass {
-public:
-    matNative();
-    Value call(ObjectFactory* factory, int argc, Value* argv);
-};
-
 //< copy-string-h
 //> is-obj-type
 static inline bool isObjType(Value value, ObjType type)

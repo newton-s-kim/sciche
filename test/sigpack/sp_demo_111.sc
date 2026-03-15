@@ -1,5 +1,5 @@
-include "sigpack";
 include "math";
+include "sigpack";
 
 // Number of samples
 var N = 400;
