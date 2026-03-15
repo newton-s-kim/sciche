@@ -9,4 +9,4 @@ dict["hobbies"] = List("reading", "gaming", "coding");
 
 var str = json.dump(dict);
 
-print str; // expect: {"hobbies":["reading","gaming","coding"],"is_student":false,"age":30.0,"city":"New York","name":"John Doe"}
+print str; // expect: {"city":"New York","age":30.0,"is_student":false,"name":"John Doe","hobbies":["reading","gaming","coding"]}
