@@ -47,7 +47,7 @@ basic_string<T>::basic_string() : m_str(NULL)
 template <typename T>
 void basic_string<T>::increaseReference(void)
 {
-    if(m_str) m_str->reference++;
+    m_str->reference++;
 }
 
 template <typename T>
@@ -126,7 +126,13 @@ bool basic_string<T>::operator==(const basic_string& str)
         return false;
     if (str.m_str->length != m_str->length)
         return false;
-    return (!strcmp(m_str->ptr, str.m_str->ptr));
+    char *p = m_str->ptr, *q = str.m_str->ptr;
+    while(p && q) {
+        if(p != q) return false;
+	p++;
+	q++;
+    }
+    return (p || q) ? false : true;
 }
 
 template <typename T>
