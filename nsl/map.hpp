@@ -79,6 +79,14 @@ public:
     {
         return m_count;
     }
+    inline size_t capacity(void)
+    {
+        return m_capacity;
+    }
+    inline K key(size_t i)
+    {
+        return m_entries[i].key;
+    }
 };
 
 //> max-load

@@ -47,7 +47,7 @@ basic_string<T>::basic_string() : m_str(NULL)
 template <typename T>
 void basic_string<T>::increaseReference(void)
 {
-    m_str->reference++;
+    if(m_str) m_str->reference++;
 }
 
 template <typename T>

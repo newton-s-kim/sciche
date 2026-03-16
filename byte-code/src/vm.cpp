@@ -2084,18 +2084,18 @@ InterpretResult VM::run(void)
             break;
             //< Types of Values op-not
             //> Types of Values op-negate
-	}
+        }
         case OP_NEGATE: {
             if (!IS_NUMBER(PEEK())) {
                 runtimeError("Operand must be a number.");
                 return INTERPRET_RUNTIME_ERROR;
             }
-	    double v = AS_NUMBER(POP());
+            double v = AS_NUMBER(POP());
             PUSH(NUMBER_VAL(-v));
             break;
             //< Types of Values op-negate
             //> Global Variables interpret-print
-	}
+        }
         case OP_PRINT: {
             ValueUtil util;
             util.print(POP());
