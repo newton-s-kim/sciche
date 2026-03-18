@@ -683,7 +683,7 @@ bool VM::callValue(Value callee, int argCount)
             //> Methods and Initializers call-init
             Value initializer;
             // TODO: pass nsl::string
-            if (klass->methods.get(initString->nchars, &initializer)) {
+            if (klass->methods.get(initString, &initializer)) {
                 return call(AS_CLOSURE(initializer), argCount);
                 //> no-init-arity-error
             }
@@ -748,8 +748,8 @@ bool VM::invokeFromClass(ObjClass* klass, ObjString* name, int argCount)
 {
     Value method;
     // TODO: pass nsl::string
-    if (!klass->methods.get(name->nchars, &method)) {
-        runtimeError("Undefined property '%s'.", name->chars.c_str());
+    if (!klass->methods.get(name, &method)) {
+        runtimeError("Undefined property '%s'.", name->chars);
         return false;
     }
     return call(AS_CLOSURE(method), argCount);
@@ -768,7 +768,7 @@ bool VM::invoke(ObjString* name, int argCount)
 
         Value value;
         // TODO: pass nsl::string
-        if (instance->fields.get(name->nchars, &value)) {
+        if (instance->fields.get(name, &value)) {
             thread->stackTop[-argCount - 1] = value;
             return callValue(value, argCount);
         }
@@ -811,7 +811,7 @@ bool VM::invoke(ObjString* name, int argCount)
     else {
         Value result = 0;
         try {
-            result = primitive.call(this, receiver, name->chars, argCount, thread->stackTop - argCount);
+            result = primitive.call(this, receiver, name, argCount, thread->stackTop - argCount);
         }
         catch (std::exception& e) {
             runtimeError(e.what());
@@ -1184,8 +1184,8 @@ bool VM::bindMethod(ObjClass* klass, ObjString* name)
 {
     Value method;
     // TODO: pass nsl::string
-    if (!klass->methods.get(name->nchars, &method)) {
-        runtimeError("Undefined property '%s'.", name->chars.c_str());
+    if (!klass->methods.get(name, &method)) {
+        runtimeError("Undefined property '%s'.", name->chars);
         return false;
     }
 
@@ -1714,7 +1714,7 @@ InterpretResult VM::run(void)
                     if (IS_MAP(NPEEK(2))) {
                         ObjMap* map = AS_MAP(NPEEK(2));
                         try {
-                            map->set(index->nchars, PEEK());
+                            map->set(index, PEEK());
                         }
                         catch (std::exception& e) {
                             runtimeError(e.what());
@@ -2242,7 +2242,7 @@ InterpretResult VM::run(void)
             //> Classes and Instances interpret-class
         case OP_CLASS:
             // TODO:should pass nsl::string
-            PUSH(OBJ_VAL(newClass(READ_STRING()->nchars)));
+            PUSH(OBJ_VAL(newClass(READ_STRING()->chars)));
             break;
             //< Classes and Instances interpret-class
         case OP_LIST: {

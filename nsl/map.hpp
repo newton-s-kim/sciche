@@ -140,17 +140,18 @@ void map<K, V>::adjustCapacity(size_t capacity)
 {
     Entry* entries = ALLOCATE(Entry, capacity);
     memset((void*)entries, 0, sizeof(Entry) * capacity);
-    for (size_t i = 0; i < capacity; i++) {
+    Entry* end = entries + capacity;
+    for (Entry* i = entries; i < end; i++) {
         // entries[i].key = NULL;
-        entries[i].value = m_nil;
+        i->value = m_nil;
     }
     //> re-hash
 
     //> resize-init-count
     m_count = 0;
     //< resize-init-count
-    for (size_t i = 0; i < m_capacity; i++) {
-        Entry* entry = &m_entries[i];
+    end = m_entries + m_capacity;
+    for (Entry* entry = m_entries; entry < end; entry++) {
         if (entry->key.empty())
             continue;
 
@@ -218,8 +219,8 @@ bool map<K, V>::remove(K& key)
 template <typename K, typename V>
 void map<K, V>::addAll(map<K, V>& from)
 {
-    for (size_t i = 0; i < from.m_capacity; i++) {
-        Entry* entry = &from.m_entries[i];
+    Entry* end = from.m_entries + from.m_capacity;
+    for (Entry* entry = from.m_entries; entry < end; entry++) {
         if (!entry->key.empty()) {
             set(entry->key, entry->value);
         }
@@ -230,8 +231,8 @@ void map<K, V>::addAll(map<K, V>& from)
 template <typename K, typename V>
 void map<K, V>::visit(std::function<void(V&)> callback)
 {
-    for (size_t i = 0; i < m_capacity; i++) {
-        Entry* entry = &m_entries[i];
+    Entry* end = m_entries + m_capacity;
+    for (Entry* entry = m_entries; entry < end; entry++) {
         if (!entry->key.empty())
             callback(entry->value);
     }
@@ -239,8 +240,8 @@ void map<K, V>::visit(std::function<void(V&)> callback)
 template <typename K, typename V>
 void map<K, V>::iterate(std::function<void(nsl::string, V&)> callback)
 {
-    for (size_t i = 0; i < m_capacity; i++) {
-        Entry* entry = &m_entries[i];
+    Entry* end = m_entries + m_capacity;
+    for (Entry* entry = m_entries; entry < end; entry++) {
         if (!entry->key.empty())
             callback(entry->key, entry->value);
     }

@@ -1,11 +1,28 @@
 #include "object.hpp"
 
 namespace sce {
-ObjString::ObjString(std::string pChars) : Obj(OBJ_STRING), chars(pChars), nchars(pChars.c_str())
+ObjString::ObjString(std::string pChars) : Obj(OBJ_STRING)
 {
+    chars = strdup(pChars.c_str());
+    len = strlen(chars);
+    hash = hashString(chars, len);
 #ifdef DEBUG_LOG_GC
     printf("%p allocate %zu for %d\n", (void*)this, sizeof(ObjString), type);
 #endif
+}
+
+ObjString::~ObjString() {
+    if(chars) free((void*)chars);
+}
+
+uint32_t ObjString::hashString(const char* str, size_t len)
+{
+    uint32_t hash = 2166136261u;
+    for (size_t i = 0; i < len; i++) {
+        hash ^= (uint8_t)str[i];
+        hash *= 16777619;
+    }
+    return hash;
 }
 
 std::string ObjString::stringify(void)

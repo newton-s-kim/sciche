@@ -21,7 +21,7 @@ static Value gplot_window(ObjectFactory* factory, NativeObject* obj, int argc, V
             std::runtime_error("number is expected.");
         if (!IS_NUMBER(argv[5]))
             std::runtime_error("number is expected.");
-        gplot->m_gplot.window(AS_NUMBER(argv[0]), AS_STRING(argv[1])->chars.c_str(), AS_NUMBER(argv[2]),
+        gplot->m_gplot.window(AS_NUMBER(argv[0]), AS_STRING(argv[1])->chars, AS_NUMBER(argv[2]),
                               AS_NUMBER(argv[3]), AS_NUMBER(argv[4]), AS_NUMBER(argv[5]));
     }
     else if (5 == argc) {
@@ -35,7 +35,7 @@ static Value gplot_window(ObjectFactory* factory, NativeObject* obj, int argc, V
             std::runtime_error("number is expected.");
         if (!IS_NUMBER(argv[4]))
             std::runtime_error("number is expected.");
-        gplot->m_gplot.window(AS_STRING(argv[0])->chars.c_str(), AS_NUMBER(argv[1]), AS_NUMBER(argv[2]),
+        gplot->m_gplot.window(AS_STRING(argv[0])->chars, AS_NUMBER(argv[1]), AS_NUMBER(argv[2]),
                               AS_NUMBER(argv[3]), AS_NUMBER(argv[4]));
     }
     else {
@@ -52,7 +52,7 @@ static Value gplot_xlabel(ObjectFactory* factory, NativeObject* obj, int argc, V
         throw std::runtime_error("invalid number of arguments");
     if (!IS_STRING(argv[0]))
         std::runtime_error("string is expected.");
-    gplot->m_gplot.xlabel(AS_STRING(argv[0])->chars.c_str());
+    gplot->m_gplot.xlabel(AS_STRING(argv[0])->chars);
     return NIL_VAL;
 }
 
@@ -64,7 +64,7 @@ static Value gplot_ylabel(ObjectFactory* factory, NativeObject* obj, int argc, V
         throw std::runtime_error("invalid number of arguments");
     if (!IS_STRING(argv[0]))
         std::runtime_error("string is expected.");
-    gplot->m_gplot.ylabel(AS_STRING(argv[0])->chars.c_str());
+    gplot->m_gplot.ylabel(AS_STRING(argv[0])->chars);
     return NIL_VAL;
 }
 
@@ -76,7 +76,7 @@ static Value gplot_send2gp(ObjectFactory* factory, NativeObject* obj, int argc, 
         throw std::runtime_error("invalid number of arguments");
     if (!IS_STRING(argv[0]))
         std::runtime_error("string is expected.");
-    gplot->m_gplot.send2gp(AS_STRING(argv[0])->chars.c_str());
+    gplot->m_gplot.send2gp(AS_STRING(argv[0])->chars);
     return NIL_VAL;
 }
 

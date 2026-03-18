@@ -310,7 +310,7 @@ void JsonInterface::write(rapidjson::Writer<rapidjson::StringBuffer>& writer, Va
         writer.Double(AS_NUMBER(value));
     }
     else if (IS_STRING(value)) {
-        writer.String(AS_STRING(value)->chars.c_str());
+        writer.String(AS_STRING(value)->chars);
     }
     else if (IS_BOOL(value)) {
         writer.Bool(AS_BOOL(value));

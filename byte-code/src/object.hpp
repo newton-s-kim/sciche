@@ -207,12 +207,15 @@ public:
 
 class ObjString : public Obj {
 public:
-    std::string chars;
-    nsl::string nchars;
+    const char* chars;
+    uint32_t hash;
+    uint32_t len;
     ObjString(std::string pChars);
+    ~ObjString();
     std::string stringify(void);
     void blaken(void);
     Value add(Value v, ObjectFactory* factory, bool opposite = false);
+    uint32_t hashString(const char* str, size_t len);
 };
 //< obj-string
 //> Closures obj-upvalue
@@ -249,7 +252,7 @@ class ObjClass : public Obj {
 public:
     nsl::string name;
     //> Methods and Initializers class-methods
-    nsl::map<nsl::string, Value> methods;
+    nsl::map<ObjString*, Value> methods;
     //< Methods and Initializers class-methods
     ObjClass(nsl::string name);
     ~ObjClass();
@@ -262,7 +265,7 @@ public:
 class ObjInstance : public Obj {
 public:
     ObjClass* klass;
-    nsl::map<nsl::string, Value> fields; // [fields]
+    nsl::map<ObjString*, Value> fields; // [fields]
     ObjInstance(ObjClass* klass);
     ~ObjInstance();
     std::string stringify(void);

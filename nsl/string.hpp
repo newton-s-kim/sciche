@@ -120,8 +120,6 @@ bool basic_string<T>::operator==(const basic_string& str)
 {
     if (m_str == str.m_str)
         return true;
-    if (m_str->m_hash != str.m_str->m_hash)
-        return false;
     if (!str.m_str || !m_str)
         return false;
     if (str.m_str->length != m_str->length)
