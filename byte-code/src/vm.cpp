@@ -125,7 +125,8 @@ void VM::blackenObject(Obj* object)
         ObjClass* klass = (ObjClass*)object;
 	markObject(klass->name);
         //> Methods and Initializers mark-methods
-        klass->methods.visit([=](Value value) {
+        klass->methods.iterate([=](ObjString* key, Value value) {
+            markObject(key);
             markValue(value);
         });
         //< Methods and Initializers mark-methods
@@ -153,7 +154,8 @@ void VM::blackenObject(Obj* object)
     case OBJ_INSTANCE: {
         ObjInstance* instance = (ObjInstance*)object;
         markObject((Obj*)instance->klass);
-        instance->fields.visit([=](Value value) {
+        instance->fields.iterate([=](ObjString* key, Value value) {
+            markObject(key);
             markValue(value);
         });
         break;

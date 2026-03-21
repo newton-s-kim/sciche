@@ -1,7 +1,6 @@
 #pragma once
 
 #include "array.hpp"
-#include "string.hpp"
 
 #include <functional>
 
@@ -74,7 +73,7 @@ public:
     inline void addAll(pmap<K, V>& from);
     inline V& find(K& key);
     inline void visit(std::function<void(V&)> callback);
-    inline void iterate(std::function<void(nsl::string, V&)> callback);
+    inline void iterate(std::function<void(K, V&)> callback);
     inline size_t size(void)
     {
         return m_count;
@@ -237,7 +236,7 @@ void pmap<K, V>::visit(std::function<void(V&)> callback)
     }
 }
 template <typename K, typename V>
-void pmap<K, V>::iterate(std::function<void(nsl::string, V&)> callback)
+void pmap<K, V>::iterate(std::function<void(K, V&)> callback)
 {
     for (size_t i = 0; i < m_capacity; i++) {
         Entry* entry = &m_entries[i];
