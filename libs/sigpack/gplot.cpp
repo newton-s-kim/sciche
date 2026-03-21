@@ -21,8 +21,8 @@ static Value gplot_window(ObjectFactory* factory, NativeObject* obj, int argc, V
             std::runtime_error("number is expected.");
         if (!IS_NUMBER(argv[5]))
             std::runtime_error("number is expected.");
-        gplot->m_gplot.window(AS_NUMBER(argv[0]), AS_STRING(argv[1])->chars, AS_NUMBER(argv[2]),
-                              AS_NUMBER(argv[3]), AS_NUMBER(argv[4]), AS_NUMBER(argv[5]));
+        gplot->m_gplot.window(AS_NUMBER(argv[0]), AS_STRING(argv[1])->chars, AS_NUMBER(argv[2]), AS_NUMBER(argv[3]),
+                              AS_NUMBER(argv[4]), AS_NUMBER(argv[5]));
     }
     else if (5 == argc) {
         if (!IS_STRING(argv[0]))
@@ -35,8 +35,8 @@ static Value gplot_window(ObjectFactory* factory, NativeObject* obj, int argc, V
             std::runtime_error("number is expected.");
         if (!IS_NUMBER(argv[4]))
             std::runtime_error("number is expected.");
-        gplot->m_gplot.window(AS_STRING(argv[0])->chars, AS_NUMBER(argv[1]), AS_NUMBER(argv[2]),
-                              AS_NUMBER(argv[3]), AS_NUMBER(argv[4]));
+        gplot->m_gplot.window(AS_STRING(argv[0])->chars, AS_NUMBER(argv[1]), AS_NUMBER(argv[2]), AS_NUMBER(argv[3]),
+                              AS_NUMBER(argv[4]));
     }
     else {
         throw std::runtime_error("invalid number of arguments");

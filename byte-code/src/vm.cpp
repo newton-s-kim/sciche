@@ -123,7 +123,7 @@ void VM::blackenObject(Obj* object)
         //> Classes and Instances blacken-class
     case OBJ_CLASS: {
         ObjClass* klass = (ObjClass*)object;
-	markObject(klass->name);
+        markObject(klass->name);
         //> Methods and Initializers mark-methods
         klass->methods.iterate([=](ObjString* key, Value value) {
             markObject(key);

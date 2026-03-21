@@ -209,6 +209,7 @@ public:
 class ObjString : public Obj {
 private:
     uint32_t hashString(const char* str, size_t len);
+
 public:
     const char* chars;
     uint32_t hash;
