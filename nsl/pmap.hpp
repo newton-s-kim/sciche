@@ -29,8 +29,9 @@ private:
         Entry* tombstone = NULL;
 
         //< find-entry-tombstone
+	Entry* entry = NULL;
         for (;;) {
-            Entry* entry = &entries[index];
+            entry = &entries[index];
             /* Hash Tables find-entry < Hash Tables find-tombstone
                 if (entry->key == key || entry->key == NULL) {
                   return entry;
