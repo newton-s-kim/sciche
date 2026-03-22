@@ -44,35 +44,37 @@ void ObjList::blaken(void)
 
 Value ObjList::get(int index)
 {
+    int sz = (int)container.size();
     if (index >= 0) {
-        if (index >= (int)container.size()) {
+        if (index >= sz) {
             throw std::runtime_error("Index is invalid.");
         }
     }
     else {
-        if (-index > (int)container.size()) {
+        if (-index > sz) {
             throw std::runtime_error("Index is invalid.");
         }
-        index = (int)container.size() + index;
+        index = sz + index;
     }
     LAX_LOG("list[%d] is peeked.", index);
-    return container[index];
+    return container.m_buffer[index];
 }
 
 void ObjList::set(int index, Value v)
 {
+    int sz = (int)container.size();
     if (index >= 0) {
-        if (index >= (int)container.size()) {
+        if (index >= sz) {
             throw std::runtime_error("Index is invalid.");
         }
     }
     else {
-        if (-index > (int)container.size()) {
+        if (-index > sz) {
             throw std::runtime_error("Index is invalid.");
         }
-        index = container.size() + index;
+        index = sz + index;
     }
-    container[index] = v;
+    container.m_buffer[index] = v;
 }
 
 static Value list_class_filled(ObjectFactory* factory, NativeClass* klass, int argc, Value* argv)

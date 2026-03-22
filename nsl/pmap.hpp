@@ -148,8 +148,7 @@ Entry* map<K,V>::findEntry(Entry* entries, size_t capacity, K& key) {
 template <typename K, typename V>
 bool pmap<K, V>::get(K key, V* value)
 {
-    if (m_count == 0)
-        return false;
+    // if (m_count == 0) return false;
 
     Entry* entry = findEntry(m_entries, m_capacity, key);
     if (!entry->key)
@@ -164,18 +163,17 @@ template <typename K, typename V>
 void pmap<K, V>::adjustCapacity(size_t capacity)
 {
     Entry* entries = ALLOCATE(Entry, capacity);
-    for (size_t i = 0; i < capacity; i++) {
-        entries[i].key = NULL;
-        entries[i].value = m_nil;
+    Entry *entry = NULL, *dest = NULL;
+    for (entry = entries; entry < entries + capacity; entry++) {
+        entry->key = NULL;
+        entry->value = m_nil;
     }
     //> re-hash
 
     //> resize-init-count
     m_count = 0;
     //< resize-init-count
-    Entry *entry = NULL, *dest = NULL;
-    for (size_t i = 0; i < m_capacity; i++) {
-        entry = &m_entries[i];
+    for (entry = m_entries; entry < m_entries + m_capacity; entry++) {
         if (!entry->key)
             continue;
 
@@ -243,8 +241,7 @@ bool pmap<K, V>::remove(K key)
 template <typename K, typename V>
 void pmap<K, V>::addAll(pmap<K, V>& from)
 {
-    for (size_t i = 0; i < from.m_capacity; i++) {
-        Entry* entry = &from.m_entries[i];
+    for (Entry* entry = from.m_entries; entry < from.m_entries + from.m_capacity; entry++) {
         if (entry->key) {
             set(entry->key, entry->value);
         }
@@ -255,8 +252,7 @@ void pmap<K, V>::addAll(pmap<K, V>& from)
 template <typename K, typename V>
 void pmap<K, V>::visit(std::function<void(V&)> callback)
 {
-    for (size_t i = 0; i < m_capacity; i++) {
-        Entry* entry = &m_entries[i];
+    for (Entry* entry = m_entries; entry < m_entries + m_capacity; entry++) {
         if (entry->key)
             callback(entry->value);
     }
@@ -264,8 +260,7 @@ void pmap<K, V>::visit(std::function<void(V&)> callback)
 template <typename K, typename V>
 void pmap<K, V>::iterate(std::function<void(K, V&)> callback)
 {
-    for (size_t i = 0; i < m_capacity; i++) {
-        Entry* entry = &m_entries[i];
+    for (Entry* entry = m_entries; entry < m_entries + m_capacity; entry++) {
         if (entry->key)
             callback(entry->key, entry->value);
     }

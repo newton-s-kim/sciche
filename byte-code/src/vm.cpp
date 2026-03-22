@@ -1285,7 +1285,7 @@ InterpretResult VM::run(void)
     (frame->function->chunk.constants.values[READ_SHORT()])
 */
 //> Closures read-constant
-#define READ_CONSTANT() (frame->closure->function->chunk.constants[READ_SHORT()])
+#define READ_CONSTANT() (frame->closure->function->chunk.constants.m_buffer[READ_SHORT()])
 //< Closures read-constant
 
 //< Calls and Functions run
@@ -1425,11 +1425,11 @@ InterpretResult VM::run(void)
         case OP_GET_GLOBAL: {
             uint16_t name = READ_SHORT();
             Value value;
-            if (globals.size() <= name || IS_UNDEF(globals[name])) {
+            if (globals.size() <= name || IS_UNDEF(globals.m_buffer[name])) {
                 runtimeError("Undefined variable '%s'.", compiler->undefinedSymbol(name).c_str());
                 return INTERPRET_RUNTIME_ERROR;
             }
-            value = globals[name];
+            value = globals.m_buffer[name];
             PUSH(value);
             break;
         }
@@ -1437,7 +1437,7 @@ InterpretResult VM::run(void)
             //> Global Variables interpret-define-global
         case OP_DEFINE_GLOBAL: {
             uint16_t name = READ_SHORT();
-            globals[name] = PEEK();
+            globals.m_buffer[name] = PEEK();
             DROP();
             break;
         }
@@ -1445,11 +1445,11 @@ InterpretResult VM::run(void)
             //> Global Variables interpret-set-global
         case OP_SET_GLOBAL: {
             uint16_t name = READ_SHORT();
-            if (globals.size() <= name || IS_UNDEF(globals[name])) {
+            if (globals.size() <= name || IS_UNDEF(globals.m_buffer[name])) {
                 runtimeError("Undefined variable '%s'.", compiler->undefinedSymbol(name).c_str());
                 return INTERPRET_RUNTIME_ERROR;
             }
-            globals[name] = PEEK();
+            globals.m_buffer[name] = PEEK();
             break;
         }
             //< Global Variables interpret-set-global

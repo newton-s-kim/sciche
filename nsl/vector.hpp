@@ -6,7 +6,7 @@ namespace nsl {
 #define VECTOR_STRIDE 32
 template <typename T>
 class vector {
-private:
+public:
     size_t m_capacity;
     size_t m_size;
     T* m_buffer;

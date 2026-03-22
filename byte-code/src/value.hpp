@@ -74,20 +74,36 @@ typedef uint64_t Value;
 //< obj-val
 //> value-to-num
 
+typedef union {
+    uint64_t bits64;
+    uint32_t bits32[2];
+    double num;
+} ValueDoubleBits;
+
 static inline double valueToNum(Value value)
 {
-    double num;
-    memcpy(&num, &value, sizeof(Value));
-    return num;
+    ValueDoubleBits data;
+    data.bits64 = value;
+    return data.num;
+    /*
+double num;
+memcpy(&num, &value, sizeof(Value));
+return num;
+*/
 }
 //< value-to-num
 //> num-to-value
 
 static inline Value numToValue(double num)
 {
-    Value value;
-    memcpy(&value, &num, sizeof(double));
-    return value;
+    ValueDoubleBits data;
+    data.num = num;
+    return data.bits64;
+    /*
+Value value;
+memcpy(&value, &num, sizeof(double));
+return value;
+*/
 }
 //< num-to-value
 
