@@ -219,7 +219,6 @@ public:
     std::string stringify(void);
     void blaken(void);
     Value add(Value v, ObjectFactory* factory, bool opposite = false);
-    uint32_t hashString(const char* str, size_t len);
 };
 //< obj-string
 //> Closures obj-upvalue

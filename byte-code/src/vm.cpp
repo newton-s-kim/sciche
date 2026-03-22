@@ -816,7 +816,7 @@ bool VM::invoke(ObjString* name, int argCount)
     else {
         Value result = 0;
         try {
-            result = primitive.call(this, receiver, name, argCount, thread->stackTop - argCount);
+            result = primitive.call(this, receiver, name->chars, argCount, thread->stackTop - argCount);
         }
         catch (std::exception& e) {
             runtimeError(e.what());

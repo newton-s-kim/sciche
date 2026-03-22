@@ -551,7 +551,7 @@ std::unordered_map<std::string_view, PrimitiveBoundProperty> s_bool_props = {
 };
 // clang-format on
 
-Value Primitive::call(ObjectFactory* factory, Value value, std::string name, int argc, Value* argv)
+Value Primitive::call(ObjectFactory* factory, Value value, const char* name, int argc, Value* argv)
 {
     Value ret = 0;
     std::unordered_map<std::string_view, PrimitiveBoundFn>::iterator it;
@@ -617,7 +617,7 @@ Value Primitive::call(ObjectFactory* factory, Value value, std::string name, int
     return ret;
 }
 
-Value Primitive::property(ObjectFactory* factory, Value value, std::string name)
+Value Primitive::property(ObjectFactory* factory, Value value, const char* name)
 {
     (void)factory;
     Value ret = 0;

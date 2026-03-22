@@ -11,8 +11,10 @@ ObjString::ObjString(std::string pChars) : Obj(OBJ_STRING)
 #endif
 }
 
-ObjString::~ObjString() {
-    if(chars) free((void*)chars);
+ObjString::~ObjString()
+{
+    if (chars)
+        free((void*)chars);
 }
 
 uint32_t ObjString::hashString(const char* str, size_t len)
