@@ -6,28 +6,30 @@
 
 namespace nsl {
 
-#define FIND_ENTRY(ret, es, cp, ky) { \
-        uint32_t index = (ky)->hash & ((cp) - 1); \
-        Entry* tombstone = NULL; \
-	Entry* enty = NULL; \
-        while (true) { \
-            enty = &(es)[index]; \
-            if (!enty->key) { \
-                if (enty->value == m_nil) { \
-                    ret = tombstone != NULL ? tombstone : enty; \
-                    break; \
-                } \
-                else { \
-                    if (tombstone == NULL) tombstone = enty; \
-                } \
-            } \
-            else if (enty->key == (ky)) { \
-                ret = enty; \
-                break; \
-            } \
-            index = (index + 1) & ((cp) - 1); \
-        } \
-}
+#define FIND_ENTRY(ret, es, cp, ky)                                                                                    \
+    {                                                                                                                  \
+        uint32_t index = (ky)->hash & ((cp) - 1);                                                                      \
+        Entry* tombstone = NULL;                                                                                       \
+        Entry* enty = NULL;                                                                                            \
+        while (true) {                                                                                                 \
+            enty = &(es)[index];                                                                                       \
+            if (!enty->key) {                                                                                          \
+                if (enty->value == m_nil) {                                                                            \
+                    ret = tombstone != NULL ? tombstone : enty;                                                        \
+                    break;                                                                                             \
+                }                                                                                                      \
+                else {                                                                                                 \
+                    if (tombstone == NULL)                                                                             \
+                        tombstone = enty;                                                                              \
+                }                                                                                                      \
+            }                                                                                                          \
+            else if (enty->key == (ky)) {                                                                              \
+                ret = enty;                                                                                            \
+                break;                                                                                                 \
+            }                                                                                                          \
+            index = (index + 1) & ((cp) - 1);                                                                          \
+        }                                                                                                              \
+    }
 
 template <typename K, typename V>
 class pmap {
@@ -52,7 +54,7 @@ private:
         Entry* tombstone = NULL;
 
         //< find-entry-tombstone
-	Entry* entry = NULL;
+        Entry* entry = NULL;
         while (true) {
             entry = &entries[index];
             /* Hash Tables find-entry < Hash Tables find-tombstone
@@ -171,7 +173,7 @@ void pmap<K, V>::adjustCapacity(size_t capacity)
     //> resize-init-count
     m_count = 0;
     //< resize-init-count
-    Entry* entry = NULL, *dest = NULL;
+    Entry *entry = NULL, *dest = NULL;
     for (size_t i = 0; i < m_capacity; i++) {
         entry = &m_entries[i];
         if (!entry->key)
