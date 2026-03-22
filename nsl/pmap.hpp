@@ -30,7 +30,7 @@ private:
 
         //< find-entry-tombstone
 	Entry* entry = NULL;
-        for (;;) {
+        while (true) {
             entry = &entries[index];
             /* Hash Tables find-entry < Hash Tables find-tombstone
                 if (entry->key == key || entry->key == NULL) {
@@ -139,9 +139,8 @@ template <typename K, typename V>
 void pmap<K, V>::adjustCapacity(size_t capacity)
 {
     Entry* entries = ALLOCATE(Entry, capacity);
-    memset((void*)entries, 0, sizeof(Entry) * capacity);
     for (size_t i = 0; i < capacity; i++) {
-        // entries[i].key = NULL;
+        entries[i].key = NULL;
         entries[i].value = m_nil;
     }
     //> re-hash
@@ -149,14 +148,18 @@ void pmap<K, V>::adjustCapacity(size_t capacity)
     //> resize-init-count
     m_count = 0;
     //< resize-init-count
+    Entry* entry = NULL, *dest = NULL;
     for (size_t i = 0; i < m_capacity; i++) {
-        Entry* entry = &m_entries[i];
+        entry = &m_entries[i];
         if (!entry->key)
             continue;
 
-        Entry* dest = findEntry(entries, capacity, entry->key);
+        dest = findEntry(entries, capacity, entry->key);
+	memcpy(dest, entry, sizeof(Entry));
+	/*
         dest->key = entry->key;
         dest->value = entry->value;
+	*/
         //> resize-increment-count
         m_count++;
         //< resize-increment-count
