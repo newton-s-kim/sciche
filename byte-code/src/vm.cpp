@@ -37,6 +37,7 @@
 #define DROP() (thread->stackTop--)
 #define PEEK() (*(thread->stackTop - 1))
 #define NPEEK(n) (*(thread->stackTop - 1 - n))
+#define IS_FALSEY(value) (IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value)))
 
 namespace sce {
 void VM::collect(size_t oldSize, size_t newSize)
@@ -2082,7 +2083,8 @@ InterpretResult VM::run(void)
         } //< Types of Values op-arithmetic
           //> Types of Values op-not
         case OP_NOT: {
-            bool v = isFalsey(POP());
+            Value b = POP();
+            bool v = IS_FALSEY(b);
             PUSH(BOOL_VAL(v));
             break;
             //< Types of Values op-not
@@ -2125,7 +2127,7 @@ InterpretResult VM::run(void)
                     if (isFalsey(PEEK())) ip += offset;
             */
             //> Calls and Functions jump-if-false
-            if (isFalsey(PEEK()))
+            if (IS_FALSEY(PEEK()))
                 frame->ip += offset;
             //< Calls and Functions jump-if-false
             break;
