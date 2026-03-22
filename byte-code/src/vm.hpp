@@ -114,7 +114,7 @@ private:
     std::unordered_map<size_t, std::string> undefined;
 
     ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
-    ObjClass* newClass(nsl::string name);
+    ObjClass* newClass(ObjString* name);
     ObjClosure* newClosure(ObjFunction* function);
     ObjInstance* newInstance(ObjClass* klass);
     ObjNative* newNative(NativeFn function);

@@ -123,6 +123,7 @@ void VM::blackenObject(Obj* object)
         //> Classes and Instances blacken-class
     case OBJ_CLASS: {
         ObjClass* klass = (ObjClass*)object;
+	markObject(klass->name);
         //> Methods and Initializers mark-methods
         klass->methods.visit([=](Value value) {
             markValue(value);
@@ -837,7 +838,7 @@ ObjBoundMethod* VM::newBoundMethod(Value receiver, ObjClosure* method)
 }
 //< Methods and Initializers new-bound-method
 //> Classes and Instances new-class
-ObjClass* VM::newClass(nsl::string name)
+ObjClass* VM::newClass(ObjString* name)
 {
     collect(0, sizeof(ObjClass));
     ObjClass* ret = new ObjClass(name);
@@ -1243,7 +1244,7 @@ void VM::defineMethod(ObjString* name)
     Value method = PEEK();
     ObjClass* klass = AS_CLASS(NPEEK(1));
     // TODO: pass nsl::string
-    klass->methods.set(name->chars, method);
+    klass->methods.set(name, method);
     DROP();
 }
 //< Methods and Initializers define-method
@@ -1472,7 +1473,7 @@ InterpretResult VM::run(void)
 
                 Value value;
                 // TODO: pass nsl::string
-                if (instance->fields.get(name->chars, &value)) {
+                if (instance->fields.get(name, &value)) {
                     DROP(); // Instance.
                     PUSH(value);
                     break;
@@ -1545,7 +1546,7 @@ InterpretResult VM::run(void)
             //< set-not-instance
             ObjInstance* instance = AS_INSTANCE(NPEEK(1));
             // TODO: pass nsl::string
-            instance->fields.set(READ_STRING()->chars, PEEK());
+            instance->fields.set(READ_STRING(), PEEK());
             Value value = POP();
             DROP();
             PUSH(value);
@@ -2242,7 +2243,7 @@ InterpretResult VM::run(void)
             //> Classes and Instances interpret-class
         case OP_CLASS:
             // TODO:should pass nsl::string
-            PUSH(OBJ_VAL(newClass(READ_STRING()->chars)));
+            PUSH(OBJ_VAL(newClass(READ_STRING())));
             break;
             //< Classes and Instances interpret-class
         case OP_LIST: {

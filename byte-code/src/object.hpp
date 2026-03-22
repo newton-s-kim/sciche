@@ -10,6 +10,7 @@
 // #include "table.hpp"
 //< Classes and Instances object-include-table
 #include "map.hpp"
+#include "pmap.hpp"
 #include "string.hpp"
 #include "value.hpp"
 #include "vector.hpp"
@@ -252,11 +253,11 @@ public:
 
 class ObjClass : public Obj {
 public:
-    nsl::string name;
+    ObjString* name;
     //> Methods and Initializers class-methods
-    nsl::map<ObjString*, Value> methods;
+    nsl::pmap<ObjString*, Value> methods;
     //< Methods and Initializers class-methods
-    ObjClass(nsl::string name);
+    ObjClass(ObjString* name);
     ~ObjClass();
     std::string stringify(void);
     void blaken(void);
@@ -267,7 +268,7 @@ public:
 class ObjInstance : public Obj {
 public:
     ObjClass* klass;
-    nsl::map<ObjString*, Value> fields; // [fields]
+    nsl::pmap<ObjString*, Value> fields; // [fields]
     ObjInstance(ObjClass* klass);
     ~ObjInstance();
     std::string stringify(void);
