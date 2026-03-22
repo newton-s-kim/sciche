@@ -178,11 +178,8 @@ void pmap<K, V>::adjustCapacity(size_t capacity)
             continue;
 
         dest = findEntry(entries, capacity, entry->key);
-	memcpy(dest, entry, sizeof(Entry));
-	/*
         dest->key = entry->key;
         dest->value = entry->value;
-	*/
         //> resize-increment-count
         m_count++;
         //< resize-increment-count
