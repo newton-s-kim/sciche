@@ -1100,7 +1100,7 @@ ObjString* VM::allocateString(std::string chars)
 /*
 ObjString* VM::newString(std::string& pchars)
 {
-    return newString(pnchars, pchars.size());
+    return newString(pchars, pchars.size());
 }
 */
 //< take-string
@@ -1243,7 +1243,7 @@ void VM::defineMethod(ObjString* name)
     Value method = PEEK();
     ObjClass* klass = AS_CLASS(NPEEK(1));
     // TODO: pass nsl::string
-    klass->methods.set(name->nchars, method);
+    klass->methods.set(name->chars, method);
     DROP();
 }
 //< Methods and Initializers define-method
@@ -1472,7 +1472,7 @@ InterpretResult VM::run(void)
 
                 Value value;
                 // TODO: pass nsl::string
-                if (instance->fields.get(name->nchars, &value)) {
+                if (instance->fields.get(name->chars, &value)) {
                     DROP(); // Instance.
                     PUSH(value);
                     break;
@@ -1545,7 +1545,7 @@ InterpretResult VM::run(void)
             //< set-not-instance
             ObjInstance* instance = AS_INSTANCE(NPEEK(1));
             // TODO: pass nsl::string
-            instance->fields.set(READ_STRING()->nchars, PEEK());
+            instance->fields.set(READ_STRING()->chars, PEEK());
             Value value = POP();
             DROP();
             PUSH(value);
@@ -1599,7 +1599,7 @@ InterpretResult VM::run(void)
                     if (IS_MAP(NPEEK(1))) {
                         ObjMap* map = AS_MAP(NPEEK(1));
                         try {
-                            value = map->get(index->nchars);
+                            value = map->get(index->chars);
                         }
                         catch (std::exception& e) {
                             runtimeError(e.what());

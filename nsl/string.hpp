@@ -122,15 +122,30 @@ bool basic_string<T>::operator==(const basic_string& str)
         return true;
     if (!str.m_str || !m_str)
         return false;
-    if (str.m_str->length != m_str->length)
+    LAX_LOG("%s vs %s", m_str->ptr, str.m_str->ptr);
+    if (m_str == str.m_str) {
+	    LAX_LOG("pointer match");
+        return true;
+    }
+    if (m_str->m_hash != str.m_str->m_hash) {
+	    LAX_LOG("hash mismatch");
         return false;
+    }
+    if (str.m_str->length != m_str->length) {
+	    LAX_LOG("length mismatch");
+        return false;
+    }
     char *p = m_str->ptr, *q = str.m_str->ptr;
-    while(p && q) {
-        if(p != q) return false;
+    while(*p && *q) {
+        if(*p != *q) {
+               LAX_LOG("%c vs %c", *p, *q);
+		return false;
+	}
 	p++;
 	q++;
     }
-    return (p || q) ? false : true;
+    LAX_LOG("%c vs %c", *p, *q);
+    return (*p || *q) ? false : true;
 }
 
 template <typename T>
