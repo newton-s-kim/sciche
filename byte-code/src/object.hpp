@@ -313,13 +313,13 @@ public:
 
 class ObjMap : public Obj {
 public:
-    nsl::map<nsl::string, Value> container;
+    nsl::pmap<ObjString*, Value> container;
     ObjMap();
     ~ObjMap();
     std::string stringify(void);
     void blaken(void);
-    Value get(nsl::string index);
-    void set(nsl::string index, Value v);
+    Value get(ObjString* index);
+    void set(ObjString* index, Value v);
 };
 
 class ObjCol : public Obj {

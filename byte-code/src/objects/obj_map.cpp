@@ -14,14 +14,14 @@ std::string ObjMap::stringify(void)
     bool is_first = true;
     std::stringstream ss;
     ss << "{";
-    container.iterate([&](nsl::string first, Value second) {
+    container.iterate([&](ObjString* first, Value second) {
         if (!is_first) {
             ss << ",";
         }
         else {
             is_first = false;
         }
-        ss << "\"" << first.c_str() << "\":";
+        ss << "\"" << first->chars << "\":";
         Value v = second;
         if (IS_NIL(v)) {
             ss << "nil";
@@ -49,7 +49,7 @@ void ObjMap::blaken(void)
 {
 }
 
-Value ObjMap::get(nsl::string index)
+Value ObjMap::get(ObjString* index)
 {
     Value v;
     if (!container.get(index, &v)) {
@@ -58,7 +58,7 @@ Value ObjMap::get(nsl::string index)
     return v;
 }
 
-void ObjMap::set(nsl::string index, Value value)
+void ObjMap::set(ObjString* index, Value value)
 {
     container.set(index, value);
 }

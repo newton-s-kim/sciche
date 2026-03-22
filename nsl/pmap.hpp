@@ -69,7 +69,7 @@ public:
     ~pmap();
     inline bool get(K key, V* value);
     inline bool set(K key, V value);
-    inline bool remove(K& key);
+    inline bool remove(K key);
     inline void addAll(pmap<K, V>& from);
     inline V& find(K& key);
     inline void visit(std::function<void(V&)> callback);
@@ -197,18 +197,18 @@ bool pmap<K, V>::set(K key, V value)
 //< table-set
 //> table-delete
 template <typename K, typename V>
-bool pmap<K, V>::remove(K& key)
+bool pmap<K, V>::remove(K key)
 {
     if (m_count == 0)
         return false;
 
     // Find the entry.
     Entry* entry = findEntry(m_entries, m_capacity, key);
-    if (entry->key.empty())
+    if (!entry->key)
         return false;
 
     // Place a tombstone in the entry.
-    entry->key.clear();
+    entry->key = NULL;
     entry->value = m_nil;
     return true;
 }

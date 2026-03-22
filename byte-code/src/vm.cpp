@@ -179,7 +179,8 @@ void VM::blackenObject(Obj* object)
     }
     case OBJ_MAP: {
         ObjMap* map = (ObjMap*)object;
-        map->container.visit([=](Value second) {
+        map->container.iterate([=](ObjString* key, Value second) {
+            markObject(key);
             markValue(second);
         });
         break;
@@ -1603,7 +1604,7 @@ InterpretResult VM::run(void)
                     if (IS_MAP(NPEEK(1))) {
                         ObjMap* map = AS_MAP(NPEEK(1));
                         try {
-                            value = map->get(index->chars);
+                            value = map->get(index);
                         }
                         catch (std::exception& e) {
                             runtimeError(e.what());
