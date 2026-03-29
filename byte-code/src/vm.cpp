@@ -687,7 +687,6 @@ bool VM::callValue(Value callee, int argCount)
             thread->stackTop[-argCount - 1] = OBJ_VAL(newInstance(klass));
             //> Methods and Initializers call-init
             Value initializer = klass->direct_methods[dictionary.identifyInit()];
-            // TODO: pass nsl::string
             if (!IS_UNDEF(initializer)) {
                 return call(AS_CLOSURE(initializer), argCount);
             }
@@ -757,7 +756,6 @@ bool VM::callValue(Value callee, int argCount)
 bool VM::invokeFromClass(ObjClass* klass, ObjString* name, int argCount)
 {
     Value method;
-    // TODO: pass nsl::string
     if (!klass->methods.get(name, &method)) {
         runtimeError("Undefined property '%s'.", name->chars);
         return false;
@@ -767,7 +765,6 @@ bool VM::invokeFromClass(ObjClass* klass, ObjString* name, int argCount)
 bool VM::invokeFromClass(ObjClass* klass, uint16_t name, int argCount)
 {
     Value method = klass->direct_methods[name];
-    // TODO: pass nsl::string
     if (IS_UNDEF(method)) {
         runtimeError("Undefined property '%s'.", dictionary.get(name));
         return false;
@@ -785,7 +782,6 @@ bool VM::invoke(uint16_t name, int argCount)
         //> invoke-field
 
         Value value = instance->direct_fields[name];
-        // TODO: pass nsl::string
         if (!IS_UNDEF(value)) {
             thread->stackTop[-argCount - 1] = value;
             return callValue(value, argCount);
@@ -822,7 +818,6 @@ bool VM::invoke(ObjString* name, int argCount)
         //> invoke-field
 
         Value value;
-        // TODO: pass nsl::string
         if (instance->fields.get(name, &value)) {
             thread->stackTop[-argCount - 1] = value;
             return callValue(value, argCount);
@@ -1238,7 +1233,6 @@ ObjComplex* VM::newComplex(const std::complex<double> v)
 bool VM::bindMethod(ObjClass* klass, ObjString* name)
 {
     Value method;
-    // TODO: pass nsl::string
     if (!klass->methods.get(name, &method)) {
         runtimeError("Undefined property '%s'.", name->chars);
         return false;
@@ -1310,7 +1304,6 @@ void VM::defineMethod(ObjString* name)
 {
     Value method = PEEK();
     ObjClass* klass = AS_CLASS(NPEEK(1));
-    // TODO: pass nsl::string
     klass->methods.set(name, method);
     DROP();
 }
@@ -1318,7 +1311,6 @@ void VM::defineMethod(uint16_t name)
 {
     Value method = PEEK();
     ObjClass* klass = AS_CLASS(NPEEK(1));
-    // TODO: pass nsl::string
     klass->direct_methods[name] = method;
     DROP();
 }
@@ -1546,7 +1538,6 @@ InterpretResult VM::run(void)
                 uint16_t name = READ_SHORT();
 
                 Value value;
-                // TODO: pass nsl::string
                 value = instance->direct_fields[name];
                 if (UNDEF_VAL != value) {
                     DROP(); // Instance.
@@ -1588,7 +1579,6 @@ InterpretResult VM::run(void)
                 ObjString* name = READ_STRING();
 
                 Value value;
-                // TODO: pass nsl::string
                 if (instance->fields.get(name, &value)) {
                     DROP(); // Instance.
                     PUSH(value);
@@ -1661,7 +1651,6 @@ InterpretResult VM::run(void)
 
             //< set-not-instance
             ObjInstance* instance = AS_INSTANCE(NPEEK(1));
-            // TODO: pass nsl::string
             instance->direct_fields[READ_SHORT()] = PEEK();
             Value value = POP();
             DROP();
@@ -1677,7 +1666,6 @@ InterpretResult VM::run(void)
 
             //< set-not-instance
             ObjInstance* instance = AS_INSTANCE(NPEEK(1));
-            // TODO: pass nsl::string
             instance->fields.set(READ_STRING(), PEEK());
             Value value = POP();
             DROP();
@@ -2394,7 +2382,6 @@ InterpretResult VM::run(void)
         }
             //> Classes and Instances interpret-class
         case OP_CLASS:
-            // TODO:should pass nsl::string
             PUSH(OBJ_VAL(newClass(READ_STRING())));
             break;
             //< Classes and Instances interpret-class
