@@ -684,15 +684,21 @@ bool VM::callValue(Value callee, int argCount)
             //< Methods and Initializers call-bound-method
             //> Classes and Instances call-class
         case OBJ_CLASS: {
+            Dictionary dct;
             ObjClass* klass = AS_CLASS(callee);
             thread->stackTop[-argCount - 1] = OBJ_VAL(newInstance(klass));
             //> Methods and Initializers call-init
-            Value initializer;
+            Value initializer = klass->direct_methods[dct.identifyInit()];
             // TODO: pass nsl::string
-            if (klass->methods.get(initString, &initializer)) {
+            if (!IS_UNDEF(initializer)) {
+                return call(AS_CLOSURE(initializer), argCount);
+            }
+            /*
+            else if (klass->methods.get(initString, &initializer)) {
                 return call(AS_CLOSURE(initializer), argCount);
                 //> no-init-arity-error
             }
+            */
             else if (argCount != 0) {
                 runtimeError("Expected 0 arguments but got %d.", argCount);
                 return false;

@@ -8,6 +8,7 @@
 //> debug-include-value
 #include "value.hpp"
 //< debug-include-value
+#include "dictionary.hpp"
 
 #define READ_ADDRESS() ((uint16_t)((chunk->code[offset + 1] << 8) | chunk->code[offset + 2]))
 
@@ -20,6 +21,18 @@ void Debug::disassembleChunk(Chunk* chunk, std::string name)
         offset = disassembleInstruction(chunk, offset);
     }
 }
+int Debug::constantInstructionDictionary(const char* name, Chunk* chunk, int offset)
+{
+    Dictionary dct;
+    uint16_t constant = READ_ADDRESS();
+    printf("%-16s %4d '", name, constant);
+    printf("%s", dct.get(constant));
+    printf("'\n");
+    //> return-after-operand
+    return offset + 3;
+    //< return-after-operand
+}
+
 //> constant-instruction
 int Debug::constantInstruction(const char* name, Chunk* chunk, int offset)
 {
@@ -35,6 +48,17 @@ int Debug::constantInstruction(const char* name, Chunk* chunk, int offset)
     //< return-after-operand
 }
 //< constant-instruction
+int Debug::invokeInstructionDictionary(const char* name, Chunk* chunk, int offset)
+{
+    Dictionary dct;
+    uint16_t constant = READ_ADDRESS();
+    uint8_t argCount = chunk->code[offset + 3];
+    printf("%-16s (%d args) %4d '", name, argCount, constant);
+    printf("%s", dct.get(constant));
+    printf("'\n");
+    return offset + 4;
+}
+
 //> Methods and Initializers invoke-instruction
 int Debug::invokeInstruction(const char* name, Chunk* chunk, int offset)
 {
@@ -135,11 +159,11 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
     case OP_GET_PROPERTY:
         return constantInstruction("OP_GET_PROPERTY", chunk, offset);
     case OP_GET_PROPERTY_DIRECT:
-        return constantInstruction("OP_GET_PROPERTY_DIRECT", chunk, offset);
+        return constantInstructionDictionary("OP_GET_PROPERTY_DIRECT", chunk, offset);
     case OP_SET_PROPERTY:
         return constantInstruction("OP_SET_PROPERTY", chunk, offset);
     case OP_SET_PROPERTY_DIRECT:
-        return constantInstruction("OP_SET_PROPERTY_DIRECT", chunk, offset);
+        return constantInstructionDictionary("OP_SET_PROPERTY_DIRECT", chunk, offset);
     case OP_GET_ELEMENT:
         return simpleInstruction("OP_GET_ELEMENT", offset);
     case OP_SET_ELEMENT:
@@ -149,7 +173,7 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
     case OP_GET_SUPER:
         return constantInstruction("OP_GET_SUPER", chunk, offset);
     case OP_GET_SUPER_DIRECT:
-        return constantInstruction("OP_GET_SUPER_DIRECT", chunk, offset);
+        return constantInstructionDictionary("OP_GET_SUPER_DIRECT", chunk, offset);
         //< Superclasses disassemble-get-super
         //> Types of Values disassemble-comparison
     case OP_EQUAL:
@@ -203,13 +227,13 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
     case OP_INVOKE:
         return invokeInstruction("OP_INVOKE", chunk, offset);
     case OP_INVOKE_DIRECT:
-        return invokeInstruction("OP_INVOKE_DIRECT", chunk, offset);
+        return invokeInstructionDictionary("OP_INVOKE_DIRECT", chunk, offset);
         //< Methods and Initializers disassemble-invoke
         //> Superclasses disassemble-super-invoke
     case OP_SUPER_INVOKE:
         return invokeInstruction("OP_SUPER_INVOKE", chunk, offset);
     case OP_SUPER_INVOKE_DIRECT:
-        return invokeInstruction("OP_SUPER_INVOKE_DIRECT", chunk, offset);
+        return invokeInstructionDictionary("OP_SUPER_INVOKE_DIRECT", chunk, offset);
         //< Superclasses disassemble-super-invoke
         //> Closures disassemble-closure
     case OP_CLOSURE: {
@@ -255,7 +279,7 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
     case OP_METHOD:
         return constantInstruction("OP_METHOD", chunk, offset);
     case OP_METHOD_DIRECT:
-        return constantInstruction("OP_METHOD_DIRECT", chunk, offset);
+        return constantInstructionDictionary("OP_METHOD_DIRECT", chunk, offset);
         //< Methods and Initializers disassemble-method
     default:
         printf("Unknown opcode %d\n", instruction);

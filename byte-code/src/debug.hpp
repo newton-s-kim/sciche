@@ -10,7 +10,9 @@ namespace sce {
 class Debug {
 private:
     int constantInstruction(const char* name, Chunk* chunk, int offset);
+    int constantInstructionDictionary(const char* name, Chunk* chunk, int offset);
     int invokeInstruction(const char* name, Chunk* chunk, int offset);
+    int invokeInstructionDictionary(const char* name, Chunk* chunk, int offset);
     int simpleInstruction(const char* name, int offset);
     int byteInstruction(const char* name, Chunk* chunk, int offset);
     int shortInstruction(const char* name, Chunk* chunk, int offset);

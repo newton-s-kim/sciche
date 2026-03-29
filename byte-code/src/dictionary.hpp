@@ -17,6 +17,7 @@ public:
     bool identify(const char* name, size_t length, uint16_t* address);
     const char* get(size_t index);
     size_t size(void);
+    size_t identifyInit(void);
 };
 
 int Dictionary::compare(const char* name, size_t ln, const char* reference, size_t lr)

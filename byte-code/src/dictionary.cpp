@@ -9,6 +9,7 @@ DictWord s_member_dictionary[] = {
 #include "members.dct"
 };
 
+#define INIT_DICTIONARY_OFFSET 13
 #define MEMBER_DICITONARY_SIZE (sizeof(s_member_dictionary) / sizeof(s_member_dictionary[0]))
 
 const char* Dictionary::get(size_t index)
@@ -42,6 +43,11 @@ bool Dictionary::identify(const char* name, size_t length, uint16_t* address)
             low = mid + 1;
     }
     return false;
+}
+
+size_t Dictionary::identifyInit(void)
+{
+    return INIT_DICTIONARY_OFFSET;
 }
 
 } // namespace sce
