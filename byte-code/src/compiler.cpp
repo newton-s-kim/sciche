@@ -1259,7 +1259,7 @@ void super_(bool canAssign, CompilerInterfaceConcrete* ci)
     Dictionary dct;
     bool found = dct.identify(ci->parser.previous.start, ci->parser.previous.length, &name);
     if (!found)
-        ci->identifierConstant(&ci->parser.previous);
+        name = ci->identifierConstant(&ci->parser.previous);
     //> super-get
 
     ci->namedVariable(ci->current->syntheticToken("this"), false);
