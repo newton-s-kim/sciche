@@ -686,8 +686,8 @@ bool VM::callValue(Value callee, int argCount)
             ObjClass* klass = AS_CLASS(callee);
             thread->stackTop[-argCount - 1] = OBJ_VAL(newInstance(klass));
             //> Methods and Initializers call-init
-            Value initializer = klass->direct_methods[dictionary.identifyInit()];
-            if (!IS_UNDEF(initializer)) {
+            Value initializer = klass->direct_methods[MEMBER_DICTIONARY_INIT_OFFSET];
+            if (initializer) {
                 return call(AS_CLOSURE(initializer), argCount);
             }
             /*
@@ -765,7 +765,7 @@ bool VM::invokeFromClass(ObjClass* klass, ObjString* name, int argCount)
 bool VM::invokeFromClass(ObjClass* klass, uint16_t name, int argCount)
 {
     Value method = klass->direct_methods[name];
-    if (IS_UNDEF(method)) {
+    if (0 == method) {
         runtimeError("Undefined property '%s'.", dictionary.get(name));
         return false;
     }
@@ -782,7 +782,7 @@ bool VM::invoke(uint16_t name, int argCount)
         //> invoke-field
 
         Value value = instance->direct_fields[name];
-        if (!IS_UNDEF(value)) {
+        if (value) {
             thread->stackTop[-argCount - 1] = value;
             return callValue(value, argCount);
         }
@@ -1246,7 +1246,7 @@ bool VM::bindMethod(ObjClass* klass, ObjString* name)
 bool VM::bindMethod(ObjClass* klass, uint16_t name)
 {
     Value method = klass->direct_methods[name];
-    if (IS_UNDEF(method)) {
+    if (0 == method) {
         runtimeError("Undefined property '%s'.", dictionary.get(name));
         return false;
     }
@@ -1539,7 +1539,7 @@ InterpretResult VM::run(void)
 
                 Value value;
                 value = instance->direct_fields[name];
-                if (UNDEF_VAL != value) {
+                if (value) {
                     DROP(); // Instance.
                     PUSH(value);
                     break;
@@ -2413,7 +2413,7 @@ InterpretResult VM::run(void)
             //< inherit-non-class
             ObjClass* subclass = AS_CLASS(PEEK());
             subclass->methods.addAll(AS_CLASS(superclass)->methods);
-            memcpy(subclass->direct_methods, AS_CLASS(superclass)->direct_methods, dictionary.size() * sizeof(Value));
+            memcpy(subclass->direct_methods, AS_CLASS(superclass)->direct_methods, MEMBER_DICITONARY_SIZE * sizeof(Value));
             DROP(); // Subclass.
             break;
         }

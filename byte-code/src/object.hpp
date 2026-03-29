@@ -15,6 +15,7 @@
 #include "value.hpp"
 #include "vector.hpp"
 //> obj-type-macro
+#include "dictionary.hpp"
 
 #include <armadillo>
 #include <complex>
@@ -256,7 +257,7 @@ public:
     ObjString* name;
     //> Methods and Initializers class-methods
     nsl::pmap<ObjString*, Value> methods;
-    Value* direct_methods;
+    Value direct_methods[MEMBER_DICITONARY_SIZE];
     //< Methods and Initializers class-methods
     ObjClass(ObjString* name);
     ~ObjClass();
@@ -270,7 +271,7 @@ class ObjInstance : public Obj {
 public:
     ObjClass* klass;
     nsl::pmap<ObjString*, Value> fields; // [fields]
-    Value* direct_fields;
+    Value direct_fields[MEMBER_DICITONARY_SIZE];
     ObjInstance(ObjClass* klass);
     ~ObjInstance();
     std::string stringify(void);

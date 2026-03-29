@@ -3,10 +3,8 @@
 #include <cstddef>
 #include <cstdint>
 
-typedef struct {
-    const char* name;
-    size_t length;
-} DictWord;
+#define MEMBER_DICTIONARY_INIT_OFFSET 13
+#define MEMBER_DICITONARY_SIZE 28
 
 namespace sce {
 class Dictionary {
@@ -16,8 +14,6 @@ private:
 public:
     bool identify(const char* name, size_t length, uint16_t* address);
     const char* get(size_t index);
-    size_t size(void);
-    size_t identifyInit(void);
 };
 
 int Dictionary::compare(const char* name, size_t ln, const char* reference, size_t lr)
