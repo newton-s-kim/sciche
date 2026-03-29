@@ -109,12 +109,75 @@ std::unordered_map<std::string_view, PrimitiveBoundFn> s_list_apis = {
     {"insert", list_insert},
 };
 
+PrimitiveBoundFn s_list_direct_apis[] = {
+    NULL, //abs
+    NULL, //activate
+    list_add, //add
+    NULL, //ceil
+    NULL, //check
+    list_clear, //clear
+    NULL, //col
+    list_contains, //contains
+    list_each, //each
+    NULL, //floor
+    NULL, //fraction
+    list_indexof, //indexOf
+    list_insert, //insert
+    NULL, //init
+    NULL, //randn
+    NULL, //remove
+    NULL, //resize
+    NULL, //round
+    NULL, //row
+    NULL, //rows
+    NULL, //set
+    NULL, //sign
+    NULL, //size
+    NULL, //slice
+    NULL, //t
+    NULL, //truncate
+    NULL, //value
+    NULL, //zeros
+};
+
 std::unordered_map<std::string_view, PrimitiveBoundProperty> s_list_props = {
     {"size", list_size},
 };
+
+PrimitiveBoundProperty s_list_direct_props[] = {
+    NULL, //abs
+    NULL, //activate
+    NULL, //add
+    NULL, //ceil
+    NULL, //check
+    NULL, //clear
+    NULL, //col
+    NULL, //contains
+    NULL, //each
+    NULL, //floor
+    NULL, //fraction
+    NULL, //indexOf
+    NULL, //insert
+    NULL, //init
+    NULL, //randn
+    NULL, //remove
+    NULL, //resize
+    NULL, //round
+    NULL, //row
+    NULL, //rows
+    NULL, //set
+    NULL, //sign
+    list_size, //size
+    NULL, //slice
+    NULL, //t
+    NULL, //truncate
+    NULL, //value
+    NULL, //zeros
+};
+
 // clang-format on
 
-static Value unordered_map_remove(ObjectFactory* factory, Value value, int argc, Value* argv)
+static Value map_remove(ObjectFactory* factory, Value value, int argc, Value* argv)
 {
     (void)factory;
     if (!IS_MAP(value))
@@ -128,7 +191,7 @@ static Value unordered_map_remove(ObjectFactory* factory, Value value, int argc,
     return NIL_VAL;
 }
 
-static Value unordered_map_size(ObjectFactory* factory, Value value)
+static Value map_size(ObjectFactory* factory, Value value)
 {
     (void)factory;
     if (!IS_MAP(value))
@@ -138,13 +201,76 @@ static Value unordered_map_size(ObjectFactory* factory, Value value)
 }
 
 // clang-format off
-std::unordered_map<std::string_view, PrimitiveBoundFn> s_unordered_map_apis = {
-    {"remove", unordered_map_remove}
+std::unordered_map<std::string_view, PrimitiveBoundFn> s_map_apis = {
+    {"remove", map_remove}
 };
 
-std::unordered_map<std::string_view, PrimitiveBoundProperty> s_unordered_map_props = {
-    {"size", unordered_map_size}
+PrimitiveBoundFn s_map_direct_apis[] = {
+    NULL, //abs
+    NULL, //activate
+    NULL, //add
+    NULL, //ceil
+    NULL, //check
+    NULL, //clear
+    NULL, //col
+    NULL, //contains
+    NULL, //each
+    NULL, //floor
+    NULL, //fraction
+    NULL, //indexOf
+    NULL, //insert
+    NULL, //init
+    NULL, //randn
+    map_remove, //remove
+    NULL, //resize
+    NULL, //round
+    NULL, //row
+    NULL, //rows
+    NULL, //set
+    NULL, //sign
+    NULL, //size
+    NULL, //slice
+    NULL, //t
+    NULL, //truncate
+    NULL, //value
+    NULL, //zeros
 };
+
+std::unordered_map<std::string_view, PrimitiveBoundProperty> s_map_props = {
+    {"size", map_size}
+};
+
+PrimitiveBoundProperty s_map_direct_props[] = {
+    NULL, //abs
+    NULL, //activate
+    NULL, //add
+    NULL, //ceil
+    NULL, //check
+    NULL, //clear
+    NULL, //col
+    NULL, //contains
+    NULL, //each
+    NULL, //floor
+    NULL, //fraction
+    NULL, //indexOf
+    NULL, //insert
+    NULL, //init
+    NULL, //randn
+    NULL, //remove
+    NULL, //resize
+    NULL, //round
+    NULL, //row
+    NULL, //rows
+    NULL, //set
+    NULL, //sign
+    map_size, //size
+    NULL, //slice
+    NULL, //t
+    NULL, //truncate
+    NULL, //value
+    NULL, //zeros
+};
+
 // clang-format on
 
 static Value col_size(ObjectFactory* factory, Value value)
@@ -231,9 +357,73 @@ std::unordered_map<std::string_view, PrimitiveBoundFn> s_col_apis = {
     {"t", col_transpose},
     {"randn", col_randn}
 };
+
+PrimitiveBoundFn s_col_direct_apis[] = {
+    NULL, //abs
+    NULL, //activate
+    col_add, //add
+    NULL, //ceil
+    NULL, //check
+    NULL, //clear
+    NULL, //col
+    NULL, //contains
+    NULL, //each
+    NULL, //floor
+    NULL, //fraction
+    NULL, //indexOf
+    NULL, //insert
+    NULL, //init
+    col_randn, //randn
+    NULL, //remove
+    col_resize, //resize
+    NULL, //round
+    NULL, //row
+    NULL, //rows
+    NULL, //set
+    NULL, //sign
+    NULL, //size
+    NULL, //slice
+    col_transpose, //t
+    NULL, //truncate
+    NULL, //value
+    col_zeros, //zeros
+};
+
 std::unordered_map<std::string_view, PrimitiveBoundProperty> s_col_props = {
     {"size", col_size}
 };
+
+PrimitiveBoundProperty s_col_direct_props[] = {
+    NULL, //abs
+    NULL, //activate
+    NULL, //add
+    NULL, //ceil
+    NULL, //check
+    NULL, //clear
+    NULL, //col
+    NULL, //contains
+    NULL, //each
+    NULL, //floor
+    NULL, //fraction
+    NULL, //indexOf
+    NULL, //insert
+    NULL, //init
+    NULL, //randn
+    NULL, //remove
+    NULL, //resize
+    NULL, //round
+    NULL, //row
+    NULL, //rows
+    NULL, //set
+    NULL, //sign
+    col_size, //size
+    NULL, //slice
+    NULL, //t
+    NULL, //truncate
+    NULL, //value
+    NULL, //zeros
+};
+
 // clang-format on
 
 static Value row_transpose(ObjectFactory* factory, Value value, int argc, Value* argv)
@@ -248,10 +438,76 @@ static Value row_transpose(ObjectFactory* factory, Value value, int argc, Value*
     return OBJ_VAL(col);
 }
 
+// clang-format off
 std::unordered_map<std::string_view, PrimitiveBoundFn> s_row_apis = {
     {"t", row_transpose},
 };
+
+PrimitiveBoundFn s_row_direct_apis[] = {
+    NULL, //abs
+    NULL, //activate
+    NULL, //add
+    NULL, //ceil
+    NULL, //check
+    NULL, //clear
+    NULL, //col
+    NULL, //contains
+    NULL, //each
+    NULL, //floor
+    NULL, //fraction
+    NULL, //indexOf
+    NULL, //insert
+    NULL, //init
+    NULL, //randn
+    NULL, //remove
+    NULL, //resize
+    NULL, //round
+    NULL, //row
+    NULL, //rows
+    NULL, //set
+    NULL, //sign
+    NULL, //size
+    NULL, //slice
+    row_transpose, //t
+    NULL, //truncate
+    NULL, //value
+    NULL, //zeros
+};
+
 std::unordered_map<std::string_view, PrimitiveBoundProperty> s_row_props = {};
+
+PrimitiveBoundProperty s_row_direct_props[] = {
+    NULL, //abs
+    NULL, //activate
+    NULL, //add
+    NULL, //ceil
+    NULL, //check
+    NULL, //clear
+    NULL, //col
+    NULL, //contains
+    NULL, //each
+    NULL, //floor
+    NULL, //fraction
+    NULL, //indexOf
+    NULL, //insert
+    NULL, //init
+    NULL, //randn
+    NULL, //remove
+    NULL, //resize
+    NULL, //round
+    NULL, //row
+    NULL, //rows
+    NULL, //set
+    NULL, //sign
+    NULL, //size
+    NULL, //slice
+    NULL, //t
+    NULL, //truncate
+    NULL, //value
+    NULL, //zeros
+};
+
+// clang-format off
 
 static Value mat_col(ObjectFactory* factory, Value value, int argc, Value* argv)
 {
@@ -414,9 +670,73 @@ std::unordered_map<std::string_view, PrimitiveBoundFn> s_mat_apis = {
     {"set", mat_set},
     {"t", mat_transpose}
 };
+
+PrimitiveBoundFn s_mat_direct_apis[] = {
+    NULL, //abs
+    NULL, //activate
+    NULL, //add
+    NULL, //ceil
+    NULL, //check
+    NULL, //clear
+    mat_col, //col
+    NULL, //contains
+    NULL, //each
+    NULL, //floor
+    NULL, //fraction
+    NULL, //indexOf
+    NULL, //insert
+    NULL, //init
+    NULL, //randn
+    NULL, //remove
+    NULL, //resize
+    NULL, //round
+    mat_row, //row
+    mat_rows, //rows
+    mat_set, //set
+    NULL, //sign
+    NULL, //size
+    NULL, //slice
+    mat_transpose, //t
+    NULL, //truncate
+    NULL, //value
+    NULL, //zeros
+};
+
 std::unordered_map<std::string_view, PrimitiveBoundProperty> s_mat_props = {
     {"abs", mat_abs}
 };
+
+PrimitiveBoundProperty s_mat_direct_props[] = {
+    mat_abs, //abs
+    NULL, //activate
+    NULL, //add
+    NULL, //ceil
+    NULL, //check
+    NULL, //clear
+    NULL, //col
+    NULL, //contains
+    NULL, //each
+    NULL, //floor
+    NULL, //fraction
+    NULL, //indexOf
+    NULL, //insert
+    NULL, //init
+    NULL, //randn
+    NULL, //remove
+    NULL, //resize
+    NULL, //round
+    NULL, //row
+    NULL, //rows
+    NULL, //set
+    NULL, //sign
+    NULL, //size
+    NULL, //slice
+    NULL, //t
+    NULL, //truncate
+    NULL, //value
+    NULL, //zeros
+};
+
 // clang-format on
 
 static Value cube_slice(ObjectFactory* factory, Value value, int argc, Value* argv)
@@ -451,8 +771,72 @@ static Value cube_slice(ObjectFactory* factory, Value value, int argc, Value* ar
 std::unordered_map<std::string_view, PrimitiveBoundFn> s_cube_apis = {
     {"slice", cube_slice}
 };
+
+PrimitiveBoundFn s_cube_direct_apis[] = {
+    NULL, //abs
+    NULL, //activate
+    NULL, //add
+    NULL, //ceil
+    NULL, //check
+    NULL, //clear
+    NULL, //col
+    NULL, //contains
+    NULL, //each
+    NULL, //floor
+    NULL, //fraction
+    NULL, //indexOf
+    NULL, //insert
+    NULL, //init
+    NULL, //randn
+    NULL, //remove
+    NULL, //resize
+    NULL, //round
+    NULL, //row
+    NULL, //rows
+    NULL, //set
+    NULL, //sign
+    NULL, //size
+    cube_slice, //slice
+    NULL, //t
+    NULL, //truncate
+    NULL, //value
+    NULL, //zeros
+};
+
 std::unordered_map<std::string_view, PrimitiveBoundProperty> s_cube_props = {
 };
+
+PrimitiveBoundProperty s_cube_direct_props[] = {
+    NULL, //abs
+    NULL, //activate
+    NULL, //add
+    NULL, //ceil
+    NULL, //check
+    NULL, //clear
+    NULL, //col
+    NULL, //contains
+    NULL, //each
+    NULL, //floor
+    NULL, //fraction
+    NULL, //indexOf
+    NULL, //insert
+    NULL, //init
+    NULL, //randn
+    NULL, //remove
+    NULL, //resize
+    NULL, //round
+    NULL, //row
+    NULL, //rows
+    NULL, //set
+    NULL, //sign
+    NULL, //size
+    NULL, //slice
+    NULL, //t
+    NULL, //truncate
+    NULL, //value
+    NULL, //zeros
+};
+
 // clang-format on
 
 static Value num_ceil(ObjectFactory* factory, Value value)
@@ -535,6 +919,37 @@ static Value num_truncate(ObjectFactory* factory, Value value)
 std::unordered_map<std::string_view, PrimitiveBoundFn> s_number_apis = {
 };
 
+PrimitiveBoundFn s_number_direct_apis[] = {
+    NULL, //abs
+    NULL, //activate
+    NULL, //add
+    NULL, //ceil
+    NULL, //check
+    NULL, //clear
+    NULL, //col
+    NULL, //contains
+    NULL, //each
+    NULL, //floor
+    NULL, //fraction
+    NULL, //indexOf
+    NULL, //insert
+    NULL, //init
+    NULL, //randn
+    NULL, //remove
+    NULL, //resize
+    NULL, //round
+    NULL, //row
+    NULL, //rows
+    NULL, //set
+    NULL, //sign
+    NULL, //size
+    NULL, //slice
+    NULL, //t
+    NULL, //truncate
+    NULL, //value
+    NULL, //zeros
+};
+
 std::unordered_map<std::string_view, PrimitiveBoundProperty> s_number_props = {
     {"ceil", num_ceil},
     {"floor", num_floor},
@@ -545,11 +960,172 @@ std::unordered_map<std::string_view, PrimitiveBoundProperty> s_number_props = {
     {"truncate", num_truncate}
 };
 
+PrimitiveBoundProperty s_number_direct_props[] = {
+    num_abs, //abs
+    NULL, //activate
+    NULL, //add
+    num_ceil, //ceil
+    NULL, //check
+    NULL, //clear
+    NULL, //col
+    NULL, //contains
+    NULL, //each
+    num_floor, //floor
+    num_fraction, //fraction
+    NULL, //indexOf
+    NULL, //insert
+    NULL, //init
+    NULL, //randn
+    NULL, //remove
+    NULL, //resize
+    num_round, //round
+    NULL, //row
+    NULL, //rows
+    NULL, //set
+    num_sign, //sign
+    NULL, //size
+    NULL, //slice
+    NULL, //t
+    num_truncate, //truncate
+    NULL, //value
+    NULL, //zeros
+};
+
 std::unordered_map<std::string_view, PrimitiveBoundFn> s_bool_apis = {
 };
+
+PrimitiveBoundFn s_bool_direct_apis[] = {
+    NULL, //abs
+    NULL, //activate
+    NULL, //add
+    NULL, //ceil
+    NULL, //check
+    NULL, //clear
+    NULL, //col
+    NULL, //contains
+    NULL, //each
+    NULL, //floor
+    NULL, //fraction
+    NULL, //indexOf
+    NULL, //insert
+    NULL, //init
+    NULL, //randn
+    NULL, //remove
+    NULL, //resize
+    NULL, //round
+    NULL, //row
+    NULL, //rows
+    NULL, //set
+    NULL, //sign
+    NULL, //size
+    NULL, //slice
+    NULL, //t
+    NULL, //truncate
+    NULL, //value
+    NULL, //zeros
+};
+
 std::unordered_map<std::string_view, PrimitiveBoundProperty> s_bool_props = {
 };
+
+PrimitiveBoundProperty s_bool_direct_props[] = {
+    NULL, //abs
+    NULL, //activate
+    NULL, //add
+    NULL, //ceil
+    NULL, //check
+    NULL, //clear
+    NULL, //col
+    NULL, //contains
+    NULL, //each
+    NULL, //floor
+    NULL, //fraction
+    NULL, //indexOf
+    NULL, //insert
+    NULL, //init
+    NULL, //randn
+    NULL, //remove
+    NULL, //resize
+    NULL, //round
+    NULL, //row
+    NULL, //rows
+    NULL, //set
+    NULL, //sign
+    NULL, //size
+    NULL, //slice
+    NULL, //t
+    NULL, //truncate
+    NULL, //value
+    NULL, //zeros
+};
+
 // clang-format on
+
+Value Primitive::call(ObjectFactory* factory, Value value, uint16_t name, int argc, Value* argv)
+{
+    Value ret = 0;
+    PrimitiveBoundFn f = NULL;
+    if (IS_NUMBER(value)) {
+        f = s_number_direct_apis[name];
+        if (f)
+            ret = f(factory, value, argc, argv);
+        else
+            throw std::runtime_error("The method does not exist in number.");
+    }
+    else if (IS_BOOL(value)) {
+        f = s_bool_direct_apis[name];
+        if (f)
+            ret = f(factory, value, argc, argv);
+        else
+            throw std::runtime_error("The method does not exist in bool.");
+    }
+    else if (IS_LIST(value)) {
+        f = s_list_direct_apis[name];
+        if (f)
+            ret = f(factory, value, argc, argv);
+        else
+            throw std::runtime_error("The method does not exist in List.");
+    }
+    else if (IS_MAP(value)) {
+        f = s_map_direct_apis[name];
+        if (f)
+            ret = f(factory, value, argc, argv);
+        else
+            throw std::runtime_error("The method does not exist in Map.");
+    }
+    else if (IS_COL(value)) {
+        f = s_col_direct_apis[name];
+        if (f)
+            ret = f(factory, value, argc, argv);
+        else
+            throw std::runtime_error("The method does not exist in vec.");
+    }
+    else if (IS_ROW(value)) {
+        f = s_row_direct_apis[name];
+        if (f)
+            ret = f(factory, value, argc, argv);
+        else
+            throw std::runtime_error("The method does not exist in rowvec.");
+    }
+    else if (IS_MAT(value)) {
+        f = s_mat_direct_apis[name];
+        if (f)
+            ret = f(factory, value, argc, argv);
+        else
+            throw std::runtime_error("The method does not exist in mat.");
+    }
+    else if (IS_CUBE(value)) {
+        f = s_cube_direct_apis[name];
+        if (f)
+            ret = f(factory, value, argc, argv);
+        else
+            throw std::runtime_error("The method does not exist in cube.");
+    }
+    else {
+        throw std::runtime_error("Only instances have methods.");
+    }
+    return ret;
+}
 
 Value Primitive::call(ObjectFactory* factory, Value value, const char* name, int argc, Value* argv)
 {
@@ -577,8 +1153,8 @@ Value Primitive::call(ObjectFactory* factory, Value value, const char* name, int
             throw std::runtime_error("The method does not exist in List.");
     }
     else if (IS_MAP(value)) {
-        it = s_unordered_map_apis.find(name);
-        if (it != s_unordered_map_apis.end())
+        it = s_map_apis.find(name);
+        if (it != s_map_apis.end())
             ret = it->second(factory, value, argc, argv);
         else
             throw std::runtime_error("The method does not exist in Map.");
@@ -617,6 +1193,72 @@ Value Primitive::call(ObjectFactory* factory, Value value, const char* name, int
     return ret;
 }
 
+Value Primitive::property(ObjectFactory* factory, Value value, uint16_t name)
+{
+    (void)factory;
+    Value ret = 0;
+    PrimitiveBoundProperty p = NULL;
+    if (IS_NUMBER(value)) {
+        p = s_number_direct_props[name];
+        if (p)
+            ret = p(factory, value);
+        else
+            throw std::runtime_error("The property does not exist in number.");
+    }
+    else if (IS_BOOL(value)) {
+        p = s_bool_direct_props[name];
+        if (p)
+            ret = p(factory, value);
+        else
+            throw std::runtime_error("The property does not exist in bool.");
+    }
+    else if (IS_LIST(value)) {
+        p = s_list_direct_props[name];
+        if (p)
+            ret = p(factory, value);
+        else
+            throw std::runtime_error("The property does not exist in List.");
+    }
+    else if (IS_MAP(value)) {
+        p = s_map_direct_props[name];
+        if (p)
+            ret = p(factory, value);
+        else
+            throw std::runtime_error("The property does not exist in Map.");
+    }
+    else if (IS_COL(value)) {
+        p = s_col_direct_props[name];
+        if (p)
+            ret = p(factory, value);
+        else
+            throw std::runtime_error("The property does not exist in vec.");
+    }
+    else if (IS_ROW(value)) {
+        p = s_row_direct_props[name];
+        if (p)
+            ret = p(factory, value);
+        else
+            throw std::runtime_error("The property does not exist in rowvec.");
+    }
+    else if (IS_MAT(value)) {
+        p = s_mat_direct_props[name];
+        if (p)
+            ret = p(factory, value);
+        else
+            throw std::runtime_error("The property does not exist in mat.");
+    }
+    else if (IS_CUBE(value)) {
+        p = s_cube_direct_props[name];
+        if (p)
+            ret = p(factory, value);
+        else
+            throw std::runtime_error("The property does not exist in cube.");
+    }
+    else {
+        throw std::runtime_error("Only instances have properties.");
+    }
+    return ret;
+}
 Value Primitive::property(ObjectFactory* factory, Value value, const char* name)
 {
     (void)factory;
@@ -644,8 +1286,8 @@ Value Primitive::property(ObjectFactory* factory, Value value, const char* name)
             throw std::runtime_error("The property does not exist in List.");
     }
     else if (IS_MAP(value)) {
-        it = s_unordered_map_props.find(name);
-        if (it != s_unordered_map_props.end())
+        it = s_map_props.find(name);
+        if (it != s_map_props.end())
             ret = it->second(factory, value);
         else
             throw std::runtime_error("The property does not exist in Map.");

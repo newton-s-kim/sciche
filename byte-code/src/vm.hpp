@@ -57,6 +57,7 @@ private:
     void runtimeError(const char* format, ...);
     bool call(ObjClosure* closure, int argCount);
     bool invokeFromClass(ObjClass* klass, ObjString* name, int argCount);
+    bool invokeFromClass(ObjClass* klass, uint16_t name, int argCount);
     inline Value peek(int distance)
     {
         return thread->stackTop[-1 - distance];
@@ -106,9 +107,12 @@ public:
 private:
     bool callValue(Value callee, int argCount);
     bool bindMethod(ObjClass* klass, ObjString* name);
+    bool bindMethod(ObjClass* klass, uint16_t name);
     InterpretResult run(void);
     bool invoke(ObjString* name, int argCount);
+    bool invoke(uint16_t name, int argCount);
     void defineMethod(ObjString* name);
+    void defineMethod(uint16_t name);
     void hack(bool b);
     //> Strings free-objects-h
     void freeObjects();

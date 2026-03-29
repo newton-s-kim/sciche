@@ -25,6 +25,8 @@ int Debug::constantInstruction(const char* name, Chunk* chunk, int offset)
 {
     uint16_t constant = READ_ADDRESS();
     printf("%-16s %4d '", name, constant);
+    LAX_LOG("chunk->constants.size()=%lu", chunk->constants.size());
+    LAX_LOG("constnt=%u", constant);
     ValueUtil util;
     util.print(chunk->constants[constant]);
     printf("'\n");
@@ -132,8 +134,12 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
         //> Classes and Instances disassemble-property-ops
     case OP_GET_PROPERTY:
         return constantInstruction("OP_GET_PROPERTY", chunk, offset);
+    case OP_GET_PROPERTY_DIRECT:
+        return constantInstruction("OP_GET_PROPERTY_DIRECT", chunk, offset);
     case OP_SET_PROPERTY:
         return constantInstruction("OP_SET_PROPERTY", chunk, offset);
+    case OP_SET_PROPERTY_DIRECT:
+        return constantInstruction("OP_SET_PROPERTY_DIRECT", chunk, offset);
     case OP_GET_ELEMENT:
         return simpleInstruction("OP_GET_ELEMENT", offset);
     case OP_SET_ELEMENT:
@@ -142,6 +148,8 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
         //> Superclasses disassemble-get-super
     case OP_GET_SUPER:
         return constantInstruction("OP_GET_SUPER", chunk, offset);
+    case OP_GET_SUPER_DIRECT:
+        return constantInstruction("OP_GET_SUPER_DIRECT", chunk, offset);
         //< Superclasses disassemble-get-super
         //> Types of Values disassemble-comparison
     case OP_EQUAL:
@@ -194,10 +202,14 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
         //> Methods and Initializers disassemble-invoke
     case OP_INVOKE:
         return invokeInstruction("OP_INVOKE", chunk, offset);
+    case OP_INVOKE_DIRECT:
+        return invokeInstruction("OP_INVOKE_DIRECT", chunk, offset);
         //< Methods and Initializers disassemble-invoke
         //> Superclasses disassemble-super-invoke
     case OP_SUPER_INVOKE:
         return invokeInstruction("OP_SUPER_INVOKE", chunk, offset);
+    case OP_SUPER_INVOKE_DIRECT:
+        return invokeInstruction("OP_SUPER_INVOKE_DIRECT", chunk, offset);
         //< Superclasses disassemble-super-invoke
         //> Closures disassemble-closure
     case OP_CLOSURE: {
@@ -242,6 +254,8 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
         //> Methods and Initializers disassemble-method
     case OP_METHOD:
         return constantInstruction("OP_METHOD", chunk, offset);
+    case OP_METHOD_DIRECT:
+        return constantInstruction("OP_METHOD_DIRECT", chunk, offset);
         //< Methods and Initializers disassemble-method
     default:
         printf("Unknown opcode %d\n", instruction);

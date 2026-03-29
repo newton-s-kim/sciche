@@ -22,6 +22,7 @@
 //> Strings vm-include-object-memory
 #include "object.hpp"
 //< Strings vm-include-object-memory
+#include "dictionary.hpp"
 #include "log.hpp"
 #include "vm.hpp"
 
@@ -759,8 +760,54 @@ bool VM::invokeFromClass(ObjClass* klass, ObjString* name, int argCount)
     }
     return call(AS_CLOSURE(method), argCount);
 }
+bool VM::invokeFromClass(ObjClass* klass, uint16_t name, int argCount)
+{
+    Value method = klass->direct_methods[name];
+    // TODO: pass nsl::string
+    if (IS_UNDEF(method)) {
+        Dictionary dct;
+        runtimeError("Undefined property '%s'.", dct.get(name));
+        return false;
+    }
+    return call(AS_CLOSURE(method), argCount);
+}
 //< Methods and Initializers invoke-from-class
 //> Methods and Initializers invoke
+bool VM::invoke(uint16_t name, int argCount)
+{
+    Value receiver = NPEEK(argCount);
+    if (IS_INSTANCE(receiver)) {
+        //< invoke-check-type
+        ObjInstance* instance = AS_INSTANCE(receiver);
+        //> invoke-field
+
+        Value value = instance->direct_fields[name];
+        // TODO: pass nsl::string
+        if (!IS_UNDEF(value)) {
+            thread->stackTop[-argCount - 1] = value;
+            return callValue(value, argCount);
+        }
+
+        //< invoke-field
+        return invokeFromClass(instance->klass, name, argCount);
+    }
+    else {
+        Value result = 0;
+        try {
+            result = primitive.call(this, receiver, name, argCount, thread->stackTop - argCount);
+        }
+        catch (std::exception& e) {
+            runtimeError(e.what());
+            return false;
+        }
+        for (int i = 0; i < argCount; i++)
+            DROP();
+        DROP();
+        PUSH(result);
+        return true;
+    }
+    return false;
+}
 bool VM::invoke(ObjString* name, int argCount)
 {
     Value receiver = NPEEK(argCount);
@@ -1199,6 +1246,20 @@ bool VM::bindMethod(ObjClass* klass, ObjString* name)
     PUSH(OBJ_VAL(bound));
     return true;
 }
+bool VM::bindMethod(ObjClass* klass, uint16_t name)
+{
+    Value method = klass->direct_methods[name];
+    if (IS_UNDEF(method)) {
+        Dictionary dct;
+        runtimeError("Undefined property '%s'.", dct.get(name));
+        return false;
+    }
+
+    ObjBoundMethod* bound = newBoundMethod(PEEK(), AS_CLOSURE(method));
+    DROP();
+    PUSH(OBJ_VAL(bound));
+    return true;
+}
 //< Methods and Initializers bind-method
 //> Closures capture-upvalue
 ObjUpvalue* VM::captureUpvalue(Value* local)
@@ -1249,6 +1310,14 @@ void VM::defineMethod(ObjString* name)
     ObjClass* klass = AS_CLASS(NPEEK(1));
     // TODO: pass nsl::string
     klass->methods.set(name, method);
+    DROP();
+}
+void VM::defineMethod(uint16_t name)
+{
+    Value method = PEEK();
+    ObjClass* klass = AS_CLASS(NPEEK(1));
+    // TODO: pass nsl::string
+    klass->direct_methods[name] = method;
     DROP();
 }
 //< Methods and Initializers define-method
@@ -1468,6 +1537,47 @@ InterpretResult VM::run(void)
         }
             //< Closures interpret-set-upvalue
             //> Classes and Instances interpret-get-property
+        case OP_GET_PROPERTY_DIRECT: {
+            if (IS_INSTANCE(PEEK())) {
+                //< get-not-instance
+                ObjInstance* instance = AS_INSTANCE(PEEK());
+                uint16_t name = READ_SHORT();
+
+                Value value;
+                // TODO: pass nsl::string
+                value = instance->direct_fields[name];
+                if (UNDEF_VAL != value) {
+                    DROP(); // Instance.
+                    PUSH(value);
+                    break;
+                }
+                //> get-undefined
+
+                //< get-undefined
+                /* Classes and Instances get-undefined < Methods and Initializers get-method
+                        runtimeError("Undefined property '%s'.", name->chars);
+                        return INTERPRET_RUNTIME_ERROR;
+                */
+                //> Methods and Initializers get-method
+                if (!bindMethod(instance->klass, name)) {
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+            }
+            else {
+                uint16_t name = READ_SHORT();
+                Value result = 0;
+                try {
+                    result = primitive.property(this, PEEK(), name);
+                    DROP();
+                    PUSH(result);
+                }
+                catch (std::exception& e) {
+                    runtimeError(e.what());
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+            }
+            break;
+        }
         case OP_GET_PROPERTY: {
             //> get-not-instance
             if (IS_INSTANCE(PEEK())) {
@@ -1540,6 +1650,22 @@ InterpretResult VM::run(void)
         }
             //< Classes and Instances interpret-get-property
             //> Classes and Instances interpret-set-property
+        case OP_SET_PROPERTY_DIRECT: {
+            //> set-not-instance
+            if (!IS_INSTANCE(NPEEK(1))) {
+                runtimeError("Only instances have fields.");
+                return INTERPRET_RUNTIME_ERROR;
+            }
+
+            //< set-not-instance
+            ObjInstance* instance = AS_INSTANCE(NPEEK(1));
+            // TODO: pass nsl::string
+            instance->direct_fields[READ_SHORT()] = PEEK();
+            Value value = POP();
+            DROP();
+            PUSH(value);
+            break;
+        }
         case OP_SET_PROPERTY: {
             //> set-not-instance
             if (!IS_INSTANCE(NPEEK(1))) {
@@ -2168,10 +2294,29 @@ InterpretResult VM::run(void)
             frame = &thread->frames[thread->frameCount - 1];
             break;
         }
+        case OP_INVOKE_DIRECT: {
+            uint16_t method = READ_SHORT();
+            int argCount = READ_BYTE();
+            if (!invoke(method, argCount)) {
+                return INTERPRET_RUNTIME_ERROR;
+            }
+            frame = &thread->frames[thread->frameCount - 1];
+            break;
+        }
             //< Methods and Initializers interpret-invoke
             //> Superclasses interpret-super-invoke
         case OP_SUPER_INVOKE: {
             ObjString* method = READ_STRING();
+            int argCount = READ_BYTE();
+            ObjClass* superclass = AS_CLASS(POP());
+            if (!invokeFromClass(superclass, method, argCount)) {
+                return INTERPRET_RUNTIME_ERROR;
+            }
+            frame = &thread->frames[thread->frameCount - 1];
+            break;
+        }
+        case OP_SUPER_INVOKE_DIRECT: {
+            uint16_t method = READ_SHORT();
             int argCount = READ_BYTE();
             ObjClass* superclass = AS_CLASS(POP());
             if (!invokeFromClass(superclass, method, argCount)) {
@@ -2286,6 +2431,9 @@ InterpretResult VM::run(void)
             //> Methods and Initializers interpret-method
         case OP_METHOD:
             defineMethod(READ_STRING());
+            break;
+        case OP_METHOD_DIRECT:
+            defineMethod(READ_SHORT());
             break;
             //< Methods and Initializers interpret-method
         }

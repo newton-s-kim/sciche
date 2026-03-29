@@ -5,6 +5,7 @@
 #include "table.hpp"
 #include "value.hpp"
 
+// TODO:to be removed
 namespace sce {
 bool Table::get(std::string& key, Value* value)
 {

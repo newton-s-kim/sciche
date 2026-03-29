@@ -44,12 +44,15 @@ typedef enum {
     //< Closures upvalue-ops
     //> Classes and Instances property-ops
     OP_GET_PROPERTY,
+    OP_GET_PROPERTY_DIRECT,
     OP_SET_PROPERTY,
+    OP_SET_PROPERTY_DIRECT,
     OP_GET_ELEMENT,
     OP_SET_ELEMENT,
     //< Classes and Instances property-ops
     //> Superclasses get-super-op
     OP_GET_SUPER,
+    OP_GET_SUPER_DIRECT,
     //< Superclasses get-super-op
     //> Types of Values comparison-ops
     OP_EQUAL,
@@ -87,9 +90,11 @@ typedef enum {
     //< Calls and Functions op-call
     //> Methods and Initializers invoke-op
     OP_INVOKE,
+    OP_INVOKE_DIRECT,
     //< Methods and Initializers invoke-op
     //> Superclasses super-invoke-op
     OP_SUPER_INVOKE,
+    OP_SUPER_INVOKE_DIRECT,
     //< Superclasses super-invoke-op
     //> Closures closure-op
     OP_CLOSURE,
@@ -107,7 +112,8 @@ typedef enum {
     OP_INHERIT,
     //< Superclasses inherit-op
     //> Methods and Initializers method-op
-    OP_METHOD
+    OP_METHOD,
+    OP_METHOD_DIRECT
     //< Methods and Initializers method-op
 } OpCode;
 //< op-enum
@@ -151,7 +157,7 @@ public:
 
 int Chunk::getLine(int pos)
 {
-    LAX_LOG("%d / %d", pos, capacity);
+    // LAX_LOG("%d / %d", pos, capacity);
     return lines[pos];
 }
 } // namespace sce

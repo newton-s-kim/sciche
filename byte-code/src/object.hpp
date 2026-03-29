@@ -256,6 +256,7 @@ public:
     ObjString* name;
     //> Methods and Initializers class-methods
     nsl::pmap<ObjString*, Value> methods;
+    Value* direct_methods;
     //< Methods and Initializers class-methods
     ObjClass(ObjString* name);
     ~ObjClass();
@@ -269,6 +270,7 @@ class ObjInstance : public Obj {
 public:
     ObjClass* klass;
     nsl::pmap<ObjString*, Value> fields; // [fields]
+    Value* direct_fields;
     ObjInstance(ObjClass* klass);
     ~ObjInstance();
     std::string stringify(void);

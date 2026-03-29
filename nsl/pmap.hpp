@@ -148,7 +148,8 @@ Entry* map<K,V>::findEntry(Entry* entries, size_t capacity, K& key) {
 template <typename K, typename V>
 bool pmap<K, V>::get(K key, V* value)
 {
-    // if (m_count == 0) return false;
+    if (m_count == 0)
+        return false;
 
     Entry* entry = findEntry(m_entries, m_capacity, key);
     if (!entry->key)

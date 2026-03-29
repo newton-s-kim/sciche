@@ -16,6 +16,7 @@
 #ifdef DEBUG_PRINT_CODE
 #include "debug.hpp"
 #endif
+#include "dictionary.hpp"
 
 #include <filesystem>
 
@@ -522,7 +523,11 @@ uint16_t CompilerInterfaceConcrete::makeConstant(Value value)
         parser.error("Too many constants in one chunk.");
         return 0;
     }
-
+#ifdef LAX_DEBUG
+    ValueUtil util;
+    util.print(value);
+#endif // LAX_DEBUG
+    LAX_LOG("last constnt=%u", (uint16_t)constant);
     return (uint16_t)constant;
 }
 //< Compiling Expressions make-constant
@@ -1021,21 +1026,28 @@ void map(bool canAssign, CompilerInterfaceConcrete* ci)
 void dot(bool canAssign, CompilerInterfaceConcrete* ci)
 {
     ci->parser.consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
-    uint16_t name = ci->identifierConstant(&ci->parser.previous);
+    uint16_t name = 0;
+    Dictionary dct;
+    bool found = dct.identify(ci->parser.previous.start, ci->parser.previous.length, &name);
+    if (!found)
+        name = ci->identifierConstant(&ci->parser.previous);
 
     if (canAssign && ci->parser.match(TOKEN_EQUAL)) {
+        uint8_t op = (found) ? OP_SET_PROPERTY_DIRECT : OP_SET_PROPERTY;
         ci->expression();
-        ci->emitShort(OP_SET_PROPERTY, name);
+        ci->emitShort(op, name);
         //> Methods and Initializers parse-call
     }
     else if (ci->parser.match(TOKEN_LEFT_PAREN)) {
         uint8_t argCount = ci->argumentList();
-        ci->emitShort(OP_INVOKE, name);
+        uint8_t op = (found) ? OP_INVOKE_DIRECT : OP_INVOKE;
+        ci->emitShort(op, name);
         ci->emitByte(argCount);
         //< Methods and Initializers parse-call
     }
     else {
-        ci->emitShort(OP_GET_PROPERTY, name);
+        uint8_t op = (found) ? OP_GET_PROPERTY_DIRECT : OP_GET_PROPERTY;
+        ci->emitShort(op, name);
     }
 }
 //< Classes and Instances compile-dot
@@ -1243,7 +1255,11 @@ void super_(bool canAssign, CompilerInterfaceConcrete* ci)
     //< super-errors
     ci->parser.consume(TOKEN_DOT, "Expect '.' after 'super'.");
     ci->parser.consume(TOKEN_IDENTIFIER, "Expect superclass method name.");
-    uint16_t name = ci->identifierConstant(&ci->parser.previous);
+    uint16_t name = 0;
+    Dictionary dct;
+    bool found = dct.identify(ci->parser.previous.start, ci->parser.previous.length, &name);
+    if (!found)
+        ci->identifierConstant(&ci->parser.previous);
     //> super-get
 
     ci->namedVariable(ci->current->syntheticToken("this"), false);
@@ -1255,13 +1271,15 @@ void super_(bool canAssign, CompilerInterfaceConcrete* ci)
     //> super-invoke
     if (ci->parser.match(TOKEN_LEFT_PAREN)) {
         uint8_t argCount = ci->argumentList();
+        uint8_t op = (found) ? OP_SUPER_INVOKE_DIRECT : OP_SUPER_INVOKE;
         ci->namedVariable(ci->current->syntheticToken("super"), false);
-        ci->emitShort(OP_SUPER_INVOKE, name);
+        ci->emitShort(op, name);
         ci->emitByte(argCount);
     }
     else {
+        uint8_t op = (found) ? OP_GET_SUPER_DIRECT : OP_GET_SUPER;
         ci->namedVariable(ci->current->syntheticToken("super"), false);
-        ci->emitShort(OP_GET_SUPER, name);
+        ci->emitShort(op, name);
     }
     //< super-invoke
 }
@@ -1554,7 +1572,11 @@ void CompilerInterfaceConcrete::function(FunctionType type)
 void CompilerInterfaceConcrete::method()
 {
     parser.consume(TOKEN_IDENTIFIER, "Expect method name.");
-    uint16_t constant = identifierConstant(&parser.previous);
+    uint16_t constant = 0;
+    Dictionary dct;
+    bool found = dct.identify(parser.previous.start, parser.previous.length, &constant);
+    if (!found)
+        constant = identifierConstant(&parser.previous);
     //> method-body
 
     //< method-body
@@ -1573,7 +1595,8 @@ void CompilerInterfaceConcrete::method()
     //> method-body
     function(type);
     //< method-body
-    emitShort(OP_METHOD, constant);
+    uint8_t op = (found) ? OP_METHOD_DIRECT : OP_METHOD;
+    emitShort(op, constant);
 }
 //< Methods and Initializers method
 //> Classes and Instances class-declaration
