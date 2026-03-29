@@ -2413,7 +2413,8 @@ InterpretResult VM::run(void)
             //< inherit-non-class
             ObjClass* subclass = AS_CLASS(PEEK());
             subclass->methods.addAll(AS_CLASS(superclass)->methods);
-            memcpy(subclass->direct_methods, AS_CLASS(superclass)->direct_methods, MEMBER_DICITONARY_SIZE * sizeof(Value));
+            memcpy(subclass->direct_methods, AS_CLASS(superclass)->direct_methods,
+                   MEMBER_DICITONARY_SIZE * sizeof(Value));
             DROP(); // Subclass.
             break;
         }
