@@ -22,7 +22,6 @@
 //> Strings vm-include-object-memory
 #include "object.hpp"
 //< Strings vm-include-object-memory
-#include "dictionary.hpp"
 #include "log.hpp"
 #include "vm.hpp"
 
@@ -684,11 +683,10 @@ bool VM::callValue(Value callee, int argCount)
             //< Methods and Initializers call-bound-method
             //> Classes and Instances call-class
         case OBJ_CLASS: {
-            Dictionary dct;
             ObjClass* klass = AS_CLASS(callee);
             thread->stackTop[-argCount - 1] = OBJ_VAL(newInstance(klass));
             //> Methods and Initializers call-init
-            Value initializer = klass->direct_methods[dct.identifyInit()];
+            Value initializer = klass->direct_methods[dictionary.identifyInit()];
             // TODO: pass nsl::string
             if (!IS_UNDEF(initializer)) {
                 return call(AS_CLOSURE(initializer), argCount);
@@ -771,8 +769,7 @@ bool VM::invokeFromClass(ObjClass* klass, uint16_t name, int argCount)
     Value method = klass->direct_methods[name];
     // TODO: pass nsl::string
     if (IS_UNDEF(method)) {
-        Dictionary dct;
-        runtimeError("Undefined property '%s'.", dct.get(name));
+        runtimeError("Undefined property '%s'.", dictionary.get(name));
         return false;
     }
     return call(AS_CLOSURE(method), argCount);
@@ -1256,8 +1253,7 @@ bool VM::bindMethod(ObjClass* klass, uint16_t name)
 {
     Value method = klass->direct_methods[name];
     if (IS_UNDEF(method)) {
-        Dictionary dct;
-        runtimeError("Undefined property '%s'.", dct.get(name));
+        runtimeError("Undefined property '%s'.", dictionary.get(name));
         return false;
     }
 
@@ -1382,8 +1378,8 @@ InterpretResult VM::run(void)
             runtimeError("Operands must be numbers.");                                                                 \
             return INTERPRET_RUNTIME_ERROR;                                                                            \
         }                                                                                                              \
-        double b = AS_NUMBER(pop());                                                                                   \
-        double a = AS_NUMBER(pop());                                                                                   \
+        double b = AS_NUMBER(POP());                                                                                   \
+        double a = AS_NUMBER(POP());                                                                                   \
         PUSH(valueType(a op b));                                                                                       \
     } while (false)
     //< Types of Values binary-op
@@ -2430,6 +2426,7 @@ InterpretResult VM::run(void)
             //< inherit-non-class
             ObjClass* subclass = AS_CLASS(PEEK());
             subclass->methods.addAll(AS_CLASS(superclass)->methods);
+            memcpy(subclass->direct_methods, AS_CLASS(superclass)->direct_methods, dictionary.size() * sizeof(Value));
             DROP(); // Subclass.
             break;
         }

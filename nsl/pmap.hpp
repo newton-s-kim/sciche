@@ -42,7 +42,7 @@ private:
         V value;
     } Entry;
     Entry* m_entries;
-    Entry* findEntry(Entry* entries, size_t capacity, K& key)
+    inline Entry* findEntry(Entry* entries, size_t capacity, K& key)
     {
         /* Hash Tables find-entry < Optimization initial-index
           uint32_t index = key->hash % capacity;

@@ -19,6 +19,7 @@
 #include "debug.hpp"
 #endif
 #include "compiler.hpp"
+#include "dictionary.hpp"
 #include "dl.hpp"
 #include "primitive.hpp"
 #include "timer.hpp"
@@ -138,6 +139,7 @@ private:
     void removeString(void);
     void collect(size_t oldSize, size_t newSize);
     std::unordered_map<std::string, dl*> m_dl;
+    Dictionary dictionary;
 
 public:
     //< Strings extern-vm
