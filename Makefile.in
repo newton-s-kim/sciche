@@ -22,6 +22,8 @@ prof:
 distclean:
 	rm Makefile
 	rm byte-code/src/common.hpp
+	rm byte-code/src/dictionary.hpp
+	rm byte-code/src/members.dct
 	rm -rf $(BUILD_DIR)
 	find test -name "*.gmon" -exec rm {} \;
 	find test -name "*.png" -exec rm {} \;

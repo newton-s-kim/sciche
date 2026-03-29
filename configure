@@ -75,6 +75,15 @@ function config_common_h() {
   echo "//< omit" >> $COMMON_H
 }
 
+function dictionary_h() {
+  MEMBERS_TXT=byte-code/src/members.txt
+  DICTIONARY_H=byte-code/src/dictionary.hpp
+  DICTIONARY_H_IN=${DICTIONARY_H}.in
+  SIZE=`cat $MEMBERS_TXT | wc -l`
+  INIT_POS=`grep -n init $MEMBERS_TXT | cut -d: -f1`
+  sed "s#@__init_pos__@#$(($INIT_POS - 1))#g;s#@__size__@#$SIZE#g" < $DICTIONARY_H_IN > $DICTIONARY_H
+}
+
 buildtype_mismatch() {
   if [ -f "$BUILD_TYPE_FILE_PATH" ]; then
     OLD_BUILD_TYPE=`cat $BUILD_TYPE_FILE_PATH`
@@ -86,6 +95,9 @@ buildtype_mismatch() {
 }
 
 config_common_h
+dictionary_h
+
+tool/mkdct.py byte-code/src/members.txt > byte-code/src/members.dct
 
 if [ $CLEAN_FORCED == "yes" ] || buildtype_mismatch ; then
   rm -rf "$BUILD"
