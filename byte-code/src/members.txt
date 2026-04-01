@@ -10,11 +10,13 @@ each
 floor
 fraction
 indexOf
-insert
 init
+insert
+left
 randn
 remove
 resize
+right
 round
 row
 rows

@@ -1,10 +1,14 @@
 #pragma once
 
+#include "common.hpp"
+
+#include "log.hpp"
+
 #include <cstddef>
 #include <cstdint>
 
 #define MEMBER_DICTIONARY_INIT_OFFSET @__init_pos__@
-#define MEMBER_DICITONARY_SIZE @__size__@
+#define MEMBER_DICTIONARY_SIZE @__size__@
 
 namespace sce {
 class Dictionary {

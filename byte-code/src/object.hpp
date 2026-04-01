@@ -257,7 +257,7 @@ public:
     ObjString* name;
     //> Methods and Initializers class-methods
     nsl::pmap<ObjString*, Value> methods;
-    Value direct_methods[MEMBER_DICITONARY_SIZE];
+    Value direct_methods[MEMBER_DICTIONARY_SIZE];
     //< Methods and Initializers class-methods
     ObjClass(ObjString* name);
     ~ObjClass();
@@ -271,7 +271,7 @@ class ObjInstance : public Obj {
 public:
     ObjClass* klass;
     nsl::pmap<ObjString*, Value> fields; // [fields]
-    Value direct_fields[MEMBER_DICITONARY_SIZE];
+    Value direct_fields[MEMBER_DICTIONARY_SIZE];
     ObjInstance(ObjClass* klass);
     ~ObjInstance();
     std::string stringify(void);
@@ -390,14 +390,18 @@ class NativeClass {
 protected:
     std::unordered_map<std::string_view, NativeClassBoundFn>& m_apis;
     std::unordered_map<std::string_view, NativeClassBoundProperty>& m_constants;
+    NativeClassBoundFn m_direct_apis[MEMBER_DICTIONARY_SIZE];
+    NativeClassBoundProperty m_direct_constants[MEMBER_DICTIONARY_SIZE];
 
 public:
     NativeClass(std::unordered_map<std::string_view, NativeClassBoundFn>& apis,
                 std::unordered_map<std::string_view, NativeClassBoundProperty>& constants);
     virtual ~NativeClass();
     Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
+    Value invoke(ObjectFactory* factory, uint16_t name, int argc, Value* argv);
     virtual Value call(ObjectFactory* factory, int argc, Value* argv);
     Value constant(ObjectFactory* factory, std::string name);
+    Value constant(ObjectFactory* factory, uint16_t name);
 };
 
 class ObjNativeClass : public Obj {
@@ -418,13 +422,17 @@ class NativeObject {
 protected:
     std::unordered_map<std::string_view, NativeObjectBoundFn>& m_apis;
     std::unordered_map<std::string_view, NativeObjectBoundProperty>& m_properties;
+    NativeObjectBoundFn m_direct_apis[MEMBER_DICTIONARY_SIZE];
+    NativeObjectBoundProperty m_direct_properties[MEMBER_DICTIONARY_SIZE];
 
 public:
     NativeObject(std::unordered_map<std::string_view, NativeObjectBoundFn>& apis,
                  std::unordered_map<std::string_view, NativeObjectBoundProperty>& properties);
     virtual ~NativeObject();
     Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
+    Value invoke(ObjectFactory* factory, uint16_t, int argc, Value* argv);
     Value property(ObjectFactory* factory, std::string name);
+    Value property(ObjectFactory* factory, uint16_t name);
 };
 
 class ObjNativeObject : public Obj {

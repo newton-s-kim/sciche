@@ -101,12 +101,6 @@ static Value list_insert(ObjectFactory* factory, Value value, int argc, Value* a
 
 // clang-format off
 std::unordered_map<std::string_view, PrimitiveBoundFn> s_list_apis = {
-    {"add", list_add},
-    {"each", list_each},
-    {"clear", list_clear},
-    {"indexOf", list_indexof},
-    {"contains", list_contains},
-    {"insert", list_insert},
 };
 
 PrimitiveBoundFn s_list_direct_apis[] = {
@@ -122,11 +116,13 @@ PrimitiveBoundFn s_list_direct_apis[] = {
     NULL, //floor
     NULL, //fraction
     list_indexof, //indexOf
-    list_insert, //insert
     NULL, //init
+    list_insert, //insert
+    NULL, //left
     NULL, //randn
     NULL, //remove
     NULL, //resize
+    NULL, //right
     NULL, //round
     NULL, //row
     NULL, //rows
@@ -141,7 +137,6 @@ PrimitiveBoundFn s_list_direct_apis[] = {
 };
 
 std::unordered_map<std::string_view, PrimitiveBoundProperty> s_list_props = {
-    {"size", list_size},
 };
 
 PrimitiveBoundProperty s_list_direct_props[] = {
@@ -157,11 +152,13 @@ PrimitiveBoundProperty s_list_direct_props[] = {
     NULL, //floor
     NULL, //fraction
     NULL, //indexOf
-    NULL, //insert
     NULL, //init
+    NULL, //insert
+    NULL, //left
     NULL, //randn
     NULL, //remove
     NULL, //resize
+    NULL, //right
     NULL, //round
     NULL, //row
     NULL, //rows
@@ -202,7 +199,6 @@ static Value map_size(ObjectFactory* factory, Value value)
 
 // clang-format off
 std::unordered_map<std::string_view, PrimitiveBoundFn> s_map_apis = {
-    {"remove", map_remove}
 };
 
 PrimitiveBoundFn s_map_direct_apis[] = {
@@ -218,11 +214,13 @@ PrimitiveBoundFn s_map_direct_apis[] = {
     NULL, //floor
     NULL, //fraction
     NULL, //indexOf
-    NULL, //insert
     NULL, //init
+    NULL, //insert
+    NULL, //left
     NULL, //randn
     map_remove, //remove
     NULL, //resize
+    NULL, //right
     NULL, //round
     NULL, //row
     NULL, //rows
@@ -237,7 +235,6 @@ PrimitiveBoundFn s_map_direct_apis[] = {
 };
 
 std::unordered_map<std::string_view, PrimitiveBoundProperty> s_map_props = {
-    {"size", map_size}
 };
 
 PrimitiveBoundProperty s_map_direct_props[] = {
@@ -253,11 +250,13 @@ PrimitiveBoundProperty s_map_direct_props[] = {
     NULL, //floor
     NULL, //fraction
     NULL, //indexOf
-    NULL, //insert
     NULL, //init
+    NULL, //insert
+    NULL, //left
     NULL, //randn
     NULL, //remove
     NULL, //resize
+    NULL, //right
     NULL, //round
     NULL, //row
     NULL, //rows
@@ -297,11 +296,9 @@ static Value col_resize(ObjectFactory* factory, Value value, int argc, Value* ar
     return NUMBER_VAL(0);
 }
 
-static Value col_zeros(ObjectFactory* factory, Value value, int argc, Value* argv)
+static Value col_zeros(ObjectFactory* factory, Value value)
 {
     (void)factory;
-    (void)argc;
-    (void)argv;
     if (!IS_COL(value))
         throw std::runtime_error("vector is expected.");
     ObjCol* col = AS_COL(value);
@@ -321,11 +318,9 @@ static Value col_transpose(ObjectFactory* factory, Value value, int argc, Value*
     return OBJ_VAL(row);
 }
 
-static Value col_randn(ObjectFactory* factory, Value value, int argc, Value* argv)
+static Value col_randn(ObjectFactory* factory, Value value)
 {
     (void)factory;
-    (void)argc;
-    (void)argv;
     if (!IS_COL(value))
         throw std::runtime_error("vector is expected.");
     ObjCol* col = AS_COL(value);
@@ -351,11 +346,6 @@ static Value col_add(ObjectFactory* factory, Value value, int argc, Value* argv)
 
 // clang-format off
 std::unordered_map<std::string_view, PrimitiveBoundFn> s_col_apis = {
-    {"resize", col_resize},
-    {"zeros", col_zeros},
-    {"add", col_add},
-    {"t", col_transpose},
-    {"randn", col_randn}
 };
 
 PrimitiveBoundFn s_col_direct_apis[] = {
@@ -371,11 +361,13 @@ PrimitiveBoundFn s_col_direct_apis[] = {
     NULL, //floor
     NULL, //fraction
     NULL, //indexOf
-    NULL, //insert
     NULL, //init
-    col_randn, //randn
+    NULL, //insert
+    NULL, //left
+    NULL, //randn
     NULL, //remove
     col_resize, //resize
+    NULL, //right
     NULL, //round
     NULL, //row
     NULL, //rows
@@ -386,11 +378,10 @@ PrimitiveBoundFn s_col_direct_apis[] = {
     col_transpose, //t
     NULL, //truncate
     NULL, //value
-    col_zeros, //zeros
+    NULL, //zeros
 };
 
 std::unordered_map<std::string_view, PrimitiveBoundProperty> s_col_props = {
-    {"size", col_size}
 };
 
 PrimitiveBoundProperty s_col_direct_props[] = {
@@ -406,11 +397,13 @@ PrimitiveBoundProperty s_col_direct_props[] = {
     NULL, //floor
     NULL, //fraction
     NULL, //indexOf
-    NULL, //insert
     NULL, //init
-    NULL, //randn
+    NULL, //insert
+    NULL, //left
+    col_randn, //randn
     NULL, //remove
     NULL, //resize
+    NULL, //right
     NULL, //round
     NULL, //row
     NULL, //rows
@@ -421,7 +414,7 @@ PrimitiveBoundProperty s_col_direct_props[] = {
     NULL, //t
     NULL, //truncate
     NULL, //value
-    NULL, //zeros
+    col_zeros, //zeros
 };
 
 // clang-format on
@@ -440,7 +433,6 @@ static Value row_transpose(ObjectFactory* factory, Value value, int argc, Value*
 
 // clang-format off
 std::unordered_map<std::string_view, PrimitiveBoundFn> s_row_apis = {
-    {"t", row_transpose},
 };
 
 PrimitiveBoundFn s_row_direct_apis[] = {
@@ -456,11 +448,13 @@ PrimitiveBoundFn s_row_direct_apis[] = {
     NULL, //floor
     NULL, //fraction
     NULL, //indexOf
-    NULL, //insert
     NULL, //init
+    NULL, //insert
+    NULL, //left
     NULL, //randn
     NULL, //remove
     NULL, //resize
+    NULL, //right
     NULL, //round
     NULL, //row
     NULL, //rows
@@ -489,11 +483,13 @@ PrimitiveBoundProperty s_row_direct_props[] = {
     NULL, //floor
     NULL, //fraction
     NULL, //indexOf
-    NULL, //insert
     NULL, //init
+    NULL, //insert
+    NULL, //left
     NULL, //randn
     NULL, //remove
     NULL, //resize
+    NULL, //right
     NULL, //round
     NULL, //row
     NULL, //rows
@@ -664,11 +660,6 @@ static Value mat_abs(ObjectFactory* factory, Value value)
 
 // clang-format off
 std::unordered_map<std::string_view, PrimitiveBoundFn> s_mat_apis = {
-    {"col", mat_col},
-    {"row", mat_row},
-    {"rows", mat_rows},
-    {"set", mat_set},
-    {"t", mat_transpose}
 };
 
 PrimitiveBoundFn s_mat_direct_apis[] = {
@@ -684,11 +675,13 @@ PrimitiveBoundFn s_mat_direct_apis[] = {
     NULL, //floor
     NULL, //fraction
     NULL, //indexOf
-    NULL, //insert
     NULL, //init
+    NULL, //insert
+    NULL, //left
     NULL, //randn
     NULL, //remove
     NULL, //resize
+    NULL, //right
     NULL, //round
     mat_row, //row
     mat_rows, //rows
@@ -703,7 +696,6 @@ PrimitiveBoundFn s_mat_direct_apis[] = {
 };
 
 std::unordered_map<std::string_view, PrimitiveBoundProperty> s_mat_props = {
-    {"abs", mat_abs}
 };
 
 PrimitiveBoundProperty s_mat_direct_props[] = {
@@ -719,11 +711,13 @@ PrimitiveBoundProperty s_mat_direct_props[] = {
     NULL, //floor
     NULL, //fraction
     NULL, //indexOf
-    NULL, //insert
     NULL, //init
+    NULL, //insert
+    NULL, //left
     NULL, //randn
     NULL, //remove
     NULL, //resize
+    NULL, //right
     NULL, //round
     NULL, //row
     NULL, //rows
@@ -769,7 +763,6 @@ static Value cube_slice(ObjectFactory* factory, Value value, int argc, Value* ar
 
 // clang-format off
 std::unordered_map<std::string_view, PrimitiveBoundFn> s_cube_apis = {
-    {"slice", cube_slice}
 };
 
 PrimitiveBoundFn s_cube_direct_apis[] = {
@@ -785,11 +778,13 @@ PrimitiveBoundFn s_cube_direct_apis[] = {
     NULL, //floor
     NULL, //fraction
     NULL, //indexOf
-    NULL, //insert
     NULL, //init
+    NULL, //insert
+    NULL, //left
     NULL, //randn
     NULL, //remove
     NULL, //resize
+    NULL, //right
     NULL, //round
     NULL, //row
     NULL, //rows
@@ -819,11 +814,13 @@ PrimitiveBoundProperty s_cube_direct_props[] = {
     NULL, //floor
     NULL, //fraction
     NULL, //indexOf
-    NULL, //insert
     NULL, //init
+    NULL, //insert
+    NULL, //left
     NULL, //randn
     NULL, //remove
     NULL, //resize
+    NULL, //right
     NULL, //round
     NULL, //row
     NULL, //rows
@@ -932,11 +929,13 @@ PrimitiveBoundFn s_number_direct_apis[] = {
     NULL, //floor
     NULL, //fraction
     NULL, //indexOf
-    NULL, //insert
     NULL, //init
+    NULL, //insert
+    NULL, //left
     NULL, //randn
     NULL, //remove
     NULL, //resize
+    NULL, //right
     NULL, //round
     NULL, //row
     NULL, //rows
@@ -951,13 +950,6 @@ PrimitiveBoundFn s_number_direct_apis[] = {
 };
 
 std::unordered_map<std::string_view, PrimitiveBoundProperty> s_number_props = {
-    {"ceil", num_ceil},
-    {"floor", num_floor},
-    {"round", num_round},
-    {"fraction", num_fraction},
-    {"sign", num_sign},
-    {"abs", num_abs},
-    {"truncate", num_truncate}
 };
 
 PrimitiveBoundProperty s_number_direct_props[] = {
@@ -973,11 +965,13 @@ PrimitiveBoundProperty s_number_direct_props[] = {
     num_floor, //floor
     num_fraction, //fraction
     NULL, //indexOf
-    NULL, //insert
     NULL, //init
+    NULL, //insert
+    NULL, //left
     NULL, //randn
     NULL, //remove
     NULL, //resize
+    NULL, //right
     num_round, //round
     NULL, //row
     NULL, //rows
@@ -1007,11 +1001,13 @@ PrimitiveBoundFn s_bool_direct_apis[] = {
     NULL, //floor
     NULL, //fraction
     NULL, //indexOf
-    NULL, //insert
     NULL, //init
+    NULL, //insert
+    NULL, //left
     NULL, //randn
     NULL, //remove
     NULL, //resize
+    NULL, //right
     NULL, //round
     NULL, //row
     NULL, //rows
@@ -1041,11 +1037,13 @@ PrimitiveBoundProperty s_bool_direct_props[] = {
     NULL, //floor
     NULL, //fraction
     NULL, //indexOf
-    NULL, //insert
     NULL, //init
+    NULL, //insert
+    NULL, //left
     NULL, //randn
     NULL, //remove
     NULL, //resize
+    NULL, //right
     NULL, //round
     NULL, //row
     NULL, //rows

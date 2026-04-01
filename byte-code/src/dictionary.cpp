@@ -1,9 +1,5 @@
 #include "dictionary.hpp"
 
-#include "common.hpp"
-
-#include "log.hpp"
-
 namespace sce {
 
 typedef struct {
@@ -23,11 +19,15 @@ const char* Dictionary::get(size_t index)
 bool Dictionary::identify(const char* name, size_t length, uint16_t* address)
 {
     // LAX_LOG("size=%ld", MEMBER_DICITONARY_SIZE);
+#ifdef LAX_DEBUG
+    std::string str(name, length);
+    LAX_LOG("looking for %s", str.c_str());
+#endif // LAX_DEBUG
     int low = 0;
-    int high = MEMBER_DICITONARY_SIZE - 1;
+    int high = MEMBER_DICTIONARY_SIZE - 1;
     while (low <= high) {
         int mid = low + (high - low) / 2;
-        // LAX_LOG("mid=%d", mid);
+        LAX_LOG("mid=%d", mid);
         DictWord* dct = s_member_dictionary + mid;
         int cmp = compare(name, length, dct->name, dct->length);
         if (0 == cmp) {
@@ -36,9 +36,9 @@ bool Dictionary::identify(const char* name, size_t length, uint16_t* address)
             return true;
         }
         if (0 < cmp)
-            high = mid - 1;
-        if (0 > cmp)
             low = mid + 1;
+        if (0 > cmp)
+            high = mid - 1;
     }
     return false;
 }

@@ -790,6 +790,38 @@ bool VM::invoke(uint16_t name, int argCount)
         //< invoke-field
         return invokeFromClass(instance->klass, name, argCount);
     }
+    else if (IS_NATIVE_CLASS(receiver)) {
+        ObjNativeClass* klass = AS_NATIVE_CLASS(receiver);
+        Value result = 0;
+        try {
+            result = klass->klass->invoke(this, name, argCount, thread->stackTop - argCount);
+        }
+        catch (std::exception& e) {
+            runtimeError(e.what());
+            return false;
+        }
+        for (int i = 0; i < argCount; i++)
+            DROP();
+        DROP();
+        PUSH(result);
+        return true;
+    }
+    else if (IS_NATIVE_OBJECT(receiver)) {
+        ObjNativeObject* nobj = AS_NATIVE_OBJECT(receiver);
+        Value result = 0;
+        try {
+            result = nobj->object->invoke(this, name, argCount, thread->stackTop - argCount);
+        }
+        catch (std::exception& e) {
+            runtimeError(e.what());
+            return false;
+        }
+        for (int i = 0; i < argCount; i++)
+            DROP();
+        DROP();
+        PUSH(result);
+        return true;
+    }
     else {
         Value result = 0;
         try {
@@ -1553,6 +1585,34 @@ InterpretResult VM::run(void)
                 */
                 //> Methods and Initializers get-method
                 if (!bindMethod(instance->klass, name)) {
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+            }
+            else if (IS_NATIVE_CLASS(PEEK())) {
+                ObjNativeClass* klass = AS_NATIVE_CLASS(PEEK());
+                uint16_t name = READ_SHORT();
+                Value result = 0;
+                try {
+                    result = klass->klass->constant(this, name);
+                    DROP();
+                    PUSH(result);
+                }
+                catch (std::exception& e) {
+                    runtimeError(e.what());
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+            }
+            else if (IS_NATIVE_OBJECT(PEEK())) {
+                ObjNativeObject* nobj = AS_NATIVE_OBJECT(PEEK());
+                uint16_t name = READ_SHORT();
+                Value result = 0;
+                try {
+                    result = nobj->object->property(this, name);
+                    DROP();
+                    PUSH(result);
+                }
+                catch (std::exception& e) {
+                    runtimeError(e.what());
                     return INTERPRET_RUNTIME_ERROR;
                 }
             }
@@ -2414,7 +2474,7 @@ InterpretResult VM::run(void)
             ObjClass* subclass = AS_CLASS(PEEK());
             subclass->methods.addAll(AS_CLASS(superclass)->methods);
             memcpy(subclass->direct_methods, AS_CLASS(superclass)->direct_methods,
-                   MEMBER_DICITONARY_SIZE * sizeof(Value));
+                   MEMBER_DICTIONARY_SIZE * sizeof(Value));
             DROP(); // Subclass.
             break;
         }

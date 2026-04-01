@@ -6,20 +6,20 @@ class Tree {
     if (depth > 0) {
       var item2 = item + item;
       depth = depth - 1;
-      this._left = Tree(item2 - 1, depth);
-      this._right = Tree(item2, depth);
+      this.left = Tree(item2 - 1, depth);
+      this.right = Tree(item2, depth);
     } else {
-      this._left = nil;
-      this._right = nil;
+      this.left = nil;
+      this.right = nil;
     }
   }
 
   check() {
-    if (this._left == nil) {
+    if (this.left == nil) {
       return this._item;
     }
 
-    return this._item + this._left.check() - this._right.check();
+    return this._item + this.left.check() - this.right.check();
   }
 }
 
