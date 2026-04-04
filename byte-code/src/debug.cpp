@@ -39,7 +39,7 @@ int Debug::constantInstruction(const char* name, Chunk* chunk, int offset)
     uint16_t constant = READ_ADDRESS();
     printf("%-16s %4d '", name, constant);
     LAX_LOG("chunk->constants.size()=%lu", chunk->constants.size());
-    LAX_LOG("constnt=%u", constant);
+    LAX_LOG("constant=%u", constant);
     ValueUtil util;
     util.print(chunk->constants[constant]);
     printf("'\n");
@@ -133,9 +133,9 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
         //< Global Variables disassemble-pop
         //> Local Variables disassemble-local
     case OP_GET_LOCAL:
-        return byteInstruction("OP_GET_LOCAL", chunk, offset);
+        return shortInstruction("OP_GET_LOCAL", chunk, offset);
     case OP_SET_LOCAL:
-        return byteInstruction("OP_SET_LOCAL", chunk, offset);
+        return shortInstruction("OP_SET_LOCAL", chunk, offset);
         //< Local Variables disassemble-local
         //> Global Variables disassemble-get-global
     case OP_GET_GLOBAL:
@@ -151,9 +151,9 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
         //< Global Variables disassemble-set-global
         //> Closures disassemble-upvalue-ops
     case OP_GET_UPVALUE:
-        return byteInstruction("OP_GET_UPVALUE", chunk, offset);
+        return shortInstruction("OP_GET_UPVALUE", chunk, offset);
     case OP_SET_UPVALUE:
-        return byteInstruction("OP_SET_UPVALUE", chunk, offset);
+        return shortInstruction("OP_SET_UPVALUE", chunk, offset);
         //< Closures disassemble-upvalue-ops
         //> Classes and Instances disassemble-property-ops
     case OP_GET_PROPERTY:
