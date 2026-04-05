@@ -15,7 +15,6 @@
 #include "value.hpp"
 #include "vector.hpp"
 //> obj-type-macro
-#include "dictionary.hpp"
 
 #include <armadillo>
 #include <complex>
@@ -257,7 +256,7 @@ public:
     ObjString* name;
     //> Methods and Initializers class-methods
     nsl::pmap<ObjString*, Value> methods;
-    Value direct_methods[MEMBER_DICTIONARY_SIZE];
+    nsl::vector<Value> direct_methods;
     //< Methods and Initializers class-methods
     ObjClass(ObjString* name);
     ~ObjClass();
@@ -271,7 +270,7 @@ class ObjInstance : public Obj {
 public:
     ObjClass* klass;
     nsl::pmap<ObjString*, Value> fields; // [fields]
-    Value direct_fields[MEMBER_DICTIONARY_SIZE];
+    nsl::vector<Value> direct_fields;
     ObjInstance(ObjClass* klass);
     ~ObjInstance();
     std::string stringify(void);
@@ -390,8 +389,8 @@ class NativeClass {
 protected:
     std::unordered_map<std::string_view, NativeClassBoundFn>& m_apis;
     std::unordered_map<std::string_view, NativeClassBoundProperty>& m_constants;
-    NativeClassBoundFn m_direct_apis[MEMBER_DICTIONARY_SIZE];
-    NativeClassBoundProperty m_direct_constants[MEMBER_DICTIONARY_SIZE];
+    nsl::vector<NativeClassBoundFn> m_direct_apis;
+    nsl::vector<NativeClassBoundProperty> m_direct_constants;
 
 public:
     NativeClass(std::unordered_map<std::string_view, NativeClassBoundFn>& apis,
@@ -422,8 +421,8 @@ class NativeObject {
 protected:
     std::unordered_map<std::string_view, NativeObjectBoundFn>& m_apis;
     std::unordered_map<std::string_view, NativeObjectBoundProperty>& m_properties;
-    NativeObjectBoundFn m_direct_apis[MEMBER_DICTIONARY_SIZE];
-    NativeObjectBoundProperty m_direct_properties[MEMBER_DICTIONARY_SIZE];
+    nsl::vector<NativeObjectBoundFn> m_direct_apis;
+    nsl::vector<NativeObjectBoundProperty> m_direct_properties;
 
 public:
     NativeObject(std::unordered_map<std::string_view, NativeObjectBoundFn>& apis,

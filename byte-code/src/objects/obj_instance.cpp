@@ -6,7 +6,6 @@ namespace sce {
 ObjInstance::ObjInstance(ObjClass* pKlass) : Obj(OBJ_INSTANCE), klass(pKlass), fields(NIL_VAL)
 {
     // TODO:performance sensitive path
-    memset(direct_fields, 0, MEMBER_DICTIONARY_SIZE * sizeof(Value));
 #ifdef DEBUG_LOG_GC
     printf("%p allocate %zu for %d\n", (void*)this, sizeof(ObjInstance), type);
 #endif

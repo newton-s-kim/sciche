@@ -5,8 +5,6 @@ NativeObject::NativeObject(std::unordered_map<std::string_view, NativeObjectBoun
                            std::unordered_map<std::string_view, NativeObjectBoundProperty>& properties)
     : m_apis(apis), m_properties(properties)
 {
-    memset(m_direct_apis, 0, sizeof(NativeObjectBoundFn) * MEMBER_DICTIONARY_SIZE);
-    memset(m_direct_properties, 0, sizeof(NativeObjectBoundProperty) * MEMBER_DICTIONARY_SIZE);
 }
 
 NativeObject::~NativeObject()
@@ -23,6 +21,8 @@ Value NativeObject::invoke(ObjectFactory* factory, std::string name, int argc, V
 
 Value NativeObject::invoke(ObjectFactory* factory, uint16_t name, int argc, Value* argv)
 {
+    if (m_direct_apis.size() <= name)
+        throw std::runtime_error("invalid method");
     NativeObjectBoundFn f = m_direct_apis[name];
     if (NULL == f)
         throw std::runtime_error("invalid method");
@@ -39,6 +39,8 @@ Value NativeObject::property(ObjectFactory* factory, std::string name)
 
 Value NativeObject::property(ObjectFactory* factory, uint16_t name)
 {
+    if (m_direct_properties.size() <= name)
+        throw std::runtime_error("invalid property");
     NativeObjectBoundProperty p = m_direct_properties[name];
     if (NULL == p)
         throw std::runtime_error("invalid property");

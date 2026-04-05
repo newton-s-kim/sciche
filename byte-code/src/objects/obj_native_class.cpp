@@ -1,5 +1,7 @@
 #include "object.hpp"
 
+#include "dictionary.hpp"
+
 namespace sce {
 NativeClass::NativeClass(std::unordered_map<std::string_view, NativeClassBoundFn>& apis,
                          std::unordered_map<std::string_view, NativeClassBoundProperty>& constants)
@@ -7,16 +9,24 @@ NativeClass::NativeClass(std::unordered_map<std::string_view, NativeClassBoundFn
 {
     Dictionary dct;
     uint16_t address;
-    memset(m_direct_apis, 0, sizeof(NativeClassBoundFn) * MEMBER_DICTIONARY_SIZE);
     for (std::unordered_map<std::string_view, NativeClassBoundFn>::iterator it = apis.begin(); it != apis.end(); it++) {
         if (dct.identify((const char*)it->first.data(), it->first.size(), &address)) {
+            size_t sz = m_direct_apis.size();
+            if (sz <= address) {
+                m_direct_apis.resize(address + 1);
+                memset(m_direct_apis.m_buffer + sz, 0, sizeof(NativeClassBoundFn) * (address + 1 - sz));
+            }
             m_direct_apis[address] = it->second;
         }
     }
-    memset(m_direct_constants, 0, sizeof(NativeClassBoundFn) * MEMBER_DICTIONARY_SIZE);
     for (std::unordered_map<std::string_view, NativeClassBoundProperty>::iterator it = constants.begin();
          it != constants.end(); it++) {
         if (dct.identify((const char*)it->first.data(), it->first.size(), &address)) {
+            size_t sz = m_direct_constants.size();
+            if (sz <= address) {
+                m_direct_constants.resize(address + 1);
+                memset(m_direct_constants.m_buffer + sz, 0, sizeof(NativeClassBoundFn) * (address + 1 - sz));
+            }
             m_direct_constants[address] = it->second;
         }
     }
@@ -36,6 +46,8 @@ Value NativeClass::invoke(ObjectFactory* factory, std::string name, int argc, Va
 
 Value NativeClass::invoke(ObjectFactory* factory, uint16_t name, int argc, Value* argv)
 {
+    if (m_direct_apis.size() <= name)
+        throw std::runtime_error("invalid method");
     NativeClassBoundFn f = m_direct_apis[name];
     if (NULL == f)
         throw std::runtime_error("invalid method");
@@ -61,6 +73,8 @@ Value NativeClass::constant(ObjectFactory* factory, std::string name)
 
 Value NativeClass::constant(ObjectFactory* factory, uint16_t name)
 {
+    if (m_direct_constants.size() <= name)
+        throw std::runtime_error("invalid property");
     NativeClassBoundProperty p = m_direct_constants[name];
     if (NULL == p)
         throw std::runtime_error("invalid property");

@@ -130,7 +130,7 @@ void VM::blackenObject(Obj* object)
             markObject(key);
             markValue(value);
         });
-        for (uint16_t idx = 0; idx < MEMBER_DICTIONARY_SIZE; idx++) {
+        for (uint16_t idx = 0; idx < klass->direct_methods.size(); idx++) {
             Value value = klass->direct_methods[idx];
             if (value)
                 markValue(value);
@@ -164,7 +164,7 @@ void VM::blackenObject(Obj* object)
             markObject(key);
             markValue(value);
         });
-        for (uint16_t idx = 0; idx < MEMBER_DICTIONARY_SIZE; idx++) {
+        for (uint16_t idx = 0; idx < instance->direct_fields.size(); idx++) {
             Value value = instance->direct_fields[idx];
             if (value)
                 markValue(value);
@@ -693,12 +693,17 @@ bool VM::callValue(Value callee, int argCount)
             //< Methods and Initializers call-bound-method
             //> Classes and Instances call-class
         case OBJ_CLASS: {
+            Dictionary dct;
             ObjClass* klass = AS_CLASS(callee);
             thread->stackTop[-argCount - 1] = OBJ_VAL(newInstance(klass));
             //> Methods and Initializers call-init
-            Value initializer = klass->direct_methods[MEMBER_DICTIONARY_INIT_OFFSET];
-            if (initializer) {
-                return call(AS_CLOSURE(initializer), argCount);
+            LAX_LOG("klass->direct_methods.size() = %lu", klass->direct_methods.size());
+            LAX_LOG("init pos: %u", dct.initIndex());
+            if (klass->direct_methods.size() > dct.initIndex()) {
+                Value initializer = klass->direct_methods[dct.initIndex()];
+                if (initializer) {
+                    return call(AS_CLOSURE(initializer), argCount);
+                }
             }
             /*
             else if (klass->methods.get(initString, &initializer)) {
@@ -774,6 +779,10 @@ bool VM::invokeFromClass(ObjClass* klass, ObjString* name, int argCount)
 }
 bool VM::invokeFromClass(ObjClass* klass, uint16_t name, int argCount)
 {
+    if (klass->direct_methods.size() <= name) {
+        runtimeError("Undefined property '%s'.", dictionary.get(name));
+        return false;
+    }
     Value method = klass->direct_methods[name];
     if (0 == method) {
         runtimeError("Undefined property '%s'.", dictionary.get(name));
@@ -791,10 +800,12 @@ bool VM::invoke(uint16_t name, int argCount)
         ObjInstance* instance = AS_INSTANCE(receiver);
         //> invoke-field
 
-        Value value = instance->direct_fields[name];
-        if (value) {
-            thread->stackTop[-argCount - 1] = value;
-            return callValue(value, argCount);
+        if (instance->direct_fields.size() > name) {
+            Value value = instance->direct_fields[name];
+            if (value) {
+                thread->stackTop[-argCount - 1] = value;
+                return callValue(value, argCount);
+            }
         }
 
         //< invoke-field
@@ -1287,6 +1298,10 @@ bool VM::bindMethod(ObjClass* klass, ObjString* name)
 }
 bool VM::bindMethod(ObjClass* klass, uint16_t name)
 {
+    if (klass->direct_methods.size() <= name) {
+        runtimeError("Undefined property '%s'.", dictionary.get(name));
+        return false;
+    }
     Value method = klass->direct_methods[name];
     if (0 == method) {
         runtimeError("Undefined property '%s'.", dictionary.get(name));
@@ -1353,6 +1368,13 @@ void VM::defineMethod(uint16_t name)
 {
     Value method = PEEK();
     ObjClass* klass = AS_CLASS(NPEEK(1));
+    {
+        size_t sz = klass->direct_methods.size();
+        if (sz <= name) {
+            klass->direct_methods.resize(name + 1);
+            memset(klass->direct_methods.m_buffer + sz, 0, sizeof(Value) * (name + 1 - sz));
+        }
+    }
     klass->direct_methods[name] = method;
     DROP();
 }
@@ -1580,6 +1602,10 @@ InterpretResult VM::run(void)
                 uint16_t name = READ_SHORT();
 
                 Value value;
+                if (instance->direct_fields.size() <= name) {
+                    runtimeError("Undefined property '%s'.", dictionary.get(name));
+                    return INTERPRET_RUNTIME_ERROR;
+                }
                 value = instance->direct_fields[name];
                 if (value) {
                     DROP(); // Instance.
@@ -1721,7 +1747,15 @@ InterpretResult VM::run(void)
 
             //< set-not-instance
             ObjInstance* instance = AS_INSTANCE(NPEEK(1));
-            instance->direct_fields[READ_SHORT()] = PEEK();
+            uint16_t name = READ_SHORT();
+            {
+                size_t sz = instance->direct_fields.size();
+                if (sz <= name) {
+                    instance->direct_fields.resize(name + 1);
+                    memset(instance->direct_fields.m_buffer + sz, 0, sizeof(Value) * (name + 1 - sz));
+                }
+            }
+            instance->direct_fields[name] = PEEK();
             Value value = POP();
             DROP();
             PUSH(value);
@@ -2483,8 +2517,7 @@ InterpretResult VM::run(void)
             //< inherit-non-class
             ObjClass* subclass = AS_CLASS(PEEK());
             subclass->methods.addAll(AS_CLASS(superclass)->methods);
-            memcpy(subclass->direct_methods, AS_CLASS(superclass)->direct_methods,
-                   MEMBER_DICTIONARY_SIZE * sizeof(Value));
+            subclass->direct_methods = AS_CLASS(superclass)->direct_methods;
             DROP(); // Subclass.
             break;
         }

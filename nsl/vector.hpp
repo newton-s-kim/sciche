@@ -21,6 +21,7 @@ public:
     inline size_t size(void);
     inline size_t capacity(void);
     inline T& operator[](size_t idx);
+    inline vector<T>& operator=(vector<T>& v);
     inline void clear(void);
     inline void insert(size_t idx, T v);
     inline void reserve(size_t idx);
@@ -130,6 +131,14 @@ template <typename T>
 T& vector<T>::operator[](size_t idx)
 {
     return m_buffer[idx];
+}
+
+template <typename T>
+vector<T>& vector<T>::operator=(vector<T>& v)
+{
+    resize(v.size());
+    memcpy(m_buffer, v.m_buffer, sizeof(T) * v.size());
+    return *this;
 }
 
 template <typename T>

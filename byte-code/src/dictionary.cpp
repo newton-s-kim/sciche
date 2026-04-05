@@ -24,7 +24,7 @@ bool Dictionary::identify(const char* name, size_t length, uint16_t* address)
     LAX_LOG("looking for %s", str.c_str());
 #endif // LAX_DEBUG
     int low = 0;
-    int high = MEMBER_DICTIONARY_SIZE - 1;
+    int high = this->size() - 1;
     while (low <= high) {
         int mid = low + (high - low) / 2;
         LAX_LOG("mid=%d", mid);
