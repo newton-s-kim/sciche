@@ -5,8 +5,21 @@ NativeClass::NativeClass(std::unordered_map<std::string_view, NativeClassBoundFn
                          std::unordered_map<std::string_view, NativeClassBoundProperty>& constants)
     : m_apis(apis), m_constants(constants)
 {
+    Dictionary dct;
+    uint16_t address;
     memset(m_direct_apis, 0, sizeof(NativeClassBoundFn) * MEMBER_DICTIONARY_SIZE);
+    for (std::unordered_map<std::string_view, NativeClassBoundFn>::iterator it = apis.begin(); it != apis.end(); it++) {
+        if (dct.identify((const char*)it->first.data(), it->first.size(), &address)) {
+            m_direct_apis[address] = it->second;
+        }
+    }
     memset(m_direct_constants, 0, sizeof(NativeClassBoundFn) * MEMBER_DICTIONARY_SIZE);
+    for (std::unordered_map<std::string_view, NativeClassBoundProperty>::iterator it = constants.begin();
+         it != constants.end(); it++) {
+        if (dct.identify((const char*)it->first.data(), it->first.size(), &address)) {
+            m_direct_constants[address] = it->second;
+        }
+    }
 }
 
 NativeClass::~NativeClass()

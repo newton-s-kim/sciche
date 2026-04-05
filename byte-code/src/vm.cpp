@@ -130,6 +130,11 @@ void VM::blackenObject(Obj* object)
             markObject(key);
             markValue(value);
         });
+        for (uint16_t idx = 0; idx < MEMBER_DICTIONARY_SIZE; idx++) {
+            Value value = klass->direct_methods[idx];
+            if (value)
+                markValue(value);
+        }
         //< Methods and Initializers mark-methods
         break;
     }
@@ -159,6 +164,11 @@ void VM::blackenObject(Obj* object)
             markObject(key);
             markValue(value);
         });
+        for (uint16_t idx = 0; idx < MEMBER_DICTIONARY_SIZE; idx++) {
+            Value value = instance->direct_fields[idx];
+            if (value)
+                markValue(value);
+        }
         break;
     }
         //< Classes and Instances blacken-instance
