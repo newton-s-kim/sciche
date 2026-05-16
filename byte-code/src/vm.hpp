@@ -183,6 +183,7 @@ public:
     ObjThread* newThread(ObjClosure* closure);
     bool loadLibrary(std::string path, std::string name);
     bool callFunction(Value value, int argc, Value* argv, bool startNew);
+    bool identify(const char* name, size_t length, uint16_t* address);
 
     void define(size_t address, Value value);
 };

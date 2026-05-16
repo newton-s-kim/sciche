@@ -3,12 +3,14 @@
 #define clox_debug_h
 
 #include "chunk.hpp"
+#include "dictionary.hpp"
 
 #include <string>
 
 namespace sce {
 class Debug {
 private:
+    Dictionary* dct;
     int constantInstruction(const char* name, Chunk* chunk, int offset);
     int constantInstructionDictionary(const char* name, Chunk* chunk, int offset);
     int invokeInstruction(const char* name, Chunk* chunk, int offset);
@@ -19,6 +21,7 @@ private:
     int jumpInstruction(const char* name, int sign, Chunk* chunk, int offset);
 
 public:
+    void setDictionary(Dictionary* dictionary);
     void disassembleChunk(Chunk* chunk, std::string name);
     int disassembleInstruction(Chunk* chunk, int offset);
 };

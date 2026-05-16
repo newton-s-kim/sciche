@@ -592,6 +592,9 @@ VM::VM() : thread(NULL), openUpvalues(NULL), objects(NULL)
     defineNative("cube", cubeNative);
     defineNative("thread", threadNative);
     //< Calls and Functions define-native-clock
+#ifdef DEBUG_TRACE_EXECUTION
+    debug.setDictionary(&dictionary);
+#endif
 }
 
 VM::~VM()
@@ -693,14 +696,13 @@ bool VM::callValue(Value callee, int argCount)
             //< Methods and Initializers call-bound-method
             //> Classes and Instances call-class
         case OBJ_CLASS: {
-            Dictionary dct;
             ObjClass* klass = AS_CLASS(callee);
             thread->stackTop[-argCount - 1] = OBJ_VAL(newInstance(klass));
             //> Methods and Initializers call-init
             LAX_LOG("klass->direct_methods.size() = %lu", klass->direct_methods.size());
-            LAX_LOG("init pos: %u", dct.initIndex());
-            if (klass->direct_methods.size() > dct.initIndex()) {
-                Value initializer = klass->direct_methods[dct.initIndex()];
+            LAX_LOG("init pos: %u", dictionary.initIndex());
+            if (klass->direct_methods.size() > dictionary.initIndex()) {
+                Value initializer = klass->direct_methods[dictionary.initIndex()];
                 if (initializer) {
                     return call(AS_CLOSURE(initializer), argCount);
                 }
@@ -2702,6 +2704,11 @@ bool VM::callFunction(Value value, int argc, Value* argv, bool startNew)
     for (int i = 0; i < argc; i++)
         DROP();
     return ret;
+}
+
+bool VM::identify(const char* name, size_t length, uint16_t* address)
+{
+    return dictionary.identify(name, length, address);
 }
 
 void VM::define(size_t address, Value value)

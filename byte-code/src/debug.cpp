@@ -23,10 +23,9 @@ void Debug::disassembleChunk(Chunk* chunk, std::string name)
 }
 int Debug::constantInstructionDictionary(const char* name, Chunk* chunk, int offset)
 {
-    Dictionary dct;
     uint16_t constant = READ_ADDRESS();
     printf("%-16s %4d '", name, constant);
-    printf("%s", dct.get(constant));
+    printf("%s", dct->get(constant));
     printf("'\n");
     //> return-after-operand
     return offset + 3;
@@ -50,11 +49,10 @@ int Debug::constantInstruction(const char* name, Chunk* chunk, int offset)
 //< constant-instruction
 int Debug::invokeInstructionDictionary(const char* name, Chunk* chunk, int offset)
 {
-    Dictionary dct;
     uint16_t constant = READ_ADDRESS();
     uint8_t argCount = chunk->code[offset + 3];
     printf("%-16s (%d args) %4d '", name, argCount, constant);
-    printf("%s", dct.get(constant));
+    printf("%s", dct->get(constant));
     printf("'\n");
     return offset + 4;
 }
@@ -285,6 +283,10 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
         printf("Unknown opcode %d\n", instruction);
         return offset + 1;
     }
+}
+
+void Debug::setDictionary(Dictionary* dictionary) {
+    dct = dictionary;
 }
 //< disassemble-instruction
 } // namespace sce

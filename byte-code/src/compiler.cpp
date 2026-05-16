@@ -16,7 +16,6 @@
 #ifdef DEBUG_PRINT_CODE
 #include "debug.hpp"
 #endif
-#include "dictionary.hpp"
 
 #include <filesystem>
 
@@ -1027,8 +1026,7 @@ void dot(bool canAssign, CompilerInterfaceConcrete* ci)
 {
     ci->parser.consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
     uint16_t name = 0;
-    Dictionary dct;
-    bool found = dct.identify(ci->parser.previous.start, ci->parser.previous.length, &name);
+    bool found = ci->factory->identify(ci->parser.previous.start, ci->parser.previous.length, &name);
     if (!found)
         name = ci->identifierConstant(&ci->parser.previous);
 
@@ -1256,8 +1254,7 @@ void super_(bool canAssign, CompilerInterfaceConcrete* ci)
     ci->parser.consume(TOKEN_DOT, "Expect '.' after 'super'.");
     ci->parser.consume(TOKEN_IDENTIFIER, "Expect superclass method name.");
     uint16_t name = 0;
-    Dictionary dct;
-    bool found = dct.identify(ci->parser.previous.start, ci->parser.previous.length, &name);
+    bool found = ci->factory->identify(ci->parser.previous.start, ci->parser.previous.length, &name);
     if (!found)
         name = ci->identifierConstant(&ci->parser.previous);
     //> super-get
@@ -1573,8 +1570,7 @@ void CompilerInterfaceConcrete::method()
 {
     parser.consume(TOKEN_IDENTIFIER, "Expect method name.");
     uint16_t constant = 0;
-    Dictionary dct;
-    bool found = dct.identify(parser.previous.start, parser.previous.length, &constant);
+    bool found = factory->identify(parser.previous.start, parser.previous.length, &constant);
     if (!found)
         constant = identifierConstant(&parser.previous);
     //> method-body

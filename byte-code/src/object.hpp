@@ -539,6 +539,7 @@ public:
     virtual ObjThread* newThread(ObjClosure* closure) = 0;
     virtual bool loadLibrary(std::string path, std::string name) = 0;
     virtual bool callFunction(Value value, int argc, Value* argv, bool startNew) = 0;
+    virtual bool identify(const char* name, size_t length, uint16_t* address) = 0;
 };
 } // namespace sce
 
