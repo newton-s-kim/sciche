@@ -286,8 +286,9 @@ extern "C" void math_functions(std::vector<std::string>& names, std::vector<Nati
     functions.assign({acosNative, asinNative, atanNative, sinNative, cosNative, tanNative, sqrtNative, cbrtNative,
                       phaseNative, log10Native, log2Native, logNative, expNative});
 }
-extern "C" void math_symbols(std::vector<std::string>& names, std::vector<NativeClass*>& syms)
+extern "C" void math_symbols(ObjectFactory* factory, std::vector<std::string>& names, std::vector<NativeClass*>& syms)
 {
+    (void)factory;
     names.assign({});
     syms.assign({});
 }

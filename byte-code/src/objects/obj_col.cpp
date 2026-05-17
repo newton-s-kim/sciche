@@ -249,7 +249,7 @@ std::unordered_map<std::string_view, NativeClassBoundProperty> s_vec_class_const
 };
 // clang-format on
 
-vecNative::vecNative() : NativeClass(s_vec_class_apis, s_vec_class_constants)
+vecNative::vecNative(ObjectFactory* factory) : NativeClass(factory, s_vec_class_apis, s_vec_class_constants)
 {
 }
 

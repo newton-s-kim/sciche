@@ -8,10 +8,10 @@ extern "C" void json_functions(std::vector<std::string>& names, std::vector<Nati
     names.assign({});
     functions.assign({});
 }
-extern "C" void json_symbols(std::vector<std::string>& names, std::vector<NativeClass*>& syms)
+extern "C" void json_symbols(ObjectFactory* factory, std::vector<std::string>& names, std::vector<NativeClass*>& syms)
 {
     names.assign({"json"});
-    syms.assign({new JsonInterface()});
+    syms.assign({new JsonInterface(factory)});
 }
 extern "C" void json_constants(std::vector<std::string>& names, std::vector<double>& consts)
 {

@@ -29,14 +29,14 @@ void dl::functions(std::vector<std::string>& names, std::vector<NativeFn>& funct
     m_fn(names, functions);
 }
 
-void dl::symbols(std::vector<std::string>& names, std::vector<NativeClass*>& klasses)
+void dl::symbols(ObjectFactory* factory, std::vector<std::string>& names, std::vector<NativeClass*>& klasses)
 {
     if (NULL == m_sym) {
         m_sym = (libsym)dlsym(m_handle, m_sym_name.c_str());
         if (!m_sym)
             throw std::runtime_error(dlerror());
     }
-    m_sym(names, klasses);
+    m_sym(factory, names, klasses);
 }
 
 void dl::constants(std::vector<std::string>& names, std::vector<double>& consts)

@@ -6,7 +6,7 @@
 
 namespace sce {
 typedef void (*libfn)(std::vector<std::string>&, std::vector<NativeFn>&);
-typedef void (*libsym)(std::vector<std::string>&, std::vector<NativeClass*>&);
+typedef void (*libsym)(ObjectFactory* factory, std::vector<std::string>&, std::vector<NativeClass*>&);
 typedef void (*libconst)(std::vector<std::string>&, std::vector<double>&);
 
 class dl {
@@ -24,7 +24,7 @@ public:
     dl(std::string path, std::string name);
     ~dl();
     void functions(std::vector<std::string>& names, std::vector<NativeFn>& functions);
-    void symbols(std::vector<std::string>& names, std::vector<NativeClass*>& klasses);
+    void symbols(ObjectFactory* factory, std::vector<std::string>& names, std::vector<NativeClass*>& klasses);
     void constants(std::vector<std::string>& names, std::vector<double>& consts);
 };
 } // namespace sce

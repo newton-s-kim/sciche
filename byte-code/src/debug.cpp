@@ -285,7 +285,8 @@ int Debug::disassembleInstruction(Chunk* chunk, int offset)
     }
 }
 
-void Debug::setDictionary(Dictionary* dictionary) {
+void Debug::setDictionary(Dictionary* dictionary)
+{
     dct = dictionary;
 }
 //< disassemble-instruction

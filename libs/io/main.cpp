@@ -8,10 +8,10 @@ extern "C" void io_functions(std::vector<std::string>& names, std::vector<Native
     names.assign({});
     functions.assign({});
 }
-extern "C" void io_symbols(std::vector<std::string>& names, std::vector<NativeClass*>& syms)
+extern "C" void io_symbols(ObjectFactory* factory, std::vector<std::string>& names, std::vector<NativeClass*>& syms)
 {
     names.assign({"sndfile"});
-    syms.assign({new SndFile()});
+    syms.assign({new SndFile(factory)});
 }
 extern "C" void io_constants(std::vector<std::string>& names, std::vector<double>& consts)
 {

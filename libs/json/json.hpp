@@ -10,7 +10,7 @@ private:
     void write(rapidjson::Writer<rapidjson::StringBuffer>& writer, Value value);
 
 public:
-    JsonInterface();
+    JsonInterface(ObjectFactory* factory);
     ~JsonInterface();
     Value load(std::string str, ObjectFactory* factory);
     void dump(rapidjson::StringBuffer& s, Value value);

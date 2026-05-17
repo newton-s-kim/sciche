@@ -393,7 +393,7 @@ protected:
     nsl::vector<NativeClassBoundProperty> m_direct_constants;
 
 public:
-    NativeClass(std::unordered_map<std::string_view, NativeClassBoundFn>& apis,
+    NativeClass(ObjectFactory* factory, std::unordered_map<std::string_view, NativeClassBoundFn>& apis,
                 std::unordered_map<std::string_view, NativeClassBoundProperty>& constants);
     virtual ~NativeClass();
     Value invoke(ObjectFactory* factory, std::string name, int argc, Value* argv);
@@ -489,19 +489,19 @@ public:
 
 class listNative : public NativeClass {
 public:
-    listNative();
+    listNative(ObjectFactory* factory);
     Value call(ObjectFactory* factory, int argc, Value* argv);
 };
 
 class vecNative : public NativeClass {
 public:
-    vecNative();
+    vecNative(ObjectFactory* factory);
     Value call(ObjectFactory* factory, int argc, Value* argv);
 };
 
 class matNative : public NativeClass {
 public:
-    matNative();
+    matNative(ObjectFactory* factory);
     Value call(ObjectFactory* factory, int argc, Value* argv);
 };
 

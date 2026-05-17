@@ -136,7 +136,7 @@ std::unordered_map<std::string_view, NativeClassBoundProperty> s_mat_class_const
 };
 // clang-format on
 
-matNative::matNative() : NativeClass(s_mat_class_apis, s_mat_class_constants)
+matNative::matNative(ObjectFactory* factory) : NativeClass(factory, s_mat_class_apis, s_mat_class_constants)
 {
 }
 

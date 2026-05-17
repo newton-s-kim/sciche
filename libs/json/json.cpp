@@ -289,7 +289,7 @@ std::unordered_map<std::string_view, NativeClassBoundFn> s_json_apis = {
 std::unordered_map<std::string_view, NativeClassBoundProperty> s_json_constatns;
 // clang-format on
 
-JsonInterface::JsonInterface() : NativeClass(s_json_apis, s_json_constatns)
+JsonInterface::JsonInterface(ObjectFactory* factory) : NativeClass(factory, s_json_apis, s_json_constatns)
 {
 }
 

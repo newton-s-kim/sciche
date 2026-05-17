@@ -6,10 +6,11 @@ extern "C" void sigpack_functions(std::vector<std::string>& names, std::vector<N
     names.assign({});
     functions.assign({});
 }
-extern "C" void sigpack_symbols(std::vector<std::string>& names, std::vector<NativeClass*>& syms)
+extern "C" void sigpack_symbols(ObjectFactory* factory, std::vector<std::string>& names,
+                                std::vector<NativeClass*>& syms)
 {
     names.assign({"sigpack"});
-    syms.assign({new SigpackInterface()});
+    syms.assign({new SigpackInterface(factory)});
 }
 extern "C" void sigpack_constants(std::vector<std::string>& names, std::vector<double>& consts)
 {

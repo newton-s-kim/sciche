@@ -104,7 +104,7 @@ std::unordered_map<std::string_view, NativeClassBoundProperty> s_list_class_cons
 };
 // clang-format on
 
-listNative::listNative() : NativeClass(s_list_class_apis, s_list_class_constants)
+listNative::listNative(ObjectFactory* factory) : NativeClass(factory, s_list_class_apis, s_list_class_constants)
 {
 }
 

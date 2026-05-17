@@ -60,7 +60,7 @@ std::unordered_map<std::string_view, NativeClassBoundProperty> s_sndfile_constat
 };
 // clang-format on
 
-SndFile::SndFile() : NativeClass(s_sndfile_apis, s_sndfile_constatns)
+SndFile::SndFile(ObjectFactory* factory) : NativeClass(factory, s_sndfile_apis, s_sndfile_constatns)
 {
 }
 

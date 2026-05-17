@@ -584,11 +584,11 @@ VM::VM() : thread(NULL), openUpvalues(NULL), objects(NULL)
 
     defineNative("clock", clockNative);
     defineNative("range", rangeNative);
-    defineSymbol("List", new listNative);
+    defineSymbol("List", new listNative(this));
     defineNative("Map", mapNative);
-    defineSymbol("vec", new vecNative);
+    defineSymbol("vec", new vecNative(this));
     defineNative("rowvec", rowVecNative);
-    defineSymbol("mat", new matNative);
+    defineSymbol("mat", new matNative(this));
     defineNative("cube", cubeNative);
     defineNative("thread", threadNative);
     //< Calls and Functions define-native-clock
@@ -2661,7 +2661,7 @@ bool VM::loadLibrary(std::string path, std::string name)
         {
             std::vector<std::string> names;
             std::vector<NativeClass*> klasses;
-            l->symbols(names, klasses);
+            l->symbols(this, names, klasses);
             if (names.size() != klasses.size()) {
                 delete l;
                 return false;

@@ -6,7 +6,7 @@
 namespace sce {
 class SndFile : public NativeClass {
 public:
-    SndFile();
+    SndFile(ObjectFactory* factory);
     ~SndFile();
     SndWav* open(std::string path, int mode);
 };

@@ -179,7 +179,7 @@ std::unordered_map<std::string_view, NativeClassBoundFn> s_sigpack_apis = {
 std::unordered_map<std::string_view, NativeClassBoundProperty> s_sigpack_properties;
 // clang-format on
 
-SigpackInterface::SigpackInterface() : NativeClass(s_sigpack_apis, s_sigpack_properties)
+SigpackInterface::SigpackInterface(ObjectFactory* factory) : NativeClass(factory, s_sigpack_apis, s_sigpack_properties)
 {
 }
 

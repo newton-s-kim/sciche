@@ -3,14 +3,13 @@
 #include "dictionary.hpp"
 
 namespace sce {
-NativeClass::NativeClass(std::unordered_map<std::string_view, NativeClassBoundFn>& apis,
+NativeClass::NativeClass(ObjectFactory* factory, std::unordered_map<std::string_view, NativeClassBoundFn>& apis,
                          std::unordered_map<std::string_view, NativeClassBoundProperty>& constants)
     : m_apis(apis), m_constants(constants)
 {
-    Dictionary dct;
     uint16_t address;
     for (std::unordered_map<std::string_view, NativeClassBoundFn>::iterator it = apis.begin(); it != apis.end(); it++) {
-        if (dct.identify((const char*)it->first.data(), it->first.size(), &address)) {
+        if (factory->identify((const char*)it->first.data(), it->first.size(), &address)) {
             size_t sz = m_direct_apis.size();
             if (sz <= address) {
                 m_direct_apis.resize(address + 1);
@@ -21,7 +20,7 @@ NativeClass::NativeClass(std::unordered_map<std::string_view, NativeClassBoundFn
     }
     for (std::unordered_map<std::string_view, NativeClassBoundProperty>::iterator it = constants.begin();
          it != constants.end(); it++) {
-        if (dct.identify((const char*)it->first.data(), it->first.size(), &address)) {
+        if (factory->identify((const char*)it->first.data(), it->first.size(), &address)) {
             size_t sz = m_direct_constants.size();
             if (sz <= address) {
                 m_direct_constants.resize(address + 1);

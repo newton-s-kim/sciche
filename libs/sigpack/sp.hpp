@@ -5,7 +5,7 @@
 namespace sce {
 class SigpackInterface : public NativeClass {
 public:
-    SigpackInterface();
+    SigpackInterface(ObjectFactory* factory);
     ~SigpackInterface();
 };
 } // namespace sce
